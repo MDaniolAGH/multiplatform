@@ -19,23 +19,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create docs symlinks
+      - name: Remove unreleased week symlinks
         run: |
-          mkdir -p docs
-          ln -sf ../README.md docs/README.md
-          ln -sf ../week-01-terminal-git docs/week-01-terminal-git
-          ln -sf ../week-02-git-apis-curl docs/week-02-git-apis-curl
-          ln -sf ../week-03-dart-fundamentals docs/week-03-dart-fundamentals
-          ln -sf ../week-04-flutter-fundamentals docs/week-04-flutter-fundamentals
-          ln -sf ../week-05-layouts-forms-sprints docs/week-05-layouts-forms-sprints
-          ln -sf ../week-06-state-management docs/week-06-state-management
-          ln -sf ../week-07-local-data docs/week-07-local-data
-          ln -sf ../week-08-networking-api docs/week-08-networking-api
-          ln -sf ../week-09-authentication docs/week-09-authentication
-          ln -sf ../resources docs/resources
+          # Symlinks are committed in git; remove weeks not yet in mkdocs nav
+          # --- Uncomment each line as you publish that week ---
+          rm -f docs/week-03-dart-fundamentals
+          rm -f docs/week-04-flutter-fundamentals
+          rm -f docs/week-05-layouts-forms-sprints
+          rm -f docs/week-06-state-management
+          rm -f docs/week-07-local-data
+          rm -f docs/week-08-networking-api
+          rm -f docs/week-09-authentication
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          cache: 'pip'
       - name: Install D2
         run: curl -fsSL https://d2lang.com/install.sh | sh -s --
       - run: pip install -r requirements-docs.txt
