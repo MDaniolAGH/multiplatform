@@ -1,9 +1,11 @@
 # Week 8 Lab: Networking & API Integration
 
 <div class="lab-meta" markdown>
-<div class="lab-meta__row"><span class="lab-meta__label">Course</span> Mobile Apps for Healthcare</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Duration</span> ~2 hours</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> Week 7 Local Data (working Mood Tracker with SQLite persistence)</div>
+| | |
+|---|---|
+| **Course** | Mobile Apps for Healthcare |
+| **Duration** | ~2 hours |
+| **Prerequisites** | Week 7 Local Data (working Mood Tracker with SQLite persistence) |
 </div>
 
 <div class="grid cards" markdown>
@@ -12,12 +14,10 @@
 
     ---
 
-    By the end of this lab, you will be able to:
-
-    - [ ] Connect your app to a REST API with proper JSON serialization
-    - [ ] Implement an offline-first strategy with local fallback
-    - [ ] Handle network errors gracefully with user-facing feedback
-    - [ ] Authenticate API requests using Bearer tokens
+    - Connect your app to a ==REST API== with proper JSON serialization
+    - Implement an ==offline-first strategy== with local fallback
+    - Handle network errors gracefully with user-facing feedback
+    - Authenticate API requests using ==Bearer tokens==
 
 - :material-clock-outline:{ .lg .middle } **Time Estimate**
 
@@ -25,30 +25,21 @@
 
     | Section | Duration |
     |---------|----------|
-    | Part 1-2: JSON serialization | ~15 min |
-    | Part 3-4: API client (GET/POST) | ~25 min |
-    | Part 5: DELETE + error handling | ~15 min |
-    | Part 6-7: Repository + fallback | ~25 min |
-    | Self-check & reflection | ~10 min |
+    | Part 1: API server setup | ~15 min |
+    | Part 2: JSON serialization | ~15 min |
+    | Part 3: API client (GET/POST) | ~25 min |
+    | Part 4: Mood API service | ~20 min |
+    | Part 5: Error handling | ~15 min |
+    | Part 6: Online/offline strategy | ~20 min |
+    | Part 7: Self-check & reflection | ~10 min |
 
 </div>
 
 !!! abstract "What you already know"
-    **From Week 7:** Your mood entries persist in SQLite — the app works offline and data survives restarts. **The limitation:** Data is trapped on one device. A user who logs moods on their phone can't see them on their tablet. **This week's upgrade:** Connect to a REST API so data lives on a server, with your SQLite database as an offline fallback. The repository pattern from Week 7 makes this almost seamless.
+    **From Week 7:** Your mood entries persist in SQLite — the app works offline and data survives restarts. **The limitation:** Data is ==trapped on one device==. A user who logs moods on their phone can't see them on their tablet. **This week's upgrade:** Connect to a REST API so data lives on a server, with your SQLite database as an offline fallback. The repository pattern from Week 7 makes this almost seamless.
 
----
-
-## Detailed Learning Objectives
-
-By the end of this lab you will be able to:
-
-1. Explain why mobile health apps need to communicate with remote servers.
-2. Construct HTTP requests (GET, POST, DELETE) using the `http` package in Dart.
-3. Implement JSON serialization (`toJson()`) and deserialization (`fromJson()`) on a model class.
-4. Build a reusable API client that attaches headers and handles responses.
-5. Implement a service layer that translates API responses into domain objects.
-6. Handle network errors gracefully using try-catch and `SocketException`.
-7. Implement an online/offline strategy where the API is the primary source and SQLite is the fallback.
+!!! example "Think of it like... DoorDash"
+    A REST API is like **DoorDash** — your app (you) sends an order (HTTP request) to the server (restaurant). GET = "what's on the menu?", POST = "I'll have this", DELETE = "cancel my order". The status code is the delivery notification.
 
 ---
 
@@ -80,7 +71,8 @@ Before you begin, make sure you have the following ready:
   ```
   Verify the app builds and launches before starting the exercises.
 
-> **Tip:** If the starter project does not compile, check that `http` appears in `pubspec.yaml` and that `flutter pub get` completed without errors. Also make sure the API server is running on `localhost:8000`. Ask the instructor for help if needed.
+!!! tip "Pro tip"
+    If the starter project does not compile, check that `http` appears in `pubspec.yaml` and that `flutter pub get` completed without errors. Also make sure the API server is running on `localhost:8000`. Ask the instructor for help if needed.
 
 ---
 
@@ -93,7 +85,7 @@ You are continuing to develop the **Mood Tracker** app from Weeks 6--7. The star
 - Riverpod state management from Week 6
 - Four screens: Home, Add Mood, Mood Detail, and Statistics
 
-Your job in this lab is to connect the app to a remote REST API by completing 7 TODOs across 4 files. The local SQLite database remains as an offline fallback.
+Your job in this lab is to connect the app to a remote REST API by completing ==7 TODOs across 4 files==. The local SQLite database remains as an offline fallback.
 
 ### Project structure
 
@@ -112,10 +104,11 @@ Your job in this lab is to connect the app to a remote REST API by completing 7 
 
 > **Healthcare Context: Why Networking Matters in mHealth**
 >
-> In real mobile health applications, networking is what turns a local tool into a clinical-grade system. Consider:
+> In real mobile health applications, networking is what turns a local tool into a ==clinical-grade system==. Consider:
+>
 > - **Remote patient monitoring** requires that health data collected on a phone or wearable is synced to a server where clinicians can review it in real time.
 > - **Clinical trial data** must be collected on participant devices and transmitted reliably to central databases for analysis. Missing data points can compromise an entire study.
-> - **Network failures are common on mobile** -- patients may be in areas with poor connectivity, in hospital basements, or on airplanes. An offline fallback is not a nice-to-have, it is essential for data integrity.
+> - **Network failures are common on mobile** -- patients may be in areas with poor connectivity, in hospital basements, or on airplanes. An offline fallback is not a nice-to-have, it is ==essential for data integrity==.
 > - **Server-side storage** enables research analysis, clinical dashboards, and cross-device access -- capabilities that a local-only app cannot provide.
 >
 > The patterns you learn today -- HTTP communication, JSON serialization, and online/offline strategies -- are the same patterns used in production mHealth systems and FDA-regulated apps.
@@ -125,6 +118,9 @@ Your job in this lab is to connect the app to a remote REST API by completing 7 
 ---
 
 ## API Server Setup
+
+!!! abstract "TL;DR"
+    Start the FastAPI server locally, register a test user with `curl`, get a ==Bearer token==, and paste it into `lib/config.dart`. Two terminals needed: one for the server, one for Flutter.
 
 The Mood Tracker API is a FastAPI (Python) backend that you will connect your Flutter app to. Follow these steps to get it running on your local machine.
 
@@ -178,6 +174,8 @@ curl http://localhost:8000/health
 
 You should receive `{"status":"healthy"}`. If so, the API is ready. Leave the server terminal running.
 
+Press ++ctrl+c++ to stop the mock server.
+
 !!! tip "Connecting from different devices"
     - **iOS Simulator / desktop:** use `http://127.0.0.1:8000`
     - **Android Emulator:** use `http://10.0.2.2:8000` (this is how the emulator accesses your machine's localhost)
@@ -185,39 +183,19 @@ You should receive `{"status":"healthy"}`. If so, the API is ready. Leave the se
 
 ---
 
-!!! note "From `toMap()` to `toJson()` — same pattern, different target"
-    In Week 7 you implemented `toMap()` and `fromMap()` to convert Dart objects to/from `Map<String, dynamic>` for SQLite. This week you will implement `toJson()` and `fromJson()` — the exact same pattern, but serializing for JSON (API communication) instead of SQLite column maps. If you understood `toMap()`/`fromMap()`, you already know how `toJson()`/`fromJson()` works.
-
-### API Request Lifecycle
-
-The following diagram shows how data flows through the app when fetching mood entries. The repository tries the API first and falls back to the local database if the network is unavailable.
-
-```mermaid
-sequenceDiagram
-    participant App as Flutter App
-    participant Repo as MoodRepository
-    participant API as REST API
-    participant DB as Local SQLite
-
-    App->>Repo: getMoods()
-    Repo->>API: GET /moods
-    alt Online
-        API-->>Repo: 200 OK + JSON
-        Repo-->>App: List<MoodEntry>
-    else Offline / Error
-        Repo->>DB: getMoods()
-        DB-->>Repo: Local data
-        Repo-->>App: List<MoodEntry> (cached)
-    end
-```
-
 ## Part 1: Connecting to the API Server (~15 min)
+
+!!! abstract "TL;DR"
+    Register a test user via `curl`, login to get a ==JWT token==, and paste it into `config.dart`. This hardcoded token is temporary — Week 9 replaces it with proper authentication.
+
+!!! tip "Remember from Week 2?"
+    You used `curl -X POST` to send data to a REST API. Today you'll do the same thing from Dart using the `http` package — the ==HTTP verbs== (GET, POST, DELETE) and headers are identical.
 
 This part is a warm-up exercise that does not involve any TODOs. You will register a test user on the API server and obtain an authentication token. This connects back to the `curl` skills you practiced in Week 2.
 
 ### 1.1 Why a hardcoded token?
 
-The `mood-tracker-api` requires a Bearer token for all authenticated endpoints. Proper authentication (login flows, token refresh, secure storage) is a significant topic that you will cover in **Week 9**. For now, you will use a temporary hardcoded token so you can focus on networking fundamentals without the complexity of auth.
+The `mood-tracker-api` requires a ==Bearer token== for all authenticated endpoints. Proper authentication (login flows, token refresh, secure storage) is a significant topic that you will cover in **Week 9**. For now, you will use a temporary hardcoded token so you can focus on networking fundamentals without the complexity of auth.
 
 ### 1.2 Register a test user
 
@@ -281,25 +259,31 @@ const String apiBaseUrl = 'http://localhost:8000';  // or http://10.0.2.2:8000 f
 const String tempAuthToken = 'paste-your-token-here';
 ```
 
-> **Important:** This hardcoded token approach is temporary and insecure. Never ship an app with hardcoded credentials. In Week 9 you will replace this with proper JWT authentication -- login screen, secure token storage, and automatic refresh.
+> **Important:** This hardcoded token approach is ==temporary and insecure==. Never ship an app with hardcoded credentials. In Week 9 you will replace this with proper JWT authentication -- login screen, secure token storage, and automatic refresh.
+
+~~Hardcoding tokens is fine for production~~ — never. Hardcoded tokens in source code end up in git history, APK decompilation, and crash logs. This is a lab shortcut only. Week 9 replaces it with ==secure token storage==.
 
 ---
 
 ### Self-Check: Part 1
-
-Before continuing, make sure you can answer these questions:
 
 - [ ] You can reach the API server with `curl http://localhost:8000/health`.
 - [ ] You have registered a test user and obtained an access token.
 - [ ] The token is pasted into `lib/config.dart`.
 - [ ] You understand why the token is hardcoded for now and that this will be replaced in Week 9.
 
+!!! success "Checkpoint: Part 1 complete"
+    Your API server is running, you have a valid auth token, and `config.dart` is configured. The Flutter app can now authenticate with the server.
+
 ---
 
 ## Part 2: JSON Serialization (~15 min)
 
-!!! note "From `toMap()`/`fromMap()` to `toJson()`/`fromJson()`"
-    In Week 7, you wrote `toMap()` and `fromMap()` to convert `MoodEntry` to/from SQLite-compatible maps. This week's `toJson()` and `fromJson()` follow the **exact same pattern** — they convert between Dart objects and `Map<String, dynamic>`. The only difference is the target: SQLite column names vs. API JSON field names. In many apps, `toMap()` and `toJson()` are identical.
+!!! abstract "TL;DR"
+    ==`toJson()` converts Dart → JSON map==, `fromJson()` converts JSON map → Dart. Same pattern as Week 7's `toMap()`/`fromMap()`, different target.
+
+!!! note "From `toMap()` to `toJson()` — same pattern, different target"
+    In Week 7 you implemented `toMap()` and `fromMap()` to convert Dart objects to/from `Map<String, dynamic>` for SQLite. This week you will implement `toJson()` and `fromJson()` — the ==exact same pattern==, but serializing for JSON (API communication) instead of SQLite column maps. If you understood `toMap()`/`fromMap()`, you already know how `toJson()`/`fromJson()` works.
 
 Before your app can send and receive data over the network, your model class needs to know how to convert itself to and from JSON.
 
@@ -352,7 +336,9 @@ You need to implement two methods:
     // CORRECT — use the API's snake_case convention
     'created_at': createdAt.toIso8601String(),
     ```
-    REST APIs typically use `snake_case` for JSON keys, while Dart uses `camelCase`. Your `toJson()` must output the API's expected keys, and `fromJson()` must read them. A single typo here causes silent data loss — the field is simply `null`.
+    REST APIs typically use ==`snake_case`== for JSON keys, while Dart uses `camelCase`. Your `toJson()` must output the API's expected keys, and `fromJson()` must read them. A single typo here causes silent data loss — the field is simply `null`.
+
+~~You need a code generation library for JSON serialization~~ — for small models (< 10 fields), hand-written `toJson()`/`fromJson()` is simpler and easier to debug. Libraries like `json_serializable` and `freezed` pay off when you have dozens of models, not 2-3.
 
 ---
 
@@ -363,13 +349,39 @@ You need to implement two methods:
 - [ ] You handle the `created_at` / `createdAt` naming difference correctly.
 - [ ] `DateTime` is serialized as an ISO 8601 string and parsed back with `DateTime.parse()`.
 
-??? question "Quick check: toJson vs toMap"
+??? question "Scenario: toJson vs toMap"
     What's the difference between `toJson()` (Week 8) and `toMap()` (Week 7)?
 
     ??? success "Answer"
-        Functionally, they're almost identical — both convert a Dart object to `Map<String, dynamic>`. The difference is the **target**: `toMap()` produces keys matching SQLite column names, while `toJson()` produces keys matching API field names. In many apps, these are the same and you can use a single method.
+        Functionally, they're almost identical — both convert a Dart object to `Map<String, dynamic>`. The difference is the ==target==: `toMap()` produces keys matching SQLite column names, while `toJson()` produces keys matching API field names. In many apps, these are the same and you can use a single method.
+
+!!! success "Checkpoint: Part 2 complete"
+    Your `MoodEntry` can now serialize to/from JSON for API communication. Combined with Week 7's `toMap()`/`fromMap()`, your model speaks both ==SQLite and REST==.
 
 ---
+
+### API Request Lifecycle
+
+The following diagram shows how data flows through the app when fetching mood entries. The repository tries the API first and falls back to the local database if the network is unavailable.
+
+```mermaid
+sequenceDiagram
+    participant App as Flutter App
+    participant Repo as MoodRepository
+    participant API as REST API
+    participant DB as Local SQLite
+
+    App->>Repo: getMoods()
+    Repo->>API: GET /moods
+    alt Online
+        API-->>Repo: 200 OK + JSON
+        Repo-->>App: List<MoodEntry>
+    else Offline / Error
+        Repo->>DB: getMoods()
+        DB-->>Repo: Local data
+        Repo-->>App: List<MoodEntry> (cached)
+    end
+```
 
 ### CRUD and HTTP Methods
 
@@ -389,7 +401,12 @@ graph LR
     style D fill:#ffebee,stroke:#f44336
 ```
 
+---
+
 ## Part 3: Building the API Client (~25 min)
+
+!!! abstract "TL;DR"
+    Build a ==reusable API client== — a single class that constructs URLs, attaches `Authorization` and `Content-Type` headers, makes HTTP calls, and checks status codes. GET retrieves data, POST sends data.
 
 The API client is a reusable class that handles the low-level details of making HTTP requests -- constructing URLs, attaching headers, and checking response status codes.
 
@@ -424,8 +441,13 @@ Implement the `get(String endpoint)` method:
     ```
 
     1. `baseUrl` holds the API server address (e.g., `http://localhost:8000`). All endpoints are relative paths appended to this base, so `/moods` becomes `http://localhost:8000/moods`.
-    2. The **Bearer token authentication** pattern: the word `Bearer` followed by a space and the token string. The server extracts this token to identify which user is making the request.
+    2. The ==Bearer token authentication== pattern: the word `Bearer` followed by a space and the token string. The server extracts this token to identify which user is making the request.
     3. `response.body` is the raw HTTP response as a `String`. Callers will use `jsonDecode(response.body)` to parse this string into a Dart `Map` or `List` for further processing.
+
+!!! warning "Common mistake"
+    Always check the ==HTTP status code== before parsing the response body.
+    A `404` or `500` response still has a body — but it's an error message,
+    not your data. Parsing it as valid JSON will crash or corrupt your app.
 
 ### 3.2 TODO 3: Implement the POST method
 
@@ -465,8 +487,6 @@ Implement the `post(String endpoint, Map<String, dynamic> body)` method:
 
     ==Always set Content-Type to application/json when sending JSON request bodies.==
 
-    **Key insight:** The `Content-Type: application/json` header tells the server that the request body is JSON. Without this header, the server may reject the request or misinterpret the data. The `Authorization: Bearer <token>` header is how the server identifies who is making the request.
-
 ??? warning "Common mistake: Forgetting Content-Type header"
     ```dart
     // WRONG — server doesn't know the body is JSON
@@ -479,7 +499,7 @@ Implement the `post(String endpoint, Map<String, dynamic> body)` method:
       body: jsonEncode(data),
     );
     ```
-    Without `Content-Type: application/json`, many servers treat the body as plain text or form data and return a 400 Bad Request or 422 Unprocessable Entity error. Always set this header for JSON requests.
+    Without `Content-Type: application/json`, many servers treat the body as plain text or form data and return a ==400 Bad Request or 422 Unprocessable Entity== error. Always set this header for JSON requests.
 
 ---
 
@@ -490,9 +510,22 @@ Implement the `post(String endpoint, Map<String, dynamic> body)` method:
 - [ ] Both methods check the response status code and throw exceptions for non-success codes.
 - [ ] Both methods include `Content-Type` and `Authorization` headers.
 
+!!! success "Checkpoint: Part 3 complete"
+    Your API client can send ==GET and POST requests== with proper headers
+    and authentication. This reusable client handles all the HTTP
+    plumbing so your service layer stays clean.
+
+??? protip "Pro tip: Testable HTTP clients"
+    The `http` package's `Client` class can be ==mocked in tests==, unlike
+    top-level `get()` and `post()` functions. Inject a `Client` instance
+    into your API client's constructor for easy unit testing.
+
 ---
 
 ## Part 4: Implementing the Mood API Service (~20 min)
+
+!!! abstract "TL;DR"
+    The API service translates between ==HTTP responses and Dart objects==. It calls the API client for raw HTTP, then uses `fromJson()` to parse responses into `MoodEntry` objects.
 
 The API service sits between the API client and the rest of the app. It knows the specific endpoints and how to translate between JSON and domain objects.
 
@@ -537,12 +570,14 @@ Find the `TODO 5` comment block in the same file.
     await apiClient.delete('/moods/$id'); // (1)!
     ```
 
-    1. RESTful URL pattern: `/moods/{id}` targets a **specific resource** by its unique identifier. `GET /moods` returns all moods, but `DELETE /moods/abc-123` deletes only the mood with ID `abc-123`. This convention applies to all single-resource operations (GET one, PUT/update, DELETE).
+    1. RESTful URL pattern: `/moods/{id}` targets a ==specific resource== by its unique identifier. `GET /moods` returns all moods, but `DELETE /moods/abc-123` deletes only the mood with ID `abc-123`. This convention applies to all single-resource operations (GET one, PUT/update, DELETE).
 
     **Note:** The `delete()` method on the API client is provided for you. You only need to call it with the correct endpoint path.
 
 !!! note "Additional HTTP methods"
     The `ApiClient` class also includes pre-built `put()` and `delete()` methods that follow the same pattern as `get()` and `post()`. You will use `delete()` in TODO 5. The `put()` method is available for update operations — you will use it in Week 9 or your team project.
+
+~~Every API call needs its own HTTP client~~ — the `ApiClient` class handles all HTTP methods with shared headers and error handling. The service layer only needs to know ==which endpoint to call and what shape the data takes==.
 
 ---
 
@@ -553,11 +588,21 @@ Find the `TODO 5` comment block in the same file.
 - [ ] `deleteMood()` sends a DELETE request to `/moods/{id}`.
 - [ ] You understand the flow: API client handles HTTP, API service handles domain logic.
 
+!!! success "Checkpoint: Part 4 complete"
+    Your API service translates between HTTP and Dart objects. The ==separation of concerns== is clean: API client handles raw HTTP, API service handles domain-specific endpoints, and the repository (next part) handles the online/offline decision.
+
 ---
 
 ## Part 5: Network Error Handling (~15 min)
 
-Network requests can fail for many reasons -- the server could be down, the user could lose connectivity, or the request could time out. Robust error handling is essential, especially in healthcare apps where silent data loss is unacceptable.
+!!! abstract "TL;DR"
+    Wrap HTTP calls in `try-catch`. Catch ==`SocketException`== for no-network situations specifically — it triggers the offline fallback. Catch general exceptions for everything else.
+
+Network requests can fail for many reasons -- the server could be down, the user could lose connectivity, or the request could time out. Robust error handling is essential, especially in healthcare apps where ==silent data loss is unacceptable==.
+
+~~If the API is down, the app should crash~~ — in healthcare, "server unreachable" is Tuesday. Your app must degrade gracefully with cached local data.
+
+~~Network errors are rare and can be ignored~~ — on mobile, network errors are the norm, not the exception. Patients use apps in elevators, subways, rural clinics, and airplanes. Your error handling code runs ==more often than you think==.
 
 ### 5.1 TODO 6: Add error handling to the API client
 
@@ -588,7 +633,7 @@ Apply the same pattern to the `post()` method.
     }
     ```
 
-    **Healthcare consideration:** In a production mHealth app, you would also implement retry logic, request timeouts, and detailed error logging. For a clinical trial app, you might queue failed requests and retry them when connectivity is restored to ensure no data is lost.
+    **Healthcare consideration:** In a production mHealth app, you would also implement retry logic, request timeouts, and detailed error logging. For a clinical trial app, you might ==queue failed requests== and retry them when connectivity is restored to ensure no data is lost.
 
 ---
 
@@ -599,10 +644,23 @@ Apply the same pattern to the `post()` method.
 - [ ] `dart:io` is imported for `SocketException`.
 - [ ] You understand why different error types need different handling.
 
+!!! success "Checkpoint: Part 5 complete"
+    Your API client now handles network failures gracefully. ==`SocketException`== triggers the offline fallback path, while other errors surface meaningful messages for debugging.
+
+??? challenge "Stretch Goal: Add retry logic"
+    Add a retry mechanism to your API client: if a request fails with a 5xx error, wait 2 seconds and try once more before falling back to SQLite.
+
+    *Hint:* Use `Future.delayed(Duration(seconds: 2))` before the retry attempt.
+
 ---
 
 !!! example "Real-world mHealth: Telemedicine API patterns"
-    Telehealth apps like Teladoc and Amwell use this exact architecture. A patient records blood pressure readings on their phone, which syncs to the server via REST API. The physician's dashboard polls the same API to display trends. Critical design decisions mirror this lab: **What happens when the patient's phone is offline during a reading?** (offline fallback to local storage) **What if the server is down during sync?** (retry queue with exponential backoff) **How are readings authenticated?** (Bearer tokens — Week 9). Your `MoodRepository` with online-first fallback is the foundation of every clinical data sync system.
+    Telehealth apps like Teladoc and Amwell use this exact architecture. A patient records blood pressure readings on their phone, which syncs to the server via REST API. The physician's dashboard polls the same API to display trends. Critical design decisions mirror this lab: **What happens when the patient's phone is offline during a reading?** (offline fallback to local storage) **What if the server is down during sync?** (retry queue with exponential backoff) **How are readings authenticated?** (Bearer tokens — Week 9). Your `MoodRepository` with online-first fallback is the ==foundation of every clinical data sync system==.
+
+## Part 6: Online/Offline Strategy (~20 min)
+
+!!! abstract "TL;DR"
+    ==Online-first with local fallback:== try the server, if it fails, use SQLite. Best of both worlds. The repository pattern from Week 7 makes this a clean `try/catch` swap.
 
 === "Before: Local-Only Repository (Week 7)"
 
@@ -639,8 +697,6 @@ Apply the same pattern to the `post()` method.
     }
     ```
 
-## Part 6: Online/Offline Strategy (~20 min)
-
 This is where everything comes together. The mood repository will try the API first and fall back to the local SQLite database if the network is unavailable.
 
 ==Online-first strategy: try the network first, fall back to local data on failure.==
@@ -657,7 +713,7 @@ Update the repository methods to follow this pattern:
 
 Implement `getMoods()`, `addMood(int score, String? note)`, and `deleteMood()`. Apply the same try-API-then-fallback pattern to all three methods.
 
-> **Note:** In Week 7, the repository's `addMood()` took a `MoodEntry` object. This week, it changes to take `score` and `note` separately and returns the created `MoodEntry`. This is because the API server assigns the `id` and `created_at` timestamp — we send only the user's input and get back the complete entry.
+> **Note:** In Week 7, the repository's `addMood()` took a `MoodEntry` object. This week, it changes to take `score` and `note` separately and ==returns the created `MoodEntry`==. This is because the API server assigns the `id` and `created_at` timestamp — we send only the user's input and get back the complete entry.
 
 ??? tip "Solution"
 
@@ -677,7 +733,7 @@ Implement `getMoods()`, `addMood(int score, String? note)`, and `deleteMood()`. 
     }
     ```
 
-    1. The `try/catch` implements the **online-first strategy**: attempt the network call first, and only if it throws an exception (no connectivity, server error, timeout), execute the fallback path in `catch`.
+    1. The `try/catch` implements the ==online-first strategy==: attempt the network call first, and only if it throws an exception (no connectivity, server error, timeout), execute the fallback path in `catch`.
     2. **Graceful degradation** in action: when the API is unreachable, the app seamlessly falls back to locally cached data from SQLite. The user may see slightly stale data, but the app remains fully functional instead of showing an error screen.
 
     For `addMood(int score, String? note)`:
@@ -707,7 +763,7 @@ Implement `getMoods()`, `addMood(int score, String? note)`, and `deleteMood()`. 
 
     Apply the same pattern to `deleteMood()` -- try the API, then delete locally regardless.
 
-    **Key insight:** This "try API, fall back to local" pattern is sometimes called an **online-first strategy**. The API is the source of truth when available, but the app remains functional offline. In a production app, you would add synchronization logic to push locally-created entries to the server when connectivity returns.
+    **Key insight:** This "try API, fall back to local" pattern is sometimes called an ==online-first strategy==. The API is the source of truth when available, but the app remains functional offline. In a production app, you would add synchronization logic to push locally-created entries to the server when connectivity returns.
 
 ??? warning "Common mistake: Swallowing errors silently"
     ```dart
@@ -727,7 +783,7 @@ Implement `getMoods()`, `addMood(int score, String? note)`, and `deleteMood()`. 
       return await _db.getMoods();
     }
     ```
-    Silently falling back to local data can confuse users — they might edit stale data thinking it's current. In production, show a subtle "offline mode" indicator so users know they're seeing cached data.
+    Silently falling back to local data can confuse users — they might edit ==stale data== thinking it's current. In production, show a subtle "offline mode" indicator so users know they're seeing cached data.
 
 !!! warning "Breaking change: MoodNotifier.addMood()"
     Your Week 6 `addMood(int score, String? note)` created a `MoodEntry` locally with a generated `id` and `DateTime.now()`. Now that the API assigns `id` and `created_at`, the method must change:
@@ -739,6 +795,27 @@ Implement `getMoods()`, `addMood(int score, String? note)`, and `deleteMood()`. 
 
     The same applies to `deleteMood()` — it should call the repository and only remove from state on success.
 
+??? question "Scenario: Error handling strategies"
+    What are the trade-offs between online-first, offline-first, and online-only strategies?
+
+    ??? success "Answer"
+        - **Online-first** (this lab): Simple to implement, always has latest data when connected, degrades gracefully offline. Risk: stale local data.
+        - **Offline-first**: Best UX — app always works instantly. Complex: requires sync logic and ==conflict resolution==.
+        - **Online-only**: Simplest code, no sync issues. Worst UX: app is useless without internet.
+        - **Healthcare consideration**: For critical patient data, offline-first is often required — a nurse can't wait for Wi-Fi to record vitals.
+
+??? question "Scenario: The missing ID"
+    A telehealth patient submits a symptom report. The POST succeeds (201) but the response JSON is missing the `id` field. What does your `fromJson()` do? What *should* it do?
+
+    ??? success "Answer"
+        If `fromJson()` accesses `json['id']` directly, it returns `null`, which may crash downstream code that expects a non-null `String`. It *should* either throw a descriptive `FormatException` ("Missing required field: id") or use a fallback like `json['id'] ?? const Uuid().v4()`. In healthcare apps, ==silent data corruption is worse than a visible error== — fail loudly so the bug gets fixed.
+
+??? question "Scenario: Conflict resolution"
+    A patient logs a mood entry while offline (saved to SQLite with a local UUID). Later, they go online and the app syncs the entry to the server, which assigns a *different* ID. Now the local and remote entries have different IDs for the same data. How do you handle this?
+
+    ??? success "Answer"
+        This is the classic ==sync conflict== problem. Common solutions: (1) Use the server's ID as the source of truth — after a successful POST, update the local SQLite entry's ID to match the server's response. (2) Add a `syncStatus` column to your local table (`pending`, `synced`, `conflict`) to track which entries need syncing. (3) Use UUIDs generated client-side and have the server accept them (this is what our app does). Production sync systems like CouchDB and Firebase use vector clocks or last-write-wins strategies.
+
 ---
 
 ### Self-Check: Part 6
@@ -748,14 +825,11 @@ Implement `getMoods()`, `addMood(int score, String? note)`, and `deleteMood()`. 
 - [ ] `deleteMood()` tries the API first and deletes locally regardless.
 - [ ] You understand the trade-offs of the online-first strategy.
 
-??? question "Quick check: Error handling strategies"
-    What are the trade-offs between online-first, offline-first, and online-only strategies?
-
-    ??? success "Answer"
-        - **Online-first** (this lab): Simple to implement, always has latest data when connected, degrades gracefully offline. Risk: stale local data.
-        - **Offline-first**: Best UX — app always works instantly. Complex: requires sync logic and conflict resolution.
-        - **Online-only**: Simplest code, no sync issues. Worst UX: app is useless without internet.
-        - **Healthcare consideration**: For critical patient data, offline-first is often required — a nurse can't wait for Wi-Fi to record vitals.
+!!! success "Checkpoint: Part 6 complete"
+    The ==online-first fallback strategy== is working — your app tries the
+    API first and gracefully falls back to local SQLite when offline.
+    Your users will never see a blank screen just because the network
+    is down.
 
 ---
 
@@ -785,7 +859,7 @@ Walk through this complete flow to verify everything works:
    curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:8000/moods
    ```
 6. Stop the API server (++ctrl+c++ in the server terminal).
-7. Try adding another mood entry. It should succeed using the local SQLite fallback.
+7. Try adding another mood entry. It should succeed using the ==local SQLite fallback==.
 8. Restart the API server. The app should resume using the API on the next request.
 
 If all 8 steps work correctly, you have completed the lab.
@@ -794,27 +868,27 @@ If all 8 steps work correctly, you have completed the lab.
 
 | TODO | File | What you did |
 |------|------|-------------|
-| 1 | `models/mood_entry.dart` | Implemented `toJson()` and `factory MoodEntry.fromJson()` for API serialization. |
-| 2 | `services/api_client.dart` | Implemented `get()` -- construct URL, attach headers, call `http.get()`, check status. |
-| 3 | `services/api_client.dart` | Implemented `post()` -- `http.post()` with `jsonEncode(body)` and JSON headers. |
-| 4 | `services/mood_api_service.dart` | Implemented `getMoods()` -- GET `/moods`, decode JSON, map to `List<MoodEntry>`. |
-| 5 | `services/mood_api_service.dart` | Implemented `createMood()` (POST `/moods`) and `deleteMood()` (DELETE `/moods/{id}`). |
-| 6 | `services/api_client.dart` | Added try-catch error handling with `SocketException` for network failures. |
-| 7 | `data/mood_repository.dart` | Updated methods to try API first with local SQLite as offline fallback. |
+| 1 | `models/mood_entry.dart` | Implemented `toJson()` and `factory MoodEntry.fromJson()` for API serialization |
+| 2 | `services/api_client.dart` | Implemented `get()` -- construct URL, attach headers, call `http.get()`, check status |
+| 3 | `services/api_client.dart` | Implemented `post()` -- `http.post()` with `jsonEncode(body)` and JSON headers |
+| 4 | `services/mood_api_service.dart` | Implemented `getMoods()` -- GET `/moods`, decode JSON, map to `List<MoodEntry>` |
+| 5 | `services/mood_api_service.dart` | Implemented `createMood()` (POST `/moods`) and `deleteMood()` (DELETE `/moods/{id}`) |
+| 6 | `services/api_client.dart` | Added try-catch error handling with `SocketException` for network failures |
+| 7 | `data/mood_repository.dart` | Updated methods to try API first with local SQLite as offline fallback |
 
 ### 7.3 Key concepts learned
 
 | Concept | Key Takeaway |
 |---------|--------------|
-| HTTP methods | GET retrieves data, POST creates data, DELETE removes data -- the standard CRUD verbs of REST APIs. |
-| JSON serialization | `toJson()` converts Dart objects to maps; `fromJson()` factory constructors parse maps back into objects. |
-| URI construction | Combine a base URL with an endpoint path using `Uri.parse()` to build request URLs. |
-| Headers | `Content-Type` tells the server the body format; `Authorization: Bearer` identifies the user. |
-| `http` package | Flutter's standard package for making HTTP requests -- `http.get()`, `http.post()`, `http.delete()`. |
-| Error handling | Catch `SocketException` for connectivity issues; check status codes for server errors. |
-| Online/offline strategy | Try the API first, fall back to local storage -- keeps the app functional without connectivity. |
-| Service layer | Separates HTTP mechanics (API client) from domain logic (API service) for cleaner architecture. |
-| Bearer tokens | A string sent in the Authorization header to prove the caller's identity (proper auth in Week 9). |
+| HTTP methods | GET retrieves data, POST creates data, DELETE removes data — the standard CRUD verbs of REST APIs |
+| JSON serialization | `toJson()` converts Dart objects to maps; `fromJson()` factory constructors parse maps back into objects |
+| URI construction | Combine a base URL with an endpoint path using `Uri.parse()` to build request URLs |
+| Headers | `Content-Type` tells the server the body format; `Authorization: Bearer` identifies the user |
+| `http` package | Flutter's standard package for making HTTP requests -- `http.get()`, `http.post()`, `http.delete()` |
+| Error handling | Catch `SocketException` for connectivity issues; check status codes for server errors |
+| Online/offline strategy | Try the API first, fall back to local storage -- keeps the app functional without connectivity |
+| Service layer | Separates HTTP mechanics (API client) from domain logic (API service) for cleaner architecture |
+| Bearer tokens | A string sent in the Authorization header to prove the caller's identity (proper auth in Week 9) |
 
 ---
 
@@ -835,7 +909,7 @@ graph LR
 
 ## What Comes Next
 
-In **Week 9**, you will replace the hardcoded token with proper **JWT authentication**:
+In **Week 9**, you will replace the hardcoded token with proper ==JWT authentication==:
 
 - A login screen where users enter their credentials.
 - Secure token storage using `flutter_secure_storage`.
@@ -855,7 +929,7 @@ The networking foundation you built today -- the API client, service layer, and 
     The API server is not running or the URL is wrong. Check: (1) The server terminal shows `Uvicorn running on http://127.0.0.1:8000`. (2) `lib/config.dart` has the correct URL. (3) If using an **Android emulator**, the URL must be `http://10.0.2.2:8000` (not `localhost`). (4) If using a **physical device**, use your computer's LAN IP and start the server with `--host 0.0.0.0`.
 
 ??? question "API returns `401 Unauthorized`"
-    Your auth token is missing or expired. Check `lib/config.dart` — the `tempAuthToken` must be a valid token obtained from the `/auth/login` endpoint. Tokens expire after 30 minutes by default. Get a new one by running the login curl command again.
+    Your auth token is missing or expired. Check `lib/config.dart` — the `tempAuthToken` must be a valid token obtained from the `/auth/login` endpoint. Tokens expire after ==30 minutes== by default. Get a new one by running the login curl command again.
 
 ??? question "`FormatException: Unexpected character` when decoding JSON"
     The API response is not valid JSON. Common causes: (1) The server returned an HTML error page instead of JSON. (2) The response body is empty. Add `print(response.body)` before `jsonDecode()` to see what the server actually returned.
@@ -864,7 +938,77 @@ The networking foundation you built today -- the API client, service layer, and 
     Check that `getMoods()` in your API service correctly decodes the JSON list and maps each item to a `MoodEntry` using `fromJson()`. Also verify the API returns entries for your user (try `curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/moods`).
 
 ??? question "The app works with the server but crashes when offline"
-    Your repository's try-catch is not catching the right exceptions. Make sure the `catch` block in `getMoods()` catches all exceptions (`catch (e)`), not just specific types. The fallback should call `databaseHelper.getMoods()`.
+    Your repository's try-catch is not catching the right exceptions. Make sure the `catch` block in `getMoods()` catches ==all exceptions== (`catch (e)`), not just specific types. The fallback should call `databaseHelper.getMoods()`.
+
+??? question "Android emulator can't reach `localhost`"
+    Android emulators run in a VM that has its own network stack. `localhost` inside the emulator refers to the ==emulator itself==, not your computer. Use `http://10.0.2.2:8000` instead — this is the emulator's alias for the host machine's localhost. Update `lib/config.dart` accordingly.
+
+---
+
+## Quick Quiz
+
+<quiz>
+Which HTTP method is used to create a new resource on the server?
+
+- [ ] GET
+- [x] POST
+- [ ] PUT
+- [ ] DELETE
+</quiz>
+
+<quiz>
+What does a 404 status code mean?
+
+- [ ] The server crashed
+- [ ] Authentication required
+- [x] The requested resource was not found
+- [ ] The request was successful
+</quiz>
+
+<quiz>
+Why does the API client catch `SocketException` separately?
+
+- [ ] It's a Dart requirement
+- [ ] SocketException means the data is corrupted
+- [x] It specifically indicates no network connectivity, triggering the offline fallback
+- [ ] It's needed for JSON parsing
+</quiz>
+
+<quiz>
+What is the "online-first" pattern?
+
+- [ ] The app only works with internet
+- [ ] The app ignores the local database
+- [x] Try the server first; if it fails, fall back to the local database
+- [ ] Cache everything locally and never use the server
+</quiz>
+
+<quiz>
+Which header authenticates API requests with a token?
+
+- [ ] `Content-Type: application/json`
+- [x] `Authorization: Bearer <token>`
+- [ ] `Accept: application/json`
+- [ ] `X-API-Key: <token>`
+</quiz>
+
+<quiz>
+What does `jsonEncode()` do?
+
+- [ ] Parses a JSON string into a Dart Map
+- [x] Converts a Dart Map into a JSON string for HTTP transmission
+- [ ] Validates that a string contains valid JSON
+- [ ] Encrypts data for secure transmission
+</quiz>
+
+<quiz>
+A POST request returns status code 201. What does this mean?
+
+- [ ] The request failed
+- [ ] The resource was not found
+- [x] The resource was successfully created
+- [ ] The server requires authentication
+</quiz>
 
 ---
 
@@ -885,3 +1029,4 @@ The networking foundation you built today -- the API client, service layer, and 
 - [Flutter networking cookbook](https://docs.flutter.dev/cookbook/networking)
 - [REST API design best practices](https://restfulapi.net/)
 - [JSON serialization in Dart](https://docs.flutter.dev/data-and-backend/serialization/json)
+- [HTTP status codes reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)

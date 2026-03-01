@@ -244,9 +244,19 @@ The app currently uses **hardcoded data** and placeholder logic. Your job in thi
 >
 > The patterns you learn today -- centralized state, immutable updates, and reactive UI -- are the same patterns used in production mHealth apps.
 
+!!! example "Think of it like... a group chat"
+    Riverpod providers are like a **group chat** — when someone sends a message (state changes), everyone in the chat (widgets using `ref.watch`) sees it instantly. `ref.read()` is like checking the chat once without turning on notifications.
+
 ---
 
 ## Part 1: Understanding State Management (~15 min)
+
+!!! tip "Remember from Week 4?"
+    In Week 4, you used `setState()` to update a single screen. Today you'll replace it with Riverpod — same idea (notify Flutter to rebuild), but now the state lives outside any single widget so every screen can access it.
+
+!!! abstract "TL;DR"
+    You'll replace `setState()` with a centralized `StateNotifier` so every screen
+    shares the same data without passing it through constructors.
 
 ### 1.1 The problem with setState()
 
@@ -255,6 +265,8 @@ In Weeks 4--5, you used `setState()` to update the UI. This works well for **loc
 - **Multiple screens need the same data.** If the Home screen and Stats screen both display mood entries, how do you keep them in sync?
 - **A child widget modifies data that a parent or sibling needs.** You would have to pass callbacks up and down the widget tree.
 - **The app grows.** With 10+ screens, passing state through constructors and callbacks becomes unmanageable.
+
+~~`setState()` works fine for apps with multiple screens~~ — it doesn't. Each widget holds its own copy, so the home screen and stats screen show different data.
 
 ### 1.2 What is Riverpod?
 
@@ -278,6 +290,16 @@ This distinction is fundamental:
 
 > **Rule of thumb:** ==Use `ref.watch()` in `build()` methods, use `ref.read()` in callbacks and event handlers==
 
+!!! warning "Common mistake"
+    Using `ref.read()` in the `build()` method reads the value once but
+    does NOT subscribe to changes — your widget won't rebuild when the
+    data updates. Always use `ref.watch()` in `build()` for reactive UIs.
+
+??? protip "Pro tip"
+    `ref.invalidate(provider)` forces a provider to recompute immediately —
+    useful for pull-to-refresh patterns where you want to force-fetch fresh
+    data from the source.
+
 ### 1.4 Immutable state updates
 
 ==Never mutate state directly — always create a new list/object.== Riverpod's `StateNotifier` requires that you **replace** the state rather than **mutate** it:
@@ -292,6 +314,61 @@ state = [newEntry, ...state];
 
 This is because Riverpod compares object identity (`==`) to decide whether to rebuild widgets. If you mutate the same list in place, the identity does not change, and the UI will not update.
 
+!!! example "Try it live: Why immutable updates matter"
+    Copy this code into [DartPad](https://dartpad.dev/) to see why `state.add()` silently fails while `state = [...state, item]` works. This is the core of how Riverpod detects changes.
+
+    ```dart
+    // Simplified StateNotifier pattern (pure Dart, no Flutter needed)
+    class SimpleStateNotifier<T> {
+      T _state;
+      final List<void Function(T)> _listeners = [];
+
+      SimpleStateNotifier(this._state);
+
+      T get state => _state;
+      set state(T newState) {
+        if (!identical(_state, newState)) {
+          _state = newState;
+          for (final listener in _listeners) {
+            listener(_state);
+          }
+        }
+      }
+
+      void addListener(void Function(T) listener) {
+        _listeners.add(listener);
+      }
+    }
+
+    void main() {
+      final notifier = SimpleStateNotifier<List<String>>(['Morning jog']);
+
+      // Simulating a widget that "watches" the state
+      notifier.addListener((moods) {
+        print('UI rebuilt! Moods: $moods');
+      });
+
+      print('--- Immutable update (new list) ---');
+      notifier.state = [...notifier.state, 'Lunch break'];
+
+      print('\n--- Mutable update (same list) ---');
+      final sameList = notifier.state;
+      sameList.add('Evening walk');
+      notifier.state = sameList; // Same object identity!
+
+      print('(No rebuild! identical() returned true)');
+
+      print('\n--- Fix: always create a new list ---');
+      notifier.state = [...notifier.state, 'Night reading'];
+    }
+    ```
+
+    <!-- TODO: Replace code block with iframe once Gist is created:
+    <iframe src="https://dartpad.dev/embed-inline.html?id=GIST_ID&theme=dark&run=true&split=60"
+      style="width:100%; height:400px; border:1px solid var(--md-default-fg-color--lightest); border-radius:8px;">
+    </iframe>
+    -->
+
 ---
 
 ### Self-Check: Part 1
@@ -304,7 +381,16 @@ Before continuing, make sure you can answer these questions:
 
 ---
 
+!!! warning "Common mistake"
+    Don't mutate state in place with `state.add(mood)` — Riverpod compares
+    object identity to detect changes. Create a new list instead:
+    `state = [...state, mood]`. In-place mutation silently fails to update
+    the UI.
+
 ## Part 2: Building the MoodNotifier (~20 min)
+
+!!! abstract "TL;DR"
+    Build a `StateNotifier` — a single source of truth that any screen can read from and write to.
 
 Open `lib/providers/mood_provider.dart`. This file will contain all your state management logic.
 
@@ -439,6 +525,22 @@ Handle the empty-list edge case by returning zeros.
         - **`ref.read()`**: Inside callbacks, event handlers, `onPressed` — reads the current value once without subscribing
         - **Rule of thumb**: If the code runs once (button press), use `read()`. If it should react to changes (display data), use `watch()`.
 
+??? question "Scenario: The patient's mood log"
+    A patient logs their mood on the entry screen, then immediately swipes to the stats dashboard. Without Riverpod, what would the dashboard show? With Riverpod, why is it different?
+
+    ??? success "Answer"
+        Without Riverpod, the stats dashboard would show stale data — it has its own copy of the mood list that wasn't updated when the entry screen added a new mood. With Riverpod, both screens use `ref.watch(moodProvider)` to subscribe to the **same** centralized state. The moment `MoodNotifier` adds an entry, `moodStatsProvider` recalculates, and the stats screen rebuilds with accurate numbers. No manual refresh needed.
+
+??? challenge "Stretch Goal: Add a sort method"
+    Add a `sortByDate()` method to `MoodNotifier` that toggles between newest-first and oldest-first ordering.
+
+    *Hint:* Add a `bool _newestFirst = true` field and use `state = [...state]..sort(...)`.
+
+!!! success "Checkpoint: Part 2 complete"
+    You have a working `MoodNotifier` with add, delete, and update methods
+    using immutable state updates. Your app doesn't use it yet — that's
+    next in Part 3.
+
 ---
 
 ## Part 3: Wiring Up Riverpod (~10 min)
@@ -481,6 +583,9 @@ After this change, try running the app. It should compile and display the same h
 ---
 
 ## Part 4: Reactive UI with ConsumerWidget (~25 min)
+
+!!! abstract "TL;DR"
+    Swap `StatelessWidget` for `ConsumerWidget` to give your screens access to the provider system.
 
 Now you will connect the UI to your providers. This is where the app starts feeling reactive.
 
@@ -569,9 +674,34 @@ Make these changes:
     final moods = ref.watch(moodProvider);
     ```
 
-Run the app. The home screen should now display the sample data from your `MoodNotifier` constructor. It looks the same, but the data is now coming from Riverpod.
+Run the app (press ++r++ in the terminal to **hot reload** after each change). The home screen should now display the sample data from your `MoodNotifier` constructor. It looks the same, but the data is now coming from Riverpod.
 
 ### 4.2 TODO 5: Wire the Add Mood form
+
+Here is the key transformation for event handlers — from local `setState()` to centralized provider calls:
+
+=== "Before (setState)"
+
+    ```dart
+    void _submitMood() {
+      setState(() {
+        _moods.add(MoodEntry(score: _score, note: _note));
+      });
+      Navigator.pop(context);
+    }
+    ```
+
+=== "After (Riverpod)"
+
+    ```dart
+    void _submitMood() {
+      ref.read(moodProvider.notifier).addMood(
+        _score,
+        _noteController.text.isEmpty ? null : _noteController.text,
+      );
+      Navigator.pop(context);
+    }
+    ```
 
 Open `lib/screens/add_mood_screen.dart`. Find the `TODO 5` comments.
 
@@ -626,6 +756,11 @@ Run the app and try adding a mood entry. Navigate back to the home screen -- the
 
     ??? success "Answer"
         You wouldn't have access to the `ref` parameter in your `build()` method, so you couldn't call `ref.watch()` or `ref.read()` to access providers. `ConsumerWidget` is Riverpod's way of connecting the widget tree to the provider system.
+
+!!! success "Checkpoint: Part 4 complete"
+    Your home screen is reactive — it reads mood entries from the provider
+    and updates automatically when data changes. Adding a mood works
+    end-to-end through the provider system.
 
 ---
 
@@ -713,6 +848,16 @@ You wrote zero synchronization code. Riverpod handles all of it through the prov
 - [ ] The statistics screen displays live data from the provider.
 - [ ] Adding or deleting entries causes the statistics to update.
 - [ ] You can explain how `moodStatsProvider` depends on `moodProvider`.
+
+??? challenge "Stretch Goal: Mood trend provider"
+    Add a `moodTrendProvider` that returns `'improving'`, `'declining'`, or `'stable'` based on the last 5 entries' scores.
+
+    *Hint:* Compare the average of the first 3 entries with the average of the last 3. Use `ref.watch(moodProvider)` to get the list.
+
+!!! success "Checkpoint: Part 6 complete"
+    The statistics screen displays live computed data from a derived
+    provider. Adding or deleting entries recalculates stats automatically.
+    The full Riverpod data flow is working end-to-end.
 
 ---
 
@@ -869,6 +1014,67 @@ The Riverpod foundation you built today will remain at the core of the app throu
 
 ??? question "Adding a mood works but the statistics screen shows wrong numbers"
     Check that your `moodStatsProvider` uses `ref.watch(moodProvider)` to access the mood list. If it uses `ref.read()`, it will not update when moods change.
+
+---
+
+## Quick Quiz
+
+Test your understanding before wrapping up.
+
+<quiz>
+What does `ref.watch()` do inside a `build()` method?
+
+- [ ] Reads the value once and never updates
+- [x] Subscribes to changes and rebuilds the widget when state changes
+- [ ] Writes a new value to the provider
+- [ ] Triggers a network request
+</quiz>
+
+<quiz>
+Why must StateNotifier updates be immutable?
+
+- [ ] Dart doesn't support mutable lists
+- [x] Riverpod compares object identity to detect changes — mutating in place doesn't change identity
+- [ ] It's a convention with no technical reason
+- [ ] Immutable updates are faster than mutable ones
+</quiz>
+
+<quiz>
+Which widget type should you use when you need both local form state AND provider access?
+
+- [ ] StatelessWidget
+- [ ] ConsumerWidget
+- [x] ConsumerStatefulWidget
+- [ ] StatefulWidget
+</quiz>
+
+<quiz>
+What happens if you forget to wrap your app with `ProviderScope`?
+
+- [ ] The app compiles but providers return null
+- [ ] Providers work but only on the first screen
+- [x] You get a runtime error (ProviderNotFoundException)
+- [ ] The app compiles and works fine
+</quiz>
+
+<quiz>
+Where should you use `ref.read()` instead of `ref.watch()`?
+
+- [ ] In the `build()` method for reactive updates
+- [x] In event handlers like `onPressed` for one-time actions
+- [ ] In the widget constructor
+- [ ] In the `initState()` method
+</quiz>
+
+---
+
+## DartPad: Immutable vs Mutable State
+
+Try this interactive example to see why `state.add()` fails with StateNotifier but `state = [...state, item]` works:
+
+<iframe src="https://dartpad.dev/embed-dart.html?id=c0c5e1d10fa0b91b49e7932f1d81f5b9&theme=dark"
+  style="width:100%; height:400px; border:1px solid #ccc; border-radius:8px;">
+</iframe>
 
 ---
 

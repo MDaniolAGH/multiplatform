@@ -1,8 +1,39 @@
 # Week 1 Lecture: Terminal, Git & GitHub --- How It All Works
 
-**Course:** Mobile Apps for Healthcare
-**Duration:** ~2 hours (including Q&A)
-**Format:** Student-facing notes with presenter cues
+<div class="lab-meta" markdown>
+<div class="lab-meta__row"><span class="lab-meta__label">Course</span> Mobile Apps for Healthcare</div>
+<div class="lab-meta__row"><span class="lab-meta__label">Duration</span> ~2 hours (including Q&A)</div>
+<div class="lab-meta__row"><span class="lab-meta__label">Format</span> Student-facing notes with presenter cues</div>
+</div>
+
+<div class="grid cards" markdown>
+
+- :material-target:{ .lg .middle } **Lecture Objectives**
+
+    ---
+
+    By the end of this lecture, you will understand:
+
+    - Why version control is essential (especially in healthcare)
+    - How Git stores data internally (snapshots, hashing, branches)
+    - How SSH and asymmetric cryptography secure your connection to GitHub
+    - How professional software teams collaborate using branches and code review
+    - The semester-long mood tracker project and tech stack
+
+- :material-clock-outline:{ .lg .middle } **Time Estimate**
+
+    ---
+
+    | Section | Duration |
+    |---------|----------|
+    | 1. The Missing Semester | ~20 min |
+    | 2. How Git Actually Works | ~30 min |
+    | 3. How SSH and Cryptographic Keys Work | ~20 min |
+    | 4. How Software Teams Actually Work | ~15 min |
+    | 5. The Mood Tracker Vision | ~10 min |
+    | 6. Course Overview | ~5 min |
+
+</div>
 
 > Lines marked with `> PRESENTER NOTE:` are for the instructor only. Students can
 > ignore these or treat them as bonus context.
@@ -13,7 +44,7 @@
 
 1. [The Missing Semester](#1-the-missing-semester-20-min) (20 min)
 2. [How Git Actually Works](#2-how-git-actually-works-30-min) (30 min)
-3. [How SSH & Cryptographic Keys Work](#3-how-ssh--cryptographic-keys-work-20-min) (20 min)
+3. [How SSH and Cryptographic Keys Work](#3-how-ssh-and-cryptographic-keys-work-20-min) (20 min)
 4. [How Software Teams Actually Work](#4-how-software-teams-actually-work-15-min) (15 min)
 5. [The Mood Tracker Vision](#5-the-mood-tracker-vision-10-min) (10 min)
 6. [Course Overview](#6-course-overview-5-min) (5 min)
@@ -22,9 +53,12 @@
 
 ## 1. The Missing Semester (20 min)
 
+!!! abstract "TL;DR"
+    Professional developers spend most of their time with tools universities don't teach --- terminal, Git, code review, CI/CD. This course fills that gap. In healthcare, these aren't just nice-to-have --- they're ==regulatory requirements==.
+
 ### What You Don't Learn in Most CS/BME Programs
 
-University courses teach you algorithms, data structures, signal processing, biomechanics. But they rarely teach you the **tools** that professional developers use every single day:
+University courses teach you algorithms, data structures, signal processing, biomechanics. But they rarely teach you the ==tools== that professional developers use every single day:
 
 - The terminal / command line
 - Version control (Git)
@@ -32,7 +66,9 @@ University courses teach you algorithms, data structures, signal processing, bio
 - Debugging and testing strategies
 - Build systems and deployment
 
-These are the "missing semester" --- the skills that everyone assumes you already know when you start your first job or research position.
+These are the =="missing semester"== --- the skills that everyone assumes you already know when you start your first job or research position.
+
+~~You'll learn these tools on the job~~ --- healthcare employers expect them from day one. Version control, code review, and traceability are not optional in medical software.
 
 > PRESENTER NOTE: Ask the audience: "How many of you have used the terminal before
 > today's lab?" and "How many of you have heard of Git?" Get a sense of the room.
@@ -41,41 +77,29 @@ These are the "missing semester" --- the skills that everyone assumes you alread
 
 What you see when you look at a finished app is just the tip of the iceberg:
 
-```d2
-direction: down
-
-visible: "What Users See" {
-  style.fill: "#E3F2FD"
-  style.font-size: 20
-  app: "Beautiful working app"
-}
-
-surface: "" {
-  style.stroke-dash: 5
-  style.fill: "transparent"
-  label: "~~ surface ~~"
-}
-
-hidden: "What Actually Makes the App Possible" {
-  style.fill: "#FFF3E0"
-  style.font-size: 20
-  vc: "Version control"
-  testing: "Testing"
-  review: "Code review"
-  cicd: "CI/CD pipelines"
-  docs: "Documentation"
-  deps: "Dependency management"
-  security: "Security practices"
-  debug: "Debugging tools"
-  deploy: "Deployment"
-  monitoring: "Monitoring"
-  team: "Team coordination"
-}
-
-visible -> hidden: {style.stroke-dash: 3}
+```mermaid
+graph TD
+    tip["<b>What Users See (10%)</b><br/>Beautiful working app on your phone"]
+    tip -.-> dev
+    tip -.-> quality
+    tip -.-> ops
+    dev["<b>Development Tools</b><br/>Version Control · Code Review · Debugging"]
+    quality["<b>Quality & Safety</b><br/>Automated Testing · CI/CD · Security"]
+    ops["<b>Operations & Team</b><br/>Deployment · Monitoring · Sprint Planning"]
+    style tip fill:#e3f2fd,stroke:#2196f3
+    style dev fill:#fff3e0,stroke:#ff9800
+    style quality fill:#fce4ec,stroke:#e91e63
+    style ops fill:#e8f5e9,stroke:#4caf50
 ```
 
-This course teaches you both halves: the visible app (Flutter, APIs) AND the invisible infrastructure (Git, testing, CI/CD, team workflows).
+This course teaches you both halves: the visible app (Flutter, APIs) AND the ==invisible infrastructure== (Git, testing, CI/CD, team workflows).
+
+| Iceberg layer | What you'll learn | When |
+|---|---|---|
+| **Development Tools** | Git, GitHub, code review, debugging | Weeks 1--2, ongoing |
+| **Quality & Safety** | Testing, CI/CD, security, authentication | Weeks 9--12 |
+| **Operations & Team** | Sprint planning, deployment, monitoring | Weeks 5, 12--14 |
+| **The Visible App** | Flutter UI, state management, networking | Weeks 3--8 |
 
 ### Horror Stories: What Happens Without Version Control
 
@@ -102,7 +126,7 @@ Which one is actually the latest? Which one was submitted? What changed between 
 
 Scenario: Two students are working on the same project. Both download the file from a shared drive, make changes independently, and upload their version. The second upload **overwrites** the first. The first student's work is gone.
 
-With version control, this cannot happen. Git detects conflicts and forces you to resolve them explicitly.
+With version control, ==this cannot happen==. Git detects conflicts and forces you to resolve them explicitly.
 
 #### The "We Can't Reproduce the Results" Problem
 
@@ -113,64 +137,74 @@ This one is particularly relevant to **biomedical research**:
 - The original researcher cannot figure out which version of their code produced the published results
 - The paper's credibility is damaged
 
-With Git, every version of the code is preserved. You can always go back to the exact code that produced specific results. This is why an increasing number of journals now require code repositories.
+With Git, ==every version of the code is preserved==. You can always go back to the exact code that produced specific results. This is why an increasing number of journals now require code repositories.
 
 ### Why This Matters in Healthcare
 
-Healthcare software has higher stakes than most software:
+!!! example "Healthcare Context: Why Version Control Is Non-Negotiable"
+    Healthcare software has higher stakes than most software:
 
-- **Traceability:** Regulators need to know exactly what code is running on a medical device. "Some version of the software" is not acceptable.
-- **Reproducibility:** Clinical trials involve software for data analysis. If you cannot reproduce the analysis, the trial results are questionable.
-- **Audit trails:** Who changed what, when, and why? Git provides this automatically.
-- **Patient safety:** A bug in a healthcare app can harm patients. Version control helps you track down when bugs were introduced and revert them quickly.
+    - **Traceability:** Regulators need to know ==exactly what code== is running on a medical device. "Some version of the software" is not acceptable.
+    - **Reproducibility:** Clinical trials involve software for data analysis. If you cannot reproduce the analysis, the trial results are questionable.
+    - **Audit trails:** Who changed what, when, and why? Git provides this automatically.
+    - **Patient safety:** A bug in a healthcare app can harm patients. Version control helps you track down when bugs were introduced and revert them quickly.
 
-You are not just learning tools for convenience. In healthcare, these practices are **regulatory requirements**.
+    You are not just learning tools for convenience. In healthcare, these practices are **regulatory requirements**.
 
 > PRESENTER NOTE: Mention IEC 62304 (medical device software lifecycle standard)
 > briefly. Don't go deep --- just plant the seed that version control is not optional
 > in medical software development. We'll revisit this in later weeks.
 
+??? question "Think about it: Why can't hospitals just use Google Docs?"
+    Google Docs tracks changes --- so why not use it for code?
+
+    1. **No branching** --- you can't work on two features in parallel and merge them
+    2. **No atomic commits** --- you can't group related changes into a single, described unit
+    3. **No offline support** --- Git works entirely offline; you push when ready
+    4. **No CI/CD integration** --- you can't automatically run tests when code changes
+    5. **No cryptographic integrity** --- Google Docs doesn't provide tamper-evident hashes
+
+    Version control systems like Git are purpose-built for code. General-purpose tools simply cannot match their capabilities.
+
 ---
 
 ## 2. How Git Actually Works (30 min)
+
+!!! abstract "TL;DR"
+    Git stores ==complete snapshots==, not diffs. The ==staging area== gives you fine-grained control over what gets committed. ==Branches are lightweight pointers==, not copies. Every commit has a unique ==SHA-1 hash== that acts as a tamper-evident fingerprint.
 
 In the lab, you learned the commands: `git add`, `git commit`, `git push`. Now let's understand what is actually happening behind the scenes.
 
 ### Snapshots, Not Diffs
 
-Many people think Git stores the **changes** (diffs) between versions. It does not. Git stores **complete snapshots** of your project at each commit.
+~~Git stores the differences (diffs) between file versions~~ --- it actually stores ==complete snapshots== of your project at each commit.
 
-```d2
-direction: right
-
-a: "Commit A\n(initial)" {
-  style.fill: "#E3F2FD"
-  a1: "README.md (v1)"
-  a2: "app.py (v1)"
-}
-
-b: "Commit B\n(add feature)" {
-  style.fill: "#E3F2FD"
-  b1: "README.md (v1)"
-  b2: "app.py (v2)"
-  b3: "test.py (v1)"
-}
-
-c: "Commit C\n(fix bug)" {
-  style.fill: "#E3F2FD"
-  c1: "README.md (v2)"
-  c2: "app.py (v2)"
-  c3: "test.py (v1)"
-}
-
-a -> b -> c: "parent"
+```mermaid
+graph LR
+    subgraph A["Commit A (initial)"]
+        a1["README.md v1"]
+        a2["app.py v1"]
+    end
+    subgraph B["Commit B (add feature)"]
+        b1["README.md v1"]
+        b2["app.py v2"]
+        b3["test.py v1"]
+    end
+    subgraph C["Commit C (fix bug)"]
+        c1["README.md v2"]
+        c2["app.py v2"]
+        c3["test.py v1"]
+    end
+    A -->|"parent"| B -->|"parent"| C
+    style A fill:#e3f2fd,stroke:#2196f3
+    style B fill:#e3f2fd,stroke:#2196f3
+    style C fill:#e3f2fd,stroke:#2196f3
 ```
 
-**Analogy:** Each commit is like a **photograph** of your entire project at that moment. You are not recording "what changed" --- you are taking a full snapshot. To see what changed, Git compares two snapshots.
+**Analogy:** Each commit is like a ==photograph== of your entire project at that moment. You are not recording "what changed" --- you are taking a full snapshot. To see what changed, Git compares two snapshots.
 
-> In practice, Git is smart about storage. If a file did not change between commits,
-> Git reuses the previous version instead of storing a duplicate copy. So it stores
-> snapshots conceptually but is efficient about disk space.
+!!! note "Efficiency under the hood"
+    In practice, Git is smart about storage. If a file did not change between commits, Git reuses the previous version instead of storing a duplicate copy. So it stores snapshots conceptually but is efficient about disk space.
 
 > PRESENTER NOTE: This is a common misconception. Many students (and professionals!)
 > think Git stores diffs. Emphasize the snapshot model --- it makes branching and merging
@@ -180,49 +214,19 @@ a -> b -> c: "parent"
 
 You practiced this in the lab. Now let's go deeper:
 
-```d2
-direction: right
-
-working: "WORKING\nDIRECTORY" {
-  style.fill: "#E3F2FD"
-  label: "WORKING DIRECTORY"
-  desc: |md
-    Your files as you see them
-    in Finder/Explorer.
-    You edit these files freely.
-  |
-}
-
-staging: "STAGING AREA\n(Index)" {
-  style.fill: "#FFF9C4"
-  label: "STAGING AREA (Index)"
-  desc: |md
-    A preview of what your next
-    commit will look like.
-    "Shopping cart" — you can add
-    and remove items before checkout.
-  |
-}
-
-repo: "REPOSITORY\n(.git directory)" {
-  style.fill: "#E8F5E9"
-  label: "REPOSITORY (.git directory)"
-  desc: |md
-    Permanent, immutable history
-    of your project.
-    Each commit is a snapshot,
-    frozen in time.
-  |
-}
-
-working -> staging: "git add"
-staging -> working: "git restore" {style.stroke-dash: 3}
-staging -> repo: "git commit"
+```mermaid
+graph LR
+    W["WORKING DIRECTORY<br/><i>Your files as you see them<br/>in Finder/Explorer</i>"] -->|"git add"| S["STAGING AREA (Index)<br/><i>Shopping cart — add and<br/>remove before checkout</i>"]
+    S -.->|"git restore"| W
+    S -->|"git commit"| R["REPOSITORY (.git)<br/><i>Permanent, immutable<br/>history of snapshots</i>"]
+    style W fill:#e3f2fd,stroke:#2196f3
+    style S fill:#fff9c4,stroke:#fbc02d
+    style R fill:#e8f5e9,stroke:#4caf50
 ```
 
-**Why does the staging area exist?** It gives you fine-grained control. Real-world example:
+**Why does the ==staging area== exist?** It gives you fine-grained control. Real-world example:
 
-You are fixing a bug, and while doing so, you notice a typo in a comment. You fix both. But these are two different logical changes. With the staging area, you can:
+You are fixing a bug, and while doing so, you notice a typo in a comment. You fix both. But these are ==two different logical changes==. With the staging area, you can:
 
 1. `git add bug-fix-file.py` --- stage only the bug fix
 2. `git commit -m "Fix temperature unit conversion bug"`
@@ -234,9 +238,12 @@ Two clean, focused commits from one editing session.
 > PRESENTER NOTE: Demo this scenario live if time allows. Create a file, make two
 > unrelated changes, and show how to commit them separately using selective `git add`.
 
+??? protip "Pro tip: Why small, focused commits matter"
+    A commit that says "Fix temperature bug and update docs and refactor utils" is hard to review, hard to revert, and hard to understand six months later. One commit = one logical change. Your future self (and your code reviewer) will thank you.
+
 ### Commit Hashing --- Every Commit Has a Fingerprint
 
-Every commit in Git has a unique identifier called a **SHA-1 hash**. It looks like this:
+Every commit in Git has a unique identifier called a ==SHA-1 hash==. It looks like this:
 
 ```
 a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
@@ -258,44 +265,22 @@ This hash is computed from:
 **Analogy: A fingerprint that verifies integrity**
 
 Think of the hash like a fingerprint:
-- It is **unique** --- no two different commits will ever have the same hash
-- It is **deterministic** --- the same content always produces the same hash
-- It is **tamper-evident** --- if anyone changes even a single character in the commit, the hash completely changes
+- It is ==unique== --- no two different commits will ever have the same hash
+- It is ==deterministic== --- the same content always produces the same hash
+- It is ==tamper-evident== --- if anyone changes even a single character in the commit, the hash completely changes
 
-This matters in healthcare: Git's commit hashes provide a built-in **integrity guarantee**. If someone tampers with the code history, the hashes will break, and everyone will know. This is crucial for regulated environments where you need to prove that your code has not been modified without authorization.
+!!! example "Healthcare Context: Integrity Guarantees"
+    Git's commit hashes provide a built-in ==integrity guarantee==. If someone tampers with the code history, the hashes will break, and everyone will know. This is crucial for regulated environments where you need to prove that your code has not been modified without authorization.
 
-```d2
-direction: right
-
-c1: "a1b2c3d" {
-  style.fill: "#E3F2FD"
-  label: |md
-    **a1b2c3d**
-    "Initial README"
-  |
-}
-
-c2: "f4e5d6c" {
-  style.fill: "#E3F2FD"
-  label: |md
-    **f4e5d6c**
-    "Add feature"
-  |
-}
-
-c3: "b7a8c9d" {
-  style.fill: "#E3F2FD"
-  label: |md
-    **b7a8c9d**
-    "Fix bug"
-  |
-}
-
-c3 -> c2: "" {style.stroke: "#666"}
-c2 -> c1: "" {style.stroke: "#666"}
+```mermaid
+graph RL
+    C3["<b>b7a8c9d</b><br/>Fix bug"] -->|"parent"| C2["<b>f4e5d6c</b><br/>Add feature"] -->|"parent"| C1["<b>a1b2c3d</b><br/>Initial README"]
+    style C1 fill:#e3f2fd,stroke:#2196f3
+    style C2 fill:#e3f2fd,stroke:#2196f3
+    style C3 fill:#e3f2fd,stroke:#2196f3
 ```
 
-Each commit points back to its parent. The hash of each commit depends on its parent's hash, creating an unbreakable chain. Change any commit, and all subsequent hashes change too.
+Each commit points back to its parent. The hash of each commit depends on its parent's hash, creating an ==unbreakable chain==. Change any commit, and all subsequent hashes change too.
 
 > PRESENTER NOTE: If students ask about SHA-1 collisions, briefly mention that Git is
 > transitioning to SHA-256, but SHA-1 collisions are not a practical concern for version
@@ -303,7 +288,7 @@ Each commit points back to its parent. The hash of each commit depends on its pa
 
 ### Branches Are Just Pointers
 
-A branch in Git is **not** a copy of your project. It is just a lightweight label (a pointer) that points to a specific commit.
+~~Creating a branch copies the entire project~~ --- a branch in Git is just a ==lightweight pointer== that points to a specific commit.
 
 ```
                         main
@@ -323,68 +308,36 @@ When you make a new commit on `main`, the pointer moves forward:
 
 Creating a new branch just creates a new pointer:
 
-```d2
-direction: right
-
-a: "[Commit A]"
-b: "[Commit B]"
-c: "[Commit C]"
-d: "[Commit D]"
-
-a <- b <- c <- d
-
-main: "main" {
-  style.fill: "#C8E6C9"
-  style.font-size: 18
-  style.bold: true
-}
-feature: "feature" {
-  style.fill: "#BBDEFB"
-  style.font-size: 18
-  style.bold: true
-}
-
-main -> d: {style.stroke-dash: 3}
-feature -> c: {style.stroke-dash: 3}
+```mermaid
+graph RL
+    D["Commit D"] --> C["Commit C"] --> B["Commit B"] --> A["Commit A"]
+    main["main"] -.-> D
+    feature["feature"] -.-> C
+    style main fill:#c8e6c9,stroke:#4caf50
+    style feature fill:#bbdefb,stroke:#2196f3
 ```
 
 If you switch to `feature` and make a new commit:
 
-```d2
-direction: right
-
-a: "[Commit A]"
-b: "[Commit B]"
-c: "[Commit C]"
-d: "[Commit D]"
-e: "[Commit E]"
-
-a <- b <- c
-c <- d
-c <- e
-
-main: "main" {
-  style.fill: "#C8E6C9"
-  style.bold: true
-}
-feature: "feature" {
-  style.fill: "#BBDEFB"
-  style.bold: true
-}
-
-main -> d: {style.stroke-dash: 3}
-feature -> e: {style.stroke-dash: 3}
+```mermaid
+graph RL
+    D["Commit D"] --> C["Commit C"] --> B["Commit B"] --> A["Commit A"]
+    E["Commit E"] --> C
+    main["main"] -.-> D
+    feature["feature"] -.-> E
+    style main fill:#c8e6c9,stroke:#4caf50
+    style feature fill:#bbdefb,stroke:#2196f3
 ```
 
 Now `main` and `feature` have diverged. We will learn how to merge them in Week 2.
 
-> **Key insight:** Creating a branch is nearly free in Git. It is just writing a 40-character
+> **Key insight:** Creating a branch is ==nearly free== in Git. It is just writing a 40-character
 > hash to a file. This is why Git encourages branching --- unlike older version control
 > systems where creating a branch meant copying the entire project.
 
 ### HEAD --- "You Are Here"
 
-`HEAD` is a special pointer that tells Git which branch (and therefore which commit) you are currently working on. Think of it as the "you are here" marker on a map.
+`HEAD` is a special pointer that tells Git which branch (and therefore which commit) you are currently working on. Think of it as the =="you are here" marker== on a map.
 
 ```
                                    HEAD
@@ -396,36 +349,17 @@ Now `main` and `feature` have diverged. We will learn how to merge them in Week 
   [Commit A] <── [Commit B] <── [Commit C]
 ```
 
-When you switch branches with `git checkout feature` (or `git switch feature`), HEAD moves:
+When you switch branches with `git switch feature` (or the older `git checkout feature`), HEAD moves:
 
-```d2
-direction: right
-
-a: "[A]"
-b: "[B]"
-c: "[C]"
-d: "[D]"
-e: "[E]"
-
-a <- b <- c
-c <- d <- e
-
-main: "main" {
-  style.fill: "#C8E6C9"
-  style.bold: true
-}
-head: "HEAD" {
-  style.fill: "#FFCDD2"
-  style.bold: true
-}
-feature_label: "feature" {
-  style.fill: "#BBDEFB"
-  style.bold: true
-}
-
-main -> c: {style.stroke-dash: 3}
-head -> feature_label: {style.stroke-dash: 3}
-feature_label -> e: {style.stroke-dash: 3}
+```mermaid
+graph RL
+    E["E"] --> D["D"] --> C["C"] --> B["B"] --> A["A"]
+    main["main"] -.-> C
+    HEAD["HEAD"] -.-> feat
+    feat["feature"] -.-> E
+    style main fill:#c8e6c9,stroke:#4caf50
+    style HEAD fill:#ffcdd2,stroke:#e57373
+    style feat fill:#bbdefb,stroke:#2196f3
 ```
 
 > PRESENTER NOTE: Open a terminal and show `.git/HEAD`:
@@ -443,49 +377,31 @@ feature_label -> e: {style.stroke-dash: 3}
 
 Here is the complete mental model of how Git works:
 
-```d2
-direction: down
-
-project: "YOUR PROJECT" {
-  style.fill: "#F5F5F5"
-
-  direction: right
-
-  working: "Working Directory" {
-    style.fill: "#E3F2FD"
-    desc: "Files you edit daily"
-  }
-
-  staging: "Staging Area" {
-    style.fill: "#FFF9C4"
-    desc: "Next commit preview"
-  }
-
-  repo: "Repository" {
-    style.fill: "#E8F5E9"
-    desc: "Permanent history"
-  }
-
-  working -> staging: "add"
-  staging -> repo: "commit"
-
-  repo -> remote: "push"
-
-  remote: "Remote repo\n(GitHub)" {
-    style.fill: "#F3E5F5"
-  }
-
-  notes: |md
-    **Branches:** lightweight pointers to commits
-    **HEAD:** points to your current branch
-    **Commits:** snapshots with unique hash fingerprints
-  |
-}
+```mermaid
+graph LR
+    subgraph project["YOUR PROJECT"]
+        W["Working Directory<br/><i>Files you edit daily</i>"] -->|"git add"| S["Staging Area<br/><i>Next commit preview</i>"]
+        S -->|"git commit"| R["Repository<br/><i>Permanent history</i>"]
+    end
+    R -->|"git push"| Remote["Remote repo<br/>(GitHub)"]
+    style W fill:#e3f2fd,stroke:#2196f3
+    style S fill:#fff9c4,stroke:#fbc02d
+    style R fill:#e8f5e9,stroke:#4caf50
+    style Remote fill:#f3e5f5,stroke:#9c27b0
+    style project fill:#f5f5f5,stroke:#9e9e9e
 ```
+
+> **Branches** are lightweight pointers to commits. **HEAD** points to your current branch. **Commits** are snapshots with unique hash fingerprints.
+
+??? question "Think about it: What happens if two people push to the same branch?"
+    Git will ==reject the second push== if the remote has commits that the local repository doesn't have. The second person must first `git pull` to incorporate the remote changes, then push again. This is how Git prevents accidental overwrites --- unlike a shared drive where the last upload wins.
 
 ---
 
-## 3. How SSH & Cryptographic Keys Work (20 min)
+## 3. How SSH and Cryptographic Keys Work (20 min)
+
+!!! abstract "TL;DR"
+    SSH uses ==asymmetric cryptography== --- your public key is a padlock anyone can lock, your ==private key== is the only key that opens it. The private key ==never leaves your computer==. A random challenge-response protocol proves your identity without transmitting any secrets.
 
 ### The Problem
 
@@ -503,88 +419,62 @@ Before we talk about SSH keys, we need to understand two types of encryption.
 
 #### Symmetric Encryption: One Key for Everything
 
-```d2
-direction: down
-
-title: "SYMMETRIC ENCRYPTION" {
-  style.fill: "#FFF3E0"
-  style.font-size: 22
-  style.bold: true
-
-  subtitle: "Same key locks AND unlocks"
-
-  direction: right
-
-  encrypt: {
-    direction: right
-    plain1: "Hello"
-    cipher1: "x8#kQ2m!"
-    plain1 -> cipher1: "lock (key A)" {style.stroke: "#E65100"}
-  }
-
-  decrypt: {
-    direction: right
-    cipher2: "x8#kQ2m!"
-    plain2: "Hello"
-    cipher2 -> plain2: "unlock (key A)" {style.stroke: "#2E7D32"}
-  }
-
-  analogy: |md
-    **Analogy:** A house key.
-    The same key locks and unlocks the door.
-
-    **Problem:** How do you safely give the key
-    to someone far away?
-  |
-}
+```mermaid
+graph LR
+    subgraph sym["SYMMETRIC ENCRYPTION"]
+        plain["Hello<br/>(plaintext)"] -->|"lock with Key A"| cipher["x8#kQ2m!<br/>(ciphertext)"]
+        cipher -->|"unlock with Key A"| decoded["Hello<br/>(plaintext)"]
+    end
+    style sym fill:#fff3e0,stroke:#ff9800
 ```
 
-Symmetric encryption is fast and simple, but it has a fundamental problem: you need to somehow share the secret key with the other person. If you send the key over the internet, someone could steal it.
+**Analogy:** A house key. The same key locks and unlocks the door. **Problem:** How do you safely give the key to someone far away?
+
+==Symmetric encryption== is fast and simple, but it has a fundamental problem: you need to somehow share the secret key with the other person. If you send the key over the internet, someone could steal it.
 
 #### Asymmetric Encryption: Two Keys Working Together
 
-```d2
-direction: down
+First, Bob generates a ==key pair== --- two mathematically linked keys:
 
-title: "ASYMMETRIC ENCRYPTION" {
-  style.fill: "#E8F5E9"
-  style.font-size: 22
-  style.bold: true
-
-  subtitle: "Two different keys: one LOCKS, the other UNLOCKS"
-
-  direction: right
-
-  public_key: "PUBLIC KEY" {
-    style.fill: "#BBDEFB"
-    share: "Share with everyone"
-    can_do: |md
-      Can LOCK (encrypt)
-      Can VERIFY signatures
-    |
-  }
-
-  private_key: "PRIVATE KEY" {
-    style.fill: "#FFCDD2"
-    keep: "Keep SECRET forever"
-    can_do: |md
-      Can UNLOCK (decrypt)
-      Can CREATE signatures
-    |
-  }
-
-  analogy: |md
-    **Analogy:** You manufacture 100 identical
-    PADLOCKS and give them to anyone who wants one.
-    Only YOU keep the KEY.
-
-    Anyone can snap a padlock shut on a message
-    for you, but only you can open it.
-  |
-}
+```mermaid
+graph LR
+    gen["Bob runs<br/><b>ssh-keygen</b>"] --> pub["PUBLIC KEY<br/><i>id_ed25519.pub</i><br/>Share with everyone"]
+    gen --> priv["PRIVATE KEY<br/><i>id_ed25519</i><br/>Keep SECRET forever"]
+    pub ---|"Mathematically<br/>linked"| priv
+    style gen fill:#f5f5f5,stroke:#9e9e9e
+    style pub fill:#bbdefb,stroke:#2196f3
+    style priv fill:#ffcdd2,stroke:#e57373
 ```
 
-Asymmetric encryption solves the key-sharing problem: you freely share your public key, and keep your private key secret. No secret needs to travel over the internet.
+**Use case 1 — Encryption:** Anyone can lock a message for Bob, but only Bob can unlock it.
+
+```mermaid
+graph LR
+    msg["Alice's message:<br/><b>Hello Bob!</b>"] -->|"1. Encrypt with<br/>Bob's PUBLIC key"| locked["Encrypted:<br/><b>x8#kQ2m!</b>"]
+    locked -->|"2. Travels over the<br/>internet (safe — only<br/>gibberish to attackers)"| recv["Bob receives<br/>encrypted message"]
+    recv -->|"3. Decrypt with<br/>Bob's PRIVATE key"| unlocked["Decrypted:<br/><b>Hello Bob!</b>"]
+    style msg fill:#e3f2fd,stroke:#2196f3
+    style locked fill:#fff3e0,stroke:#ff9800
+    style recv fill:#fff3e0,stroke:#ff9800
+    style unlocked fill:#e8f5e9,stroke:#4caf50
+```
+
+**Use case 2 — Signing:** Bob can prove his identity. This is ==what SSH actually uses==.
+
+```mermaid
+graph LR
+    challenge["GitHub sends<br/>random challenge:<br/><b>7f3a...</b>"] -->|"1. Sign with<br/>Bob's PRIVATE key"| sig["Digital signature:<br/><b>9d2b...</b>"]
+    sig -->|"2. Send signature<br/>back to GitHub"| verify["GitHub checks<br/>with Bob's<br/>PUBLIC key"]
+    verify -->|"3. Valid!"| ok["Identity confirmed:<br/><b>Welcome, Bob</b>"]
+    style challenge fill:#e3f2fd,stroke:#2196f3
+    style sig fill:#ffcdd2,stroke:#e57373
+    style verify fill:#fff9c4,stroke:#fbc02d
+    style ok fill:#e8f5e9,stroke:#4caf50
+```
+
+**Analogy:** You manufacture 100 identical **padlocks** and give them to anyone who wants one. Only **you** keep the key. Anyone can snap a padlock shut on a message for you, but only you can open it. And when you sign a document with your unique key, anyone with your padlock can verify it was really you.
+
+==Asymmetric encryption== solves the key-sharing problem: you freely share your public key, and keep your private key secret. ==No secret needs to travel over the internet.==
 
 > PRESENTER NOTE: This is one of the most elegant ideas in computer science. Pause and
 > let it sink in. Ask: "How is this possible? How can one key lock and a different key
@@ -595,30 +485,29 @@ Asymmetric encryption solves the key-sharing problem: you freely share your publ
 
 When you run `ssh -T git@github.com`, here is what happens step by step:
 
-```d2
-shape: sequence_diagram
-
-your_computer: "Your Computer\n(has private key)"
-github: "GitHub Server\n(has your public key)"
-
-your_computer -> github: "1. Hello, I'm user X"
-github -> your_computer: "2. Prove it. Sign this challenge: 7f3a..."
-your_computer -> github: "3. Here's my signature: 9d2b..."
-your_computer."Signs challenge with private key"
-github."Verifies signature with public key"
-github -> your_computer: "4. Signature valid! Welcome, user X."
+```mermaid
+sequenceDiagram
+    participant PC as Your Computer<br/>(has private key)
+    participant GH as GitHub Server<br/>(has your public key)
+    PC->>GH: 1. Hello, I'm user X
+    GH->>PC: 2. Prove it. Sign this challenge: 7f3a...
+    Note over PC: Signs challenge with private key
+    PC->>GH: 3. Here's my signature: 9d2b...
+    Note over GH: Verifies signature with public key
+    GH->>PC: 4. Signature valid! Welcome, user X.
 ```
 
 **Step by step:**
 
 1. Your computer says: "I want to log in as user X"
-2. GitHub generates a random challenge (a string of random data) and sends it to your computer
-3. Your computer **signs** the challenge with your **private key** and sends the signature back
-4. GitHub uses your **public key** (which you uploaded to GitHub Settings) to **verify** the signature
+2. GitHub generates a ==random challenge== (a string of random data) and sends it to your computer
+3. Your computer ==signs== the challenge with your ==private key== and sends the signature back
+4. GitHub uses your ==public key== (which you uploaded to GitHub Settings) to ==verify== the signature
 5. If the signature is valid, GitHub knows you are who you claim to be --- only someone with the private key could have produced that signature
 
 **Why is this secure?**
-- The private key **never leaves your computer**
+
+- The private key ==never leaves your computer==
 - The challenge is random every time, so a recorded signature cannot be replayed
 - Even if someone intercepts the signature, they cannot use it again (it only works for that specific challenge)
 
@@ -635,7 +524,9 @@ When you generated your SSH key, you used `ssh-keygen -t ed25519`. You might hav
 | Key length | Shorter, cleaner | Longer |
 | Recommendation | **Use this** | Fine, but ED25519 is preferred |
 
-Both are secure. ED25519 is newer, produces shorter keys, and is faster. That is why we used it.
+Both are secure. ==ED25519== is newer, produces shorter keys, and is faster. That is why we used it.
+
+~~A bigger key is always more secure~~ --- ED25519 at 256 bits is as secure as RSA at 3072 bits because elliptic curve math is harder to crack per bit.
 
 > PRESENTER NOTE: If students ask "but isn't a bigger key more secure?", explain that
 > elliptic curve cryptography achieves the same security level with much smaller keys
@@ -644,7 +535,7 @@ Both are secure. ED25519 is newer, produces shorter keys, and is faster. That is
 
 ### Why "Never Share Your Private Key"
 
-Your private key is your **digital identity**. Consider what happens if someone obtains it:
+Your private key is your ==digital identity==. Consider what happens if someone obtains it:
 
 ```
 Scenario: Alice's private key is stolen by Eve
@@ -665,10 +556,12 @@ Alice has NO way to know this is happening until she notices
 unauthorized changes.
 ```
 
-**Protect your private key like a password --- actually, more than a password.** A password can be changed. If your private key is compromised, you need to:
-1. Remove the public key from every service that has it
-2. Generate a brand new key pair
-3. Re-add the new public key everywhere
+!!! warning "Protect your private key"
+    **Protect your private key like a password --- actually, ==more than a password==.** A password can be changed. If your private key is compromised, you need to:
+
+    1. Remove the public key from every service that has it
+    2. Generate a brand new key pair
+    3. Re-add the new public key everywhere
 
 > PRESENTER NOTE: Demo `~/.ssh/` contents. `cat` the public key and explain each part:
 > ```
@@ -682,6 +575,9 @@ unauthorized changes.
 ---
 
 ## 4. How Software Teams Actually Work (15 min)
+
+!!! abstract "TL;DR"
+    ==No one pushes directly to `main`==. Professional teams use a branch-based workflow: create a branch, write code, open a pull request, get a code review, merge. In healthcare, this workflow is a ==regulatory requirement==, not just a best practice.
 
 ### Solo vs Team Development
 
@@ -699,31 +595,24 @@ What happens when multiple people edit the same file? How do you review each oth
 
 ### The Branch-Based Workflow
 
-In professional teams, no one pushes directly to `main`. Instead:
+In professional teams, ==no one pushes directly to `main`==. Instead:
 
-```d2
-direction: right
-
-a: "[A]" {style.fill: "#E8F5E9"}
-b: "[B]" {style.fill: "#E8F5E9"}
-c: "[C]" {style.fill: "#BBDEFB"}
-d: "[D]" {style.fill: "#BBDEFB"}
-e: "[E]" {style.fill: "#BBDEFB"}
-f: "[F]" {style.fill: "#E8F5E9"}
-
-a -> b: "main"
-b -> c: ""
-c -> d: "feature-x"
-d -> e: ""
-e -> f: "merge"
-b -> f: "main" {style.stroke-dash: 5}
-
-pr: "Pull Request\n+ Code Review" {
-  style.fill: "#FFF9C4"
-  style.font-size: 14
-  style.bold: true
-}
-pr -> d: {style.stroke-dash: 3}
+```mermaid
+graph LR
+    A["A"] --> B["B"]
+    B -->|"feature-x"| C["C"]
+    C --> D["D"]
+    D --> E["E"]
+    E -->|"merge"| F["F"]
+    B -.->|"main"| F
+    PR["Pull Request<br/>+ Code Review"] -.-> D
+    style A fill:#e8f5e9,stroke:#4caf50
+    style B fill:#e8f5e9,stroke:#4caf50
+    style C fill:#bbdefb,stroke:#2196f3
+    style D fill:#bbdefb,stroke:#2196f3
+    style E fill:#bbdefb,stroke:#2196f3
+    style F fill:#e8f5e9,stroke:#4caf50
+    style PR fill:#fff9c4,stroke:#fbc02d
 ```
 
 **The workflow:**
@@ -751,34 +640,35 @@ Here is what a developer's day might look like:
 
 ```
 Morning:
-  1. git pull                    ← Get latest changes from team
-  2. git checkout -b fix-login   ← Start working on a task
+  1. git pull                      ← Get latest changes from team
+  2. git switch -c fix-login       ← Start working on a task
   3. (write code, test it)
-  4. git add + commit             ← Save progress locally
-  5. git push                    ← Share with team
-  6. Open PR on GitHub           ← Request review
+  4. git add + commit              ← Save progress locally
+  5. git push                      ← Share with team
+  6. Open PR on GitHub             ← Request review
 
 Afternoon:
-  7. Review a teammate's PR      ← Read their code, leave feedback
-  8. Address review comments     ← Update your own PR based on feedback
-  9. Merge PR                    ← Feature is now in main
-  10. git checkout main && git pull  ← Get the merged changes
-  11. Start next task            ← Repeat
+  7. Review a teammate's PR        ← Read their code, leave feedback
+  8. Address review comments       ← Update your own PR based on feedback
+  9. Merge PR                      ← Feature is now in main
+  10. git switch main && git pull   ← Get the merged changes
+  11. Start next task              ← Repeat
 ```
 
 You will practice this workflow starting in Week 2.
 
 ### Why Healthcare Teams Need This Even More
 
-Regular software teams use these practices for quality. Healthcare software teams use them because they are **required by regulation**:
+!!! example "Healthcare Context: Regulatory Requirements for Version Control"
+    Regular software teams use these practices for quality. Healthcare software teams use them because they are ==required by regulation==:
 
-| Regulatory Requirement | How Git/GitHub Helps |
-|---|---|
-| **Traceability** (IEC 62304) | Every change has a commit with author, date, and reason |
-| **Change control** | Pull requests require review before merging |
-| **Audit trails** | Git log provides a complete, tamper-evident history |
-| **Reproducibility** | Tags and branches mark exactly which code was released |
-| **Defect tracking** | GitHub Issues link directly to the code changes that fix them |
+    | Regulatory Requirement | How Git/GitHub Helps |
+    |---|---|
+    | **Traceability** (IEC 62304) | Every change has a commit with author, date, and reason |
+    | **Change control** | Pull requests require review before merging |
+    | **Audit trails** | Git log provides a complete, tamper-evident history |
+    | **Reproducibility** | Tags and branches mark exactly which code was released |
+    | **Defect tracking** | GitHub Issues link directly to the code changes that fix them |
 
 > PRESENTER NOTE: You don't need to go deep into IEC 62304 or FDA regulations. The point
 > is: in healthcare, version control and code review are not just "nice to have" ---
@@ -787,7 +677,7 @@ Regular software teams use these practices for quality. Healthcare software team
 
 ### Code Review: What Does It Look Like?
 
-When someone opens a Pull Request, reviewers can:
+When someone opens a ==Pull Request==, reviewers can:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -805,19 +695,31 @@ When someone opens a Pull Request, reviewers can:
 │  +     rr_seconds = [i / 1000 for i in rr_intervals_ms]│
 │  +     return 60 / mean(rr_seconds)                     │
 │                                                         │
-│  💬 anna-nowak: "Good catch on the unit conversion!     │
+│  anna-nowak: "Good catch on the unit conversion!        │
 │     But should we add a check for empty lists?"         │
 │                                                         │
-│  💬 jan-kowalski: "Good point, added in next commit."   │
+│  jan-kowalski: "Good point, added in next commit."      │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
 ```
 
-Code review catches bugs, improves code quality, and spreads knowledge across the team. It is one of the most valuable practices in software engineering.
+Code review catches bugs, improves code quality, and ==spreads knowledge across the team==. It is one of the most valuable practices in software engineering.
+
+??? question "Think about it: What would happen without code review in a health app?"
+    Imagine a developer pushes a change that accidentally converts medication doses from milligrams to grams --- a ==1000x error==. Without code review:
+
+    - The change goes directly to production
+    - Patients receive dangerously incorrect dosing information
+    - The bug may not be caught until a patient is harmed
+
+    With code review, a second pair of eyes catches the unit mismatch before it ever reaches patients. This is why IEC 62304 requires documented review of all code changes in medical device software.
 
 ---
 
 ## 5. The Mood Tracker Vision (10 min)
+
+!!! abstract "TL;DR"
+    Over 14 weeks, you'll build a complete ==mood tracking application== --- Flutter mobile frontend, FastAPI backend, SQLite local storage, REST API integration, authentication, and deployment. Every week builds on the previous one.
 
 ### What We're Building Over 14 Weeks
 
@@ -834,54 +736,49 @@ Over the next 14 weeks, you will build a complete **mood tracking application** 
 
 ### The Stack
 
-```d2
-direction: down
-
-mobile: "Mobile App (Flutter/Dart)" {
-  style.fill: "#E3F2FD"
-  ui: "UI screens (mood input, history, charts)"
-  storage: "Local storage (SQLite)"
-  client: "API client"
-}
-
-backend: "Backend API (FastAPI/Python)" {
-  style.fill: "#E8F5E9"
-  auth: "Authentication"
-  validation: "Data validation"
-  db: "Database (PostgreSQL)"
-}
-
-infra: "Infrastructure" {
-  style.fill: "#FFF3E0"
-  git: "Git + GitHub (version control)"
-  cicd: "CI/CD (automated testing + deployment)"
-  docker: "Docker (containerization)"
-}
-
-mobile -> backend: "HTTP/REST"
+```mermaid
+graph TD
+    subgraph mobile["Mobile App (Flutter/Dart)"]
+        ui["UI screens<br/>(mood input, history, charts)"]
+        storage["Local storage (SQLite)"]
+        client["API client"]
+    end
+    subgraph backend["Backend API (FastAPI/Python)"]
+        auth["Authentication"]
+        validation["Data validation"]
+        db["Database (PostgreSQL)"]
+    end
+    subgraph infra["Infrastructure"]
+        git["Git + GitHub"]
+        cicd["CI/CD"]
+        docker["Docker"]
+    end
+    mobile -->|"HTTP/REST"| backend
+    style mobile fill:#e3f2fd,stroke:#2196f3
+    style backend fill:#e8f5e9,stroke:#4caf50
+    style infra fill:#fff3e0,stroke:#ff9800
 ```
 
 ### From Zero to Shipped
 
-```
-Week 1:  You are here. You just learned to use the terminal and Git.
-Week 2:  Git branching, REST APIs, curl
-Week 3:  Dart language fundamentals
-Week 4:  Flutter UI, widgets, navigation
-Week 5:  Sprint planning workshop, project proposals
-Week 6:  State management with Riverpod
-Week 7:  Local data persistence with SQLite
-Week 8:  Networking, REST API integration
-Week 9:  Authentication and security
-Week 10: Testing strategies
-Week 11: Advanced Flutter (charts, animations)
-Week 12: CI/CD and deployment
-Week 13: Polish and refactoring
-Week 14: Final presentations
+| Week | Topic | What You Build |
+|------|-------|----------------|
+| **1** | **Terminal, Git, GitHub** | **You are here** |
+| 2 | Git branching, REST APIs, curl | Branch workflows, API exploration |
+| 3 | Dart language fundamentals | Dart programs with null safety |
+| 4 | Flutter UI, widgets, navigation | First Flutter app with multiple screens |
+| 5 | Sprint planning workshop | Project proposals, sprint boards |
+| 6 | State management with Riverpod | Reactive UI with shared state |
+| 7 | Local data persistence with SQLite | Offline-capable data storage |
+| 8 | Networking, REST API integration | App connected to live backend |
+| 9 | Authentication and security | Login, JWT tokens, secure storage |
+| 10 | Testing strategies | Unit, widget, and integration tests |
+| 11 | Advanced Flutter (charts, animations) | Data visualization and polish |
+| 12 | CI/CD and deployment | Automated builds and releases |
+| 13 | Polish and refactoring | Code quality and final features |
+| 14 | Final presentations | Demo day |
 
-Every week builds on the previous ones. The skills you learned today
-(terminal, Git, GitHub) will be used in EVERY subsequent week.
-```
+==Every week builds on the previous ones.== The skills you learned today (terminal, Git, GitHub) will be used in **every** subsequent week.
 
 > PRESENTER NOTE: Emphasize that week 1 skills compound. "You'll run git commands
 > hundreds of times. If it feels awkward now, that's normal. By week 4, it will
@@ -890,6 +787,9 @@ Every week builds on the previous ones. The skills you learned today
 ---
 
 ## 6. Course Overview (5 min)
+
+!!! abstract "TL;DR"
+    Grading: weekly assignments (40%) + midterm (20%) + final project (30%) + participation (10%). No AI tools in Weeks 1--3 --- build genuine understanding first, then use AI effectively.
 
 ### Assessment Structure
 
@@ -902,10 +802,11 @@ Every week builds on the previous ones. The skills you learned today
 
 ### AI Tools Policy
 
-- **Weeks 1--3:** AI tools are **not allowed**. Build genuine understanding first.
-- **Weeks 4--14:** AI tools (ChatGPT, Copilot, etc.) are **allowed and encouraged** --- but you must understand what the AI generates. "I don't know, the AI wrote it" is not an acceptable answer during code review.
+!!! warning "AI Tools Policy"
+    - **Weeks 1--3:** AI tools are ==not allowed==. Build genuine understanding first.
+    - **Weeks 4--14:** AI tools (ChatGPT, Copilot, etc.) are ==allowed and encouraged== --- but you must understand what the AI generates. "I don't know, the AI wrote it" is not an acceptable answer during code review.
 
-The goal is not to avoid AI. The goal is to use it effectively, which requires understanding the fundamentals.
+The goal is not to avoid AI. The goal is to ==use it effectively==, which requires understanding the fundamentals.
 
 ### What's Next: Week 2
 
@@ -923,12 +824,81 @@ Come to the lab with your SSH keys working and at least one repository on GitHub
 
 ---
 
+## Quick Quiz
+
+<quiz>
+Why is version control especially important in healthcare software?
+
+- [ ] It makes code run faster
+- [x] Regulators require traceability and audit trails for every code change
+- [ ] It replaces the need for testing
+- [ ] It is only important for large teams
+</quiz>
+
+<quiz>
+How does Git store your project at each commit?
+
+- [ ] As a list of changes (diffs) since the last commit
+- [x] As a complete snapshot of all files at that moment
+- [ ] As a compressed ZIP archive
+- [ ] As a copy of only the changed files
+</quiz>
+
+<quiz>
+What is the purpose of the staging area?
+
+- [ ] To speed up Git operations
+- [ ] To store backups of your files
+- [x] To let you choose exactly which changes go into the next commit
+- [ ] To share code with teammates before committing
+</quiz>
+
+<quiz>
+In SSH authentication, what never leaves your computer?
+
+- [ ] The public key
+- [x] The private key
+- [ ] The challenge string
+- [ ] The commit hash
+</quiz>
+
+<quiz>
+What is a branch in Git?
+
+- [ ] A complete copy of the entire repository
+- [ ] A separate folder on your hard drive
+- [x] A lightweight pointer to a specific commit
+- [ ] A backup of the main branch
+</quiz>
+
+<quiz>
+Why do professional teams use Pull Requests?
+
+- [ ] Because Git requires them for every push
+- [ ] To slow down development on purpose
+- [x] So every change is reviewed before it enters the main codebase
+- [ ] To automatically fix bugs in the code
+</quiz>
+
+---
+
+!!! question "End-of-Lecture Reflection"
+    Take 2 minutes to reflect on today's lecture:
+
+    1. **What concept was most surprising?** (Git storing snapshots? Asymmetric crypto? The regulatory angle?)
+    2. **How would you explain Git's three areas** (working directory, staging, repository) to a friend who has never heard of version control?
+    3. **Why should a biomedical engineer care about Git?** Think beyond "it's required for this course."
+
+    Jot down your answers or discuss with your neighbor.
+
+---
+
 ## Key Takeaways
 
-1. **Version control is not optional** --- especially in healthcare software
-2. **Git stores snapshots**, not diffs. Each commit is a complete picture of your project.
-3. **The three areas** (working directory, staging, repository) give you control over what you commit
-4. **SSH keys use asymmetric cryptography** --- public key is a padlock, private key opens it
+1. **Version control is not optional** --- especially in healthcare software where ==traceability is a regulatory requirement==
+2. **Git stores snapshots**, not diffs. Each commit is a ==complete picture== of your project.
+3. **The three areas** (working directory, staging, repository) give you ==fine-grained control== over what you commit
+4. **SSH keys use asymmetric cryptography** --- public key is a padlock, private key opens it. The ==private key never leaves your machine==.
 5. **Professional teams** use branches, pull requests, and code review --- and so will you
 6. **These tools are the foundation** for everything we build in the next 13 weeks
 
@@ -942,3 +912,4 @@ If you want to go deeper on any topic covered today:
 - **SSH explained:** [SSH.com: How Does SSH Work](https://www.ssh.com/academy/ssh/protocol)
 - **The Missing Semester of Your CS Education:** [MIT Course](https://missing.csail.mit.edu/) (the inspiration for this lecture's title)
 - **Why version control matters in science:** [A Quick Introduction to Version Control with Git and GitHub](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004668)
+- **IEC 62304 overview:** [Wikipedia: IEC 62304](https://en.wikipedia.org/wiki/IEC_62304) --- the medical device software standard referenced throughout this lecture

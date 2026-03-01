@@ -26,6 +26,7 @@ theme:
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.path
     - search.highlight
     - content.code.copy
     - content.code.annotate
@@ -33,6 +34,8 @@ theme:
 
 plugins:
   - search: {}
+  - mkdocs_quiz:
+      disable_after_submit: false
   - d2:
       layout: dagre
       theme: 0
@@ -56,43 +59,63 @@ nav:
     - Prep Guide: resources/GETTING_READY.md
   - Week 1 — Terminal & Git:
     - Lab Workbook: week-01-terminal-git/lab/README.md
+    - Cheatsheet: week-01-terminal-git/lab/CHEATSHEET.md
     - Lecture Notes: week-01-terminal-git/lecture/LECTURE_NOTES.md
   - Week 2 — Git Branching & APIs:
     - Lab Workbook: week-02-git-apis-curl/lab/README.md
+    - Cheatsheet: week-02-git-apis-curl/lab/CHEATSHEET.md
     - Lecture Notes: week-02-git-apis-curl/lecture/LECTURE_NOTES.md
-  - Week 3 — Dart Fundamentals:
-    - Lab Workbook: week-03-dart-fundamentals/lab/README.md
-    - Lecture Notes: week-03-dart-fundamentals/lecture/LECTURE_NOTES.md
-  - Week 4 — Flutter Fundamentals:
-    - Lab Workbook: week-04-flutter-fundamentals/lab/README.md
-    - Lecture Notes: week-04-flutter-fundamentals/lecture/LECTURE_NOTES.md
-  - Week 5 — Layouts & Sprints:
-    - Lab Workbook: week-05-layouts-forms-sprints/lab/README.md
-    - Lecture Notes: week-05-layouts-forms-sprints/lecture/LECTURE_NOTES.md
-  - Week 6 — State Management:
-    - Lab Workbook: week-06-state-management/lab/README.md
-    - Lecture Notes: week-06-state-management/lecture/LECTURE_NOTES.md
-  - Week 7 — Local Data:
-    - Lab Workbook: week-07-local-data/lab/README.md
-    - Lecture Notes: week-07-local-data/lecture/LECTURE_NOTES.md
-    - Database Fundamentals: week-07-local-data/lecture/DATABASE_FUNDAMENTALS.md
-  - Week 8 — Networking & API:
-    - Lab Workbook: week-08-networking-api/lab/README.md
-    - Lecture Notes: week-08-networking-api/lecture/LECTURE_NOTES.md
-  - Week 9 — Authentication:
-    - Lab Workbook: week-09-authentication/lab/README.md
-    - Lecture Notes: week-09-authentication/lecture/LECTURE_NOTES.md
-  - Resources:
-    - Accessibility Guide: resources/ACCESSIBILITY_GUIDE.md
-    - mHealth Regulations: resources/MHEALTH_REGULATIONS.md
+  # --- Unreleased weeks (uncomment as course progresses) ---
+  # - Week 3 — Dart Fundamentals:
+  #   - Lab Workbook: week-03-dart-fundamentals/lab/README.md
+  #   - Cheatsheet: week-03-dart-fundamentals/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-03-dart-fundamentals/lecture/LECTURE_NOTES.md
+  # - Week 4 — Flutter Fundamentals:
+  #   - Lab Workbook: week-04-flutter-fundamentals/lab/README.md
+  #   - Cheatsheet: week-04-flutter-fundamentals/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-04-flutter-fundamentals/lecture/LECTURE_NOTES.md
+  # - Week 5 — Layouts & Sprints:
+  #   - Lab Workbook: week-05-layouts-forms-sprints/lab/README.md
+  #   - Cheatsheet: week-05-layouts-forms-sprints/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-05-layouts-forms-sprints/lecture/LECTURE_NOTES.md
+  # - Week 6 — State Management:
+  #   - Lab Workbook: week-06-state-management/lab/README.md
+  #   - Cheatsheet: week-06-state-management/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-06-state-management/lecture/LECTURE_NOTES.md
+  # - Week 7 — Local Data:
+  #   - Lab Workbook: week-07-local-data/lab/README.md
+  #   - Cheatsheet: week-07-local-data/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-07-local-data/lecture/LECTURE_NOTES.md
+  #   - Database Fundamentals: week-07-local-data/lecture/DATABASE_FUNDAMENTALS.md
+  # - Week 8 — Networking & API:
+  #   - Lab Workbook: week-08-networking-api/lab/README.md
+  #   - Cheatsheet: week-08-networking-api/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-08-networking-api/lecture/LECTURE_NOTES.md
+  # - Week 9 — Authentication:
+  #   - Lab Workbook: week-09-authentication/lab/README.md
+  #   - Cheatsheet: week-09-authentication/lab/CHEATSHEET.md
+  #   - Lecture Notes: week-09-authentication/lecture/LECTURE_NOTES.md
+  # - Resources:
+  #   - Accessibility Guide: resources/ACCESSIBILITY_GUIDE.md
+  #   - mHealth Regulations: resources/MHEALTH_REGULATIONS.md
+
+extra_javascript:
+  - assets/javascripts/mermaid-lightbox.js
+  - assets/javascripts/enhanced-tooltips.js
+  - assets/javascripts/decrypt-script-loader.js
+  - assets/javascripts/quiz-correct-only-reveal.js
 
 extra_css:
   - assets/stylesheets/mermaid-lightbox.css
   - assets/stylesheets/tasklist.css
   - assets/stylesheets/tooltips.css
+  - assets/stylesheets/custom-admonitions.css
+  - assets/stylesheets/quiz-overrides.css
+  - assets/stylesheets/progress-breadcrumb.css
 
 exclude_docs: |
   **/INSTRUCTOR_GUIDE.md
+  **/CHECKPOINT_TEMPLATE.md
   **/*.py
   **/*.dart
   **/*.json
@@ -106,6 +129,7 @@ markdown_extensions:
   - abbr
   - admonition
   - attr_list
+  - def_list
   - md_in_html
   - pymdownx.details
   - pymdownx.emoji:

@@ -1,9 +1,45 @@
 # Week 0 — Getting Ready
 
-**Mobile Apps for Healthcare — AGH University of Krakow**
+<div class="lab-meta" markdown>
+<div class="lab-meta__row"><span class="lab-meta__label">Course</span> Mobile Apps for Healthcare</div>
+<div class="lab-meta__row"><span class="lab-meta__label">Duration</span> ~2-3 hours (self-paced, at home)</div>
+<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> Basic programming experience in any language</div>
+</div>
+
+<div class="grid cards" markdown>
+
+- :material-target:{ .lg .middle } **Learning Objectives**
+
+    ---
+
+    By the end of this prep guide, you will be able to:
+
+    - [ ] Assess your skill level against course prerequisites
+    - [ ] Install and configure all required development tools
+    - [ ] Verify your setup with `flutter doctor`
+    - [ ] Understand the 14-week course structure and expectations
+
+- :material-clock-outline:{ .lg .middle } **Time Estimate**
+
+    ---
+
+    | Section | Duration |
+    |---------|----------|
+    | Course overview | ~15 min |
+    | Self-assessment & remediation | ~30 min – 6 hours |
+    | Technical setup (Steps 1–9) | ~1–2 hours |
+    | Verification & checklist | ~10 min |
+
+</div>
 
 !!! info "Read this before Week 1"
-    This page is your starting point. It explains how the course works, helps you assess your skills, shows you exactly how to set up your tools, and tells you what to expect on day one. **Complete everything on this page before the first lab session.**
+    This page is your starting point. It explains how the course works, helps you assess your skills, shows you exactly how to set up your tools, and tells you what to expect on day one. ==**Complete Steps 1–7 and 9 before the first lab session.**== Step 8 (cloning the course repo) can be done during Week 1 once the instructor shares the URL.
+
+!!! abstract "TL;DR"
+    Install Git, Flutter, Android Studio, and VS Code. Set up GitHub with SSH keys. Run `flutter doctor` until everything is green. Assess your programming skills — if you can write a Python class and navigate a terminal, you're ready.
+
+!!! example "Think of it like... packing for a road trip"
+    This prep guide is like **packing your car before a road trip** — you need the right gear (tools), a working GPS (GitHub), and enough fuel (prerequisite skills). Skipping this step means pulling over on day one to buy a map.
 
 ---
 
@@ -13,9 +49,11 @@
 
 You will build a **real health-related mobile app** in a team of 3-4 students over 14 weeks. The first 3 weeks teach you individual skills (terminal, git, Dart). From Week 4, you form teams and start building.
 
+~~This is a lecture-heavy theory course~~ — it's the opposite. You'll write code from day one, and the lectures *follow* the labs to clarify what you experienced hands-on.
+
 ### Lab Before Lecture
 
-This course flips the traditional order: **lab comes first, lecture comes second** each week. You'll wrestle with the material hands-on, then the lecture clarifies and deepens what you experienced. This is intentional — struggling first makes the explanations stick.
+This course flips the traditional order: ==**lab comes first, lecture comes second**== each week. You'll wrestle with the material hands-on, then the lecture clarifies and deepens what you experienced. This is intentional — struggling first makes the explanations stick.
 
 ### Week-by-Week Roadmap
 
@@ -41,17 +79,38 @@ Here's the full journey so you know what's coming:
 
 ### Three Phases
 
+```mermaid
+graph LR
+    P1["Phase 1: Learn the Tools<br/><i>Weeks 1–3</i>"] --> P2["Phase 2: Build the App<br/><i>Weeks 4–10</i>"]
+    P2 --> P3["Phase 3: Polish & Present<br/><i>Weeks 11–14</i>"]
+    style P1 fill:#e3f2fd,stroke:#2196f3
+    style P2 fill:#e8f5e9,stroke:#4caf50
+    style P3 fill:#fff3e0,stroke:#ff9800
 ```
-Phase 1: Learn the Tools     Phase 2: Build the App       Phase 3: Polish & Present
-┌──────────────────────┐     ┌──────────────────────┐     ┌──────────────────────┐
-│ Weeks 1-3            │     │ Weeks 4-10           │     │ Weeks 11-14          │
-│                      │     │                      │     │                      │
-│ Individual work      │     │ Team project         │     │ Testing, polish,     │
-│ Terminal, Git, Dart  │     │ Sprint 1 & 2         │     │ Sprint 3, present    │
-│ 3 graded assignments │     │ 2 sprint reviews     │     │ 1 sprint review      │
-│                      │     │ Proposal due Week 5  │     │ Final presentation   │
-└──────────────────────┘     └──────────────────────┘     └──────────────────────┘
-```
+
+| | Phase 1 | Phase 2 | Phase 3 |
+|---|---------|---------|---------|
+| **Work style** | Individual | Team project | Team project |
+| **Focus** | Terminal, Git, Dart | Sprints 1 & 2 | Sprint 3, testing, polish |
+| **Deliverables** | 3 graded assignments | 2 sprint reviews + proposal | 1 sprint review + final presentation |
+
+> **Healthcare Context: Why Preparation Matters in mHealth Development**
+>
+> In real mHealth teams, a botched development environment wastes days, not hours:
+> - **Regulatory audits** (IEC 62304, HIPAA) require that every developer's toolchain is documented and reproducible. A setup checklist like this one is a simplified version of an "environment qualification" document.
+> - **Patient safety** starts with consistent builds. If your Flutter version differs from your teammate's, the app might behave differently on different machines — exactly the kind of inconsistency that causes bugs in medication dosing or vital-sign displays.
+> - **Professional mHealth teams** at companies like Oura, Withings, and Apple Health spend their first sprint setting up CI/CD, linters, and shared toolchains. What you're doing now mirrors that process.
+
+---
+
+### Self-Check: Course Structure
+
+Before continuing, make sure you understand:
+
+- [ ] The course has three phases: individual skills, team project, and polish
+- [ ] Labs come *before* lectures each week
+- [ ] You will form teams in Week 4 and build a real mHealth app
+- [ ] Sprint reviews happen in Weeks 7, 10, and 13
 
 ---
 
@@ -64,13 +123,16 @@ So you know exactly what to expect on day one:
 
 **What you need ready:** A working terminal, git installed, a GitHub account with SSH keys set up (see the setup checklist below).
 
-**What you do NOT need:** Any knowledge of git, any mobile development experience, any Flutter or Dart knowledge.
+~~You need Flutter experience to survive Week 1~~ — you don't. Week 1 is entirely terminal and git. Flutter doesn't appear until Week 4.
 
 ---
 
 ## Self-Assessment Checklist
 
 Work through these three tiers honestly. Nobody expects you to check every box before day one — but knowing where you stand helps you prepare.
+
+!!! example "Think of it like... a health check-up"
+    This self-assessment is like a **pre-surgery health check** — the doctor doesn't expect you to be a triathlete, but they need to know your baseline so they can plan accordingly. Be honest; it helps *you*.
 
 ### Tier 1: Must-Have (prerequisite skills)
 
@@ -107,13 +169,21 @@ Don't worry if these are new — we cover them explicitly:
 - **All Tier 1 checked:** You're ready. Tier 2 gaps will slow you down a bit in Week 3 but won't stop you.
 - **Most Tier 1 checked, some gaps:** Spend a few hours on the remediation links below. You'll be fine.
 - **Several Tier 1 unchecked:** Invest serious time (10-15 hours) before the semester. The course moves fast from Week 3.
-- **Tier 3 all unchecked:** That's totally normal and expected. These are taught from scratch.
+- ==**Tier 3 all unchecked:** That's totally normal and expected. These are taught from scratch.==
+
+!!! success "Checkpoint: Self-Assessment"
+    You've identified your skill tier. If you're all-green on Tier 1, skip ahead
+    to the [Technical Setup Checklist](#technical-setup-checklist). If you have
+    gaps, the remediation section below has targeted resources for each skill.
 
 ---
 
 ## Skill Gap Remediation
 
 For each Tier 1 and Tier 2 gap, here is **one recommended free resource**. You don't need to complete entire courses — focus on the specific skill you're missing.
+
+??? protip "Pro tip"
+    Don't try to learn everything. Pick the **one or two** Tier 1 skills you're weakest on and spend focused time there. Diminishing returns hit fast — 3 hours on your biggest gap beats 10 hours spread thin.
 
 ### Tier 1 Gaps
 
@@ -150,6 +220,8 @@ These topics are covered step-by-step in the course. Pre-studying them is unnece
 - **Riverpod / state management** — Weeks 5-6 introduce this with guided exercises
 - **REST API integration** — Week 8 covers this with hands-on labs
 - **Project management / Scrum** — Week 5 teaches sprint planning as a workshop
+
+~~You should watch Flutter tutorials on YouTube before the course~~ — don't. The course introduces Flutter with a specific progression. Jumping ahead often means learning patterns we deliberately avoid (like `setState()` for shared state).
 
 If you already know some of these, great — you'll move faster through those weeks and can help your teammates.
 
@@ -194,6 +266,27 @@ Complete **all** of this before the first lab session to avoid losing time on in
 !!! info "Terminal note"
     All commands in this course use **bash** syntax. On **macOS** and **Linux**, use the built-in Terminal app. On **Windows**, use **Git Bash** (installed automatically with Git for Windows). Most commands are identical across all three operating systems — we use tabs only where they genuinely differ.
 
+Here's an overview of the setup steps and how they connect:
+
+```mermaid
+graph TD
+    S1["Step 1: Install Git"] --> S2["Step 2: GitHub + SSH Key"]
+    S2 --> S8["Step 8: Clone Course Repo"]
+    S1 --> S3["Step 3: Flutter SDK"]
+    S3 --> S4["Step 4: Android Studio"]
+    S4 --> S5["Step 5: VS Code"]
+    S5 --> S7["Step 7: flutter doctor"]
+    S4 --> S6["Step 6: Xcode<br/><i>(macOS only)</i>"]
+    S6 --> S7
+    S3 --> S9["Step 9: Verify Python"]
+    S7 --> S10["All green? You're ready!"]
+    S8 --> S10
+    S9 --> S10
+    style S7 fill:#e8f5e9,stroke:#4caf50
+    style S10 fill:#e8f5e9,stroke:#4caf50,stroke-width:3px
+    style S6 fill:#f5f5f5,stroke:#9e9e9e
+```
+
 ### Step 1: Install Git
 
 === "macOS"
@@ -228,6 +321,10 @@ git config --global user.name "Your Name"
 git config --global user.email "your.email@student.agh.edu.pl"
 ```
 
+!!! success "Checkpoint: Git"
+    Run `git --version` — you should see a version number (e.g., `git version 2.44.0`).
+    If you see `command not found`, revisit the installation step for your OS.
+
 ### Step 2: Create a GitHub Account and SSH Key
 
 1. **Sign up** at [github.com/join](https://github.com/join) (if you don't have an account)
@@ -241,6 +338,13 @@ git config --global user.email "your.email@student.agh.edu.pl"
 !!! warning "Why SSH matters"
     Without SSH keys, you'll be asked for a username and password on every git push. The Week 1 lab assumes SSH is configured. **Do this now.**
 
+!!! warning "Common mistake"
+    Copying the SSH key with extra spaces or newlines. Use `pbcopy < ~/.ssh/id_ed25519.pub` (macOS) or `clip < ~/.ssh/id_ed25519.pub` (Windows Git Bash) to copy the key cleanly. If `ssh -T git@github.com` returns `Permission denied`, the key wasn't added correctly.
+
+!!! success "Checkpoint: GitHub + SSH"
+    Run `ssh -T git@github.com` — you should see `Hi <username>! You've successfully authenticated`.
+    If you see `Permission denied (publickey)`, re-do the SSH key setup.
+
 ### Step 3: Install Flutter SDK
 
 Follow the official guide for your platform: [Install Flutter](https://docs.flutter.dev/get-started/install)
@@ -251,6 +355,9 @@ flutter doctor
 ```
 
 Resolve any issues it reports. Target: all checks pass (minor warnings for platforms you won't use are fine).
+
+??? protip "Pro tip"
+    Add Flutter to your shell PATH permanently. If you only set it for one terminal session, you'll have to re-export it every time. Add the `export PATH` line to your `~/.zshrc` (macOS) or `~/.bashrc` (Linux) so it's always available.
 
 ### Step 4: Install Android Studio
 
@@ -266,6 +373,9 @@ Even if you prefer VS Code as your editor, you need Android Studio because it pr
 2. Create a new device (e.g., Pixel 7, API 34)
 3. Launch it once to verify it works
 
+!!! warning "Common mistake"
+    Skipping the emulator setup. You *will* need an emulator from Week 4 onward, and downloading the system image (~1 GB) during class wastes lab time. Set it up now and verify it boots.
+
 ### Step 5: Install VS Code (Recommended IDE)
 
 Download from [code.visualstudio.com](https://code.visualstudio.com/).
@@ -275,6 +385,14 @@ Install these extensions (search in the Extensions panel):
 - **Flutter** (by Dart Code) — includes the Dart extension automatically
 - **Dart** (if not auto-installed)
 
+??? challenge "Stretch Goal: Power-user VS Code setup"
+    Install these optional extensions for a smoother workflow in later weeks:
+
+    - **GitLens** — enhanced git blame, history, and diff inline
+    - **Error Lens** — shows errors and warnings inline next to the code
+    - **Material Icon Theme** — better file icons for Flutter projects
+    - **Pubspec Assist** — search and add Dart packages without leaving the editor
+
 ### Step 6: macOS Only — Install Xcode
 
 !!! note "Windows and Linux users"
@@ -283,8 +401,11 @@ Install these extensions (search in the Extensions panel):
 If you're on macOS and want to test on iOS:
 
 1. Install Xcode from the Mac App Store
-2. Run: `sudo xcode-select --install`
-3. Open Xcode once to accept the license agreement
+2. Open Xcode once to accept the license agreement
+3. Point the command-line tools to the full Xcode installation:
+   ```bash
+   sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+   ```
 4. Open the iOS Simulator: `open -a Simulator`
 
 ### Step 7: Final Verification
@@ -311,6 +432,11 @@ Doctor summary (to see all details, run flutter doctor -v):
 !!! warning "Don't skip this"
     Every semester, students lose 30-60 minutes of the first lab session debugging installation issues. Doing this at home means you can start coding from minute one.
 
+!!! success "Checkpoint: Flutter Doctor"
+    All checks show `[✓]` (or only minor warnings for platforms you don't need).
+    If you have `[✗]` errors, check the troubleshooting section below before asking
+    for help.
+
 ### Step 8: Clone the Course Materials Repository
 
 All lab exercises, starter projects, and templates are distributed through a single **course repository** on GitHub. Clone it now so you have everything ready:
@@ -336,7 +462,7 @@ mhealth-course-materials/
 ├── week-07-local-data/            # Week 7 lab + starter project
 ├── week-08-networking-api/        # Week 8 lab + starter project
 ├── week-09-authentication/        # Week 9 lab + starter project
-├── mood-tracker-api/              # FastAPI backend (used in Weeks 8-9)
+├── mood-tracker-api/              # FastAPI reference backend (used in Weeks 8-9)
 ├── templates/                     # Proposal template, rubrics, forms
 └── resources/                     # AI policy, accessibility guide, regulations
 ```
@@ -351,7 +477,7 @@ Week 2 uses Python to build a simple API with FastAPI. Verify that Python is ins
 python3 --version
 ```
 
-You should see `Python 3.x.x`. If not:
+You should see `Python 3.8` or higher. If not:
 
 === "macOS"
 
@@ -366,6 +492,21 @@ You should see `Python 3.x.x`. If not:
 === "Windows"
 
     Download from [python.org](https://www.python.org/downloads/). During installation, check **"Add Python to PATH"**.
+
+---
+
+### Self-Check: Technical Setup
+
+Before continuing, verify every tool:
+
+- [ ] `git --version` prints a version number
+- [ ] `ssh -T git@github.com` prints `Hi <username>!`
+- [ ] `flutter doctor` shows all green checks (or only platform-irrelevant warnings)
+- [ ] Android emulator launches and boots to the home screen
+- [ ] VS Code opens and the Flutter extension is installed
+- [ ] `python3 --version` prints a version number
+
+---
 
 ### Common `flutter doctor` Issues
 
@@ -445,6 +586,57 @@ Print this or keep it open. Check off each item:
 - [ ] `flutter doctor` shows all green checks (or only platform warnings I can ignore)
 
 **All done?** You're ready for Week 1. See you in the lab.
+
+---
+
+## Quick Quiz
+
+<quiz>
+What is the recommended order of each weekly session?
+
+- [ ] Lecture first, then lab
+- [x] Lab first, then lecture
+- [ ] Lecture only, no lab
+- [ ] Lab only, no lecture
+</quiz>
+
+<quiz>
+Which tier of the self-assessment covers skills taught from scratch in the course?
+
+- [ ] Tier 1 — Must-Have
+- [ ] Tier 2 — Strongly Recommended
+- [x] Tier 3 — Helpful but Taught in the Course
+- [ ] All tiers are prerequisites
+</quiz>
+
+<quiz>
+What is the most critical command to run after completing the technical setup?
+
+- [ ] `git status`
+- [ ] `python3 --version`
+- [x] `flutter doctor`
+- [ ] `ssh -T git@github.com`
+</quiz>
+
+<quiz>
+When do you form teams and start building the project?
+
+- [ ] Week 1
+- [ ] Week 3
+- [x] Week 4
+- [ ] Week 6
+</quiz>
+
+---
+
+!!! question "End-of-Prep Reflection"
+    Take 2 minutes to reflect before you close this page:
+
+    1. **What is your biggest concern about this course?** Is it the tools, the programming, the teamwork, or something else?
+    2. **What is your strongest skill going in?** How might you use it to help your future teammates?
+    3. **What is one thing you will do this week to prepare?** (Fill a Tier 1 gap, install Flutter, set up SSH keys?)
+
+    Write your answers somewhere you can revisit in Week 7 — you'll be surprised how far you've come.
 
 ---
 

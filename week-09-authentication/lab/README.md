@@ -1,9 +1,11 @@
 # Week 9 Lab: Authentication & Security
 
 <div class="lab-meta" markdown>
-<div class="lab-meta__row"><span class="lab-meta__label">Course</span> Mobile Apps for Healthcare</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Duration</span> ~2 hours</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> Week 8 Networking & API (working Mood Tracker with API integration)</div>
+| | |
+|---|---|
+| **Course** | Mobile Apps for Healthcare |
+| **Duration** | ~2 hours |
+| **Prerequisites** | Week 8 Networking & API (working Mood Tracker with API integration) |
 </div>
 
 <div class="grid cards" markdown>
@@ -12,12 +14,10 @@
 
     ---
 
-    By the end of this lab, you will be able to:
-
-    - [ ] Secure user credentials with platform-level encryption
-    - [ ] Implement login and registration flows against a real API
-    - [ ] Build a state machine that drives navigation based on auth status
-    - [ ] Protect app routes so only authenticated users access sensitive screens
+    - Secure user credentials with ==platform-level encryption==
+    - Implement login and registration flows against a real API
+    - Build a ==state machine== that drives navigation based on auth status
+    - Protect app routes so only authenticated users access sensitive screens
 
 - :material-clock-outline:{ .lg .middle } **Time Estimate**
 
@@ -25,30 +25,22 @@
 
     | Section | Duration |
     |---------|----------|
-    | Part 1-2: Secure storage & auth service | ~20 min |
-    | Part 3-4: AuthNotifier state machine | ~25 min |
-    | Part 5-6: Login & register screens | ~25 min |
-    | Part 7: AuthGate routing | ~15 min |
-    | Self-check & reflection | ~10 min |
+    | Part 1: Understanding auth | ~10 min |
+    | Part 2: Secure token storage | ~15 min |
+    | Part 3: Login & register services | ~20 min |
+    | Part 4: Auth state machine | ~15 min |
+    | Part 5: Dynamic token injection | ~10 min |
+    | Part 6: Connecting UI to auth | ~15 min |
+    | Part 7: Route guarding | ~15 min |
+    | Part 8: Self-check & reflection | ~10 min |
 
 </div>
 
 !!! abstract "What you already know"
-    **From Week 8:** Your app connects to a REST API with GET, POST, and DELETE methods, falling back to local SQLite when offline. **The security gap:** Anyone who knows the API URL can access all data — there's no identity verification. **This week's upgrade:** Add authentication so each user has their own account, tokens are stored securely on-device, and the API only returns data belonging to the authenticated user.
+    **From Week 8:** Your app connects to a REST API with GET, POST, and DELETE methods, falling back to local SQLite when offline. **The security gap:** Anyone who knows the API URL can access all data — there's ==no identity verification==. **This week's upgrade:** Add authentication so each user has their own account, tokens are stored securely on-device, and the API only returns data belonging to the authenticated user.
 
----
-
-## Detailed Learning Objectives
-
-By the end of this lab you will be able to:
-
-1. Explain why secure token storage is critical in mobile health applications.
-2. Store and retrieve JWT tokens using `FlutterSecureStorage` (encrypted at rest).
-3. Implement login and registration flows that communicate with a REST API.
-4. Manage authentication state using a `StateNotifier` state machine pattern.
-5. Dynamically inject bearer tokens into API requests.
-6. Wire login/register UI to the auth provider with proper error handling.
-7. Implement route guarding so unauthenticated users see a login screen and authenticated users see the home screen.
+!!! example "Think of it like... a festival wristband"
+    JWT tokens are like a **wristband at a festival** — you show your ID once (login), get a wristband (token), and flash it at every stage (API request) without re-showing your ID. `FlutterSecureStorage` is the zipped pocket where you keep it safe.
 
 ---
 
@@ -80,7 +72,8 @@ Before you begin, make sure you have the following ready:
   ```
   Verify the app builds and launches before starting the exercises.
 
-> **Tip:** If the starter project does not compile, check that `flutter_secure_storage` and `http` appear in `pubspec.yaml` and that `flutter pub get` completed without errors. Ask the instructor for help if needed.
+!!! tip "Pro tip"
+    If the starter project does not compile, check that `flutter_secure_storage` and `http` appear in `pubspec.yaml` and that `flutter pub get` completed without errors. Ask the instructor for help if needed.
 
 ---
 
@@ -91,11 +84,11 @@ You are continuing to develop the **Mood Tracker** app from Weeks 6--8. The star
 - Full Riverpod state management from Week 6
 - SQLite local persistence from Week 7
 - API networking with `ApiClient` from Week 8
-- Login and Register screen UI (pre-built, but not wired up)
+- Login and Register screen UI (pre-built, but ==not wired up==)
 - An `AuthService` class with TODO scaffolds
 - An `AuthNotifier` state machine (commented out)
 
-The app currently sends API requests with a hardcoded token from `config.dart`. Your job in this lab is to replace that with proper **authentication** by completing 7 TODOs across 5 files.
+The app currently sends API requests with a hardcoded token from `config.dart`. Your job in this lab is to replace that with proper **authentication** by completing ==7 TODOs across 5 files==.
 
 ### Project structure
 
@@ -113,10 +106,11 @@ The app currently sends API requests with a hardcoded token from `config.dart`. 
 
 > **Healthcare Context: Why Authentication Matters in mHealth**
 >
-> In mobile health applications, authentication is not just a convenience feature -- it is a regulatory requirement. Consider:
+> In mobile health applications, authentication is not just a convenience feature -- it is a ==regulatory requirement==. Consider:
+>
 > - **HIPAA compliance** requires that patient health data is accessible only to authorized users. An unauthenticated app that exposes mood, vitals, or medication data violates basic security requirements.
 > - **Patient data protection** -- mood entries, even when anonymized, are sensitive health information. A stolen access token grants full access to a patient's data.
-> - **Plaintext token storage is dangerous.** `SharedPreferences` stores data in unencrypted XML (Android) or plist (iOS) files. Anyone with physical device access or a backup extraction tool can read them. `FlutterSecureStorage` uses the OS keychain (iOS) or EncryptedSharedPreferences (Android) -- data is encrypted at rest.
+> - **Plaintext token storage is dangerous.** `SharedPreferences` stores data in unencrypted XML (Android) or plist (iOS) files. Anyone with physical device access or a backup extraction tool can read them. `FlutterSecureStorage` uses the ==OS keychain== (iOS) or EncryptedSharedPreferences (Android) -- data is encrypted at rest.
 > - **Session management** -- real mHealth apps use short-lived access tokens and refresh tokens so that a compromised token has a limited window of exploitation.
 >
 > The patterns you learn today -- encrypted storage, JWT-based auth, and state-driven route guarding -- are the same patterns used in production health apps that handle real patient data.
@@ -127,7 +121,7 @@ The app currently sends API requests with a hardcoded token from `config.dart`. 
 
 ### Authentication Flow Overview
 
-The following state diagram shows the complete authentication lifecycle your app will implement. Every screen the user sees is driven by this state machine:
+The following state diagram shows the complete authentication lifecycle your app will implement. Every screen the user sees is ==driven by this state machine==:
 
 ```mermaid
 stateDiagram-v2
@@ -147,6 +141,12 @@ stateDiagram-v2
 
 ## Part 1: Understanding Auth in Mobile Apps (~10 min)
 
+!!! abstract "TL;DR"
+    User logs in → server returns a ==JWT== (access token + refresh token) → app stores them in ==encrypted storage== → every API request sends the token in the `Authorization` header. A state machine (`initial → loading → authenticated/unauthenticated`) drives which screen the user sees.
+
+!!! tip "Remember from Week 8?"
+    You hardcoded a Bearer token in `config.dart`. Today you'll replace that shortcut with real authentication — login screen, JWT from the server, and ==secure token storage== that persists across app restarts.
+
 ### 1.1 How JWT authentication works
 
 JSON Web Tokens (JWT) are the standard for API authentication in modern mobile apps. The flow is:
@@ -159,12 +159,29 @@ JSON Web Tokens (JWT) are the standard for API authentication in modern mobile a
 4. **Every API request** includes the access token in the `Authorization: Bearer <token>` header.
 5. **When the access token expires**, the app uses the refresh token to get a new one (without asking the user to log in again).
 
+```mermaid
+graph LR
+    A["User enters<br/>email + password"] -->|"POST /auth/login"| B["Server verifies<br/>credentials"]
+    B -->|"returns"| C["Access Token<br/>(short-lived)"]
+    B -->|"returns"| D["Refresh Token<br/>(long-lived)"]
+    C -->|"stored in"| E["FlutterSecureStorage<br/>(encrypted)"]
+    D -->|"stored in"| E
+    E -->|"attached to"| F["Every API Request<br/>Authorization: Bearer ..."]
+    style E fill:#e8f5e9,stroke:#4caf50
+    style C fill:#e3f2fd,stroke:#2196f3
+    style D fill:#fff3e0,stroke:#ff9800
+```
+
 ### 1.2 Why FlutterSecureStorage?
 
 | Storage | Encryption | Use case |
 |---------|-----------|----------|
-| `SharedPreferences` | None (plaintext) | Non-sensitive settings (theme preference, onboarding flag) |
-| `FlutterSecureStorage` | OS keychain / EncryptedSharedPreferences | Secrets (auth tokens, API keys, PII) |
+| `SharedPreferences` | ==None (plaintext)== | Non-sensitive settings (theme preference, onboarding flag) |
+| `FlutterSecureStorage` | ==OS keychain / EncryptedSharedPreferences== | Secrets (auth tokens, API keys, PII) |
+
+~~Storing tokens in `SharedPreferences` is fine~~ — it's not. SharedPreferences is ==plaintext==. On a rooted Android device, anyone can read it. `FlutterSecureStorage` encrypts at rest using the OS keychain.
+
+~~JWTs are encrypted, so storage doesn't matter~~ — JWTs are ==signed, not encrypted==. Anyone can decode a JWT and read the payload (try it at [jwt.io](https://jwt.io/)). The signature only prevents tampering, not reading. Secure storage protects the token from being stolen.
 
 On Android, `SharedPreferences` writes to an XML file at `/data/data/<package>/shared_prefs/`. On a rooted device, this file is trivially readable. `FlutterSecureStorage` uses Android's `EncryptedSharedPreferences` with AES-256 encryption, backed by the hardware keystore.
 
@@ -172,43 +189,37 @@ On iOS, `FlutterSecureStorage` writes to the Keychain, which is encrypted by the
 
 ### 1.3 The auth state machine
 
-Your app's authentication state follows a clear state machine:
+Your app's authentication state follows a clear ==state machine== with four states:
 
-```
-           App starts
-               |
-          [initial]
-               |
-         checkAuth()
-          /        \
-    token found   no token
-         |            |
-  [authenticated]  [unauthenticated]
-         |                 |
-      logout()         login() / register()
-         |                 |
-  [unauthenticated]   [loading]
-                       /      \
-                  success    failure
-                     |          |
-              [authenticated]  [unauthenticated]
-```
-
-This state machine drives which screen the user sees: `LoginScreen` or `HomeScreen`.
+| State | What the user sees | When |
+|-------|-------------------|------|
+| `initial` | Loading spinner | App just launched, checking for stored token |
+| `loading` | Loading spinner | Login/register in progress |
+| `authenticated` | Home screen | Valid token exists |
+| `unauthenticated` | Login screen | No token or login failed |
 
 ---
 
 ### Self-Check: Part 1
 
-Before continuing, make sure you can answer these questions:
+- [ ] You can explain the difference between an access token and a refresh token.
+- [ ] You know why `SharedPreferences` is unsuitable for storing auth tokens.
+- [ ] You can name the four states in the auth state machine.
 
-- [ ] What is the difference between an access token and a refresh token?
-- [ ] Why is `SharedPreferences` unsuitable for storing auth tokens?
-- [ ] What are the four states in our auth state machine?
+!!! success "Checkpoint: Part 1 complete"
+    You understand JWT authentication, why ==encrypted storage== is mandatory for health data, and how the auth state machine drives your app's navigation. Now let's implement it.
 
 ---
 
 ## Part 2: Secure Token Storage (~15 min)
+
+!!! abstract "TL;DR"
+    Implement 4 methods on `AuthService`: ==`saveTokens`==, `getAccessToken`, `getRefreshToken`, ==`deleteTokens`==. All use `FlutterSecureStorage` — data is encrypted at rest via the OS keychain.
+
+!!! warning "Common mistake"
+    Never store JWT tokens in `SharedPreferences` — it's ==plaintext on
+    disk==. On a rooted/jailbroken device, anyone can read it. Always use
+    `FlutterSecureStorage` which encrypts at rest using the OS keychain.
 
 Open `lib/services/auth_service.dart`. This file contains the `AuthService` class with `FlutterSecureStorage` already initialized.
 
@@ -241,7 +252,7 @@ Find the `TODO 1` comment block. Your task is to uncomment and complete four met
     await _storage.delete(key: _refreshTokenKey);
     ```
 
-    1. `_storage` is a `FlutterSecureStorage` instance -- data written with `write()` is **encrypted at rest** using the iOS Keychain or Android EncryptedSharedPreferences (AES-256 backed by the hardware keystore). Each entry is a simple key-value pair.
+    1. `_storage` is a `FlutterSecureStorage` instance -- data written with `write()` is ==encrypted at rest== using the iOS Keychain or Android EncryptedSharedPreferences (AES-256 backed by the hardware keystore). Each entry is a simple key-value pair.
     2. Removes the token from encrypted storage on logout. This ensures that a stolen or lost device cannot reuse a stale session -- the token is gone, not just "forgotten."
 
     **Key insight:** All `FlutterSecureStorage` operations are `async` because they interact with platform-specific encrypted storage. The `_accessTokenKey` and `_refreshTokenKey` constants are already defined at the top of the class.
@@ -256,7 +267,7 @@ Find the `TODO 1` comment block. Your task is to uncomment and complete four met
     final storage = FlutterSecureStorage();
     await storage.write(key: 'token', value: token);  // Encrypted!
     ```
-    `SharedPreferences` stores data as plain text in an XML file on Android and a plist on iOS. Anyone with physical access to the device (or a backup) can read it. `FlutterSecureStorage` uses the iOS Keychain (hardware-backed) and Android EncryptedSharedPreferences (AES-256). For healthcare apps handling PHI, this isn't optional — it's a HIPAA requirement.
+    `SharedPreferences` stores data as plain text in an XML file on Android and a plist on iOS. Anyone with physical access to the device (or a backup) can read it. `FlutterSecureStorage` uses the iOS Keychain (hardware-backed) and Android EncryptedSharedPreferences (AES-256). For healthcare apps handling PHI, this isn't optional — it's a ==HIPAA requirement==.
 
 ---
 
@@ -269,9 +280,23 @@ Find the `TODO 1` comment block. Your task is to uncomment and complete four met
 !!! example "Real-world mHealth: HIPAA-compliant token management"
     In clinical apps like MyChart (Epic) or Patient Portal, authentication tokens are treated as PHI access keys. HIPAA's Technical Safeguards (§164.312) require: (1) **Unique user identification** — each clinician has their own credentials, (2) **Automatic logoff** — tokens expire after 15-30 minutes of inactivity, (3) **Encryption** — tokens stored in the device's secure enclave (exactly what `FlutterSecureStorage` does), and (4) **Audit controls** — every API call with the token is logged server-side. Your `AuthService` class implements requirements 1 and 3. Production apps add token refresh and idle timeout for requirement 2.
 
+??? protip "Pro tip: Biometric unlock"
+    `FlutterSecureStorage` can be configured to require ==biometric
+    authentication== (Face ID / fingerprint) before reading stored tokens
+    on supported devices — adding an extra layer of security for
+    sensitive health data.
+
+!!! success "Checkpoint: Part 2 complete"
+    You have a working `AuthService` with ==secure token storage==. Login
+    credentials never touch `SharedPreferences` — they're encrypted via
+    platform keychain.
+
 ---
 
 ## Part 3: Login & Register Services (~20 min)
+
+!!! abstract "TL;DR"
+    `login()` sends ==form-encoded== data to `/auth/login` (OAuth2 spec), stores the returned JWT tokens. `register()` sends ==JSON== to `/auth/register`. Different encoding formats because login follows OAuth2, registration is a custom endpoint.
 
 Stay in `lib/services/auth_service.dart`. Now you will implement the two API calls for authentication.
 
@@ -279,7 +304,7 @@ Stay in `lib/services/auth_service.dart`. Now you will implement the two API cal
 
 Find the `TODO 2` comment block. Implement the `login()` method that:
 
-1. Sends a **POST** request to `/auth/login` with **form-encoded** data.
+1. Sends a **POST** request to `/auth/login` with ==form-encoded== data.
 2. Parses the JSON response to extract `access_token` and `refresh_token`.
 3. Stores both tokens using `saveTokens()`.
 4. Throws an `AuthException` on failure. (This class is already defined for you at the top of `auth_service.dart`.)
@@ -311,9 +336,9 @@ Find the `TODO 2` comment block. Implement the `login()` method that:
     }
     ```
 
-    1. The login endpoint requires `application/x-www-form-urlencoded` because it follows the **OAuth2 password grant** specification (RFC 6749). This differs from most other API calls which use `application/json`.
-    2. The body is a **form-encoded** map, not JSON. OAuth2 mandates this format for token endpoints. Note the `'username'` key -- OAuth2 uses this field name even when the value is an email address.
-    3. Parses the **JWT access token** and refresh token from the server's JSON response. These tokens are then stored in encrypted storage for use in subsequent API requests.
+    1. The login endpoint requires `application/x-www-form-urlencoded` because it follows the ==OAuth2 password grant== specification (RFC 6749). This differs from most other API calls which use `application/json`.
+    2. The body is a ==form-encoded== map, not JSON. OAuth2 mandates this format for token endpoints. Note the `'username'` key -- OAuth2 uses this field name even when the value is an email address.
+    3. Parses the JWT access token and refresh token from the server's JSON response. These tokens are then stored in encrypted storage for use in subsequent API requests.
 
     **Important detail:** The login endpoint uses **form-encoded** data (`application/x-www-form-urlencoded`), not JSON. This is because the API follows the OAuth2 password grant specification, which mandates form encoding. Notice that the email is sent in the `'username'` field -- this is also an OAuth2 convention.
 
@@ -327,13 +352,13 @@ Find the `TODO 2` comment block. Implement the `login()` method that:
     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     body: 'username=$email&password=$password',
     ```
-    The OAuth2 password grant specification (RFC 6749 Section 4.3) mandates `application/x-www-form-urlencoded` for token requests. Sending JSON to an OAuth2 endpoint typically results in a 422 Unprocessable Entity. Registration endpoints (custom, not OAuth2) can use JSON.
+    The OAuth2 password grant specification (RFC 6749 Section 4.3) mandates ==`application/x-www-form-urlencoded`== for token requests. Sending JSON to an OAuth2 endpoint typically results in a 422 Unprocessable Entity. Registration endpoints (custom, not OAuth2) can use JSON.
 
 ### 3.2 TODO 3: Implement register()
 
 Find the `TODO 3` comment block. Implement the `register()` method that:
 
-1. Sends a **POST** request to `/auth/register` with **JSON** data.
+1. Sends a **POST** request to `/auth/register` with ==JSON== data.
 2. Returns successfully on `201` status.
 3. Parses and throws the server's error message on `400` status.
 
@@ -362,11 +387,13 @@ Find the `TODO 3` comment block. Implement the `register()` method that:
     }
     ```
 
-    1. Registration uses standard **JSON encoding** (`application/json`), unlike login which uses form encoding. Registration is a custom endpoint, not bound by the OAuth2 spec, so it follows the more common REST convention.
+    1. Registration uses standard ==JSON encoding== (`application/json`), unlike login which uses form encoding. Registration is a custom endpoint, not bound by the OAuth2 spec, so it follows the more common REST convention.
 
     **Why does login use form-encoded but register uses JSON?** Login follows the OAuth2 token endpoint specification, which requires `application/x-www-form-urlencoded`. Registration is a custom endpoint that uses JSON, the more common format for REST APIs. This distinction is common in real-world APIs.
 
     **Notice:** Registration does NOT automatically log the user in. It only creates the account. The user (or the app) must call `login()` separately afterward. This separation of concerns is a common pattern.
+
+~~Login and register should use the same encoding~~ — they serve different protocols. Login follows the ==OAuth2 spec== (form-encoded, RFC 6749). Registration is a custom endpoint (JSON, REST convention). Mixing them up causes 422 errors.
 
 ---
 
@@ -378,15 +405,23 @@ Find the `TODO 3` comment block. Implement the `register()` method that:
 - [ ] `register()` throws `AuthException` with the server's error message on `400`.
 - [ ] Both methods handle error status codes.
 
-??? question "Quick check: Why form-encoded for login?"
+??? question "Scenario: Why form-encoded for login?"
     Why does the login endpoint use `application/x-www-form-urlencoded` instead of JSON?
 
     ??? success "Answer"
-        The login endpoint follows the **OAuth2 password grant** specification (RFC 6749), which requires form-encoded bodies. This is an industry standard -- most auth servers (including FastAPI's built-in OAuth2) expect this format. Registration, being a custom endpoint, uses standard JSON.
+        The login endpoint follows the ==OAuth2 password grant== specification (RFC 6749), which requires form-encoded bodies. This is an industry standard -- most auth servers (including FastAPI's built-in OAuth2) expect this format. Registration, being a custom endpoint, uses standard JSON.
+
+!!! success "Checkpoint: Part 3 complete"
+    The login form sends credentials to the API, receives a JWT, and
+    stores it securely. The ==auth flow works end-to-end== for a single
+    session.
 
 ---
 
 ## Part 4: Auth State Management (~15 min)
+
+!!! abstract "TL;DR"
+    `AuthNotifier` is a ==state machine== with four states: `initial → loading → authenticated/unauthenticated`. Every method sets `loading` first, then transitions based on success/failure. The `authProvider` exposes this state to the entire widget tree.
 
 Open `lib/providers/auth_provider.dart`. This file defines the `AuthState` enum and has a scaffold for the `AuthNotifier`.
 
@@ -442,9 +477,9 @@ Find the `TODO 4` comment block. Uncomment and complete the `AuthNotifier` class
     }
     ```
 
-    1. Checks for an existing session on app start by reading the stored token from encrypted storage. If the user previously logged in and the token persists, we can restore their session without asking for credentials again.
+    1. Checks for an existing session on app start by reading the stored token from encrypted storage. If the user previously logged in and the token persists, we can ==restore their session== without asking for credentials again.
     2. If a token exists, the user is sent to the home screen (`authenticated`); otherwise they see the login screen (`unauthenticated`). This single check drives the entire auto-login experience.
-    3. Sets the loading state **before** the async operation begins, so the UI can show a spinner or disable the login button while the network request is in flight.
+    3. Sets the loading state **before** the async operation begins, so the UI can show a ==spinner or disable the login button== while the network request is in flight.
     4. Delegates the actual HTTP call and token storage to `AuthService`, keeping the notifier focused on **state transitions** rather than networking details. This separation makes both classes independently testable.
     5. On success, transitions to `authenticated` -- this single state change triggers the route guard in `MoodTrackerApp` to swap the login screen for the home screen automatically.
     6. Propagates the `AuthException` to the UI layer (e.g., `LoginScreen`) so it can display the error message in a SnackBar, while the notifier still handles the state transition back to `unauthenticated`.
@@ -464,7 +499,7 @@ Find the `TODO 4` comment block. Uncomment and complete the `AuthNotifier` class
     - On failure, state transitions to `unauthenticated` and the exception is rethrown for the UI to display.
     - `rethrow` is critical: it lets the calling code (the login screen) catch the `AuthException` and show the error message in a SnackBar, while the notifier still handles the state transition.
 
-    **Why `register()` calls `login()` after registration:** This is a UX choice. After a successful registration, the user is automatically logged in rather than being sent back to the login screen. The `register()` method calls `_authService.register()` then `_authService.login()` in sequence.
+    **Why `register()` calls `login()` after registration:** This is a UX choice. After a successful registration, the user is ==automatically logged in== rather than being sent back to the login screen.
 
 ??? warning "Common mistake: Not handling all auth states in the UI"
     ```dart
@@ -483,7 +518,9 @@ Find the `TODO 4` comment block. Uncomment and complete the `AuthNotifier` class
       AuthState.error(message: var msg) => LoginScreen(error: msg),
     };
     ```
-    Collapsing multiple states into a catch-all causes UX issues: users see a login screen during initial token check (should be splash), and error messages are lost. Dart 3's exhaustive switch forces you to handle every case.
+    Collapsing multiple states into a catch-all causes UX issues: users see a login screen during initial token check (should be splash), and error messages are lost. Dart 3's ==exhaustive switch== forces you to handle every case.
+
+~~A boolean `isLoggedIn` is enough for auth state~~ — a boolean can't represent "checking stored token" (splash screen), "login in progress" (spinner), or "login failed" (error message). The state machine makes each case ==explicit and exhaustive==.
 
 ---
 
@@ -496,15 +533,28 @@ Find the `TODO 4` comment block. Uncomment and complete the `AuthNotifier` class
 - [ ] `logout()` deletes tokens and transitions to `unauthenticated`.
 - [ ] The `authProvider` definition is uncommented.
 
-??? question "Quick check: Why a state machine?"
+??? question "Scenario: Why a state machine?"
     Why model authentication as a state machine (`initial -> loading -> authenticated/error`) instead of just a boolean `isLoggedIn`?
 
     ??? success "Answer"
-        A boolean can't represent intermediate states. With just `isLoggedIn = false`, the UI can't distinguish between "never checked" (show splash), "checking token" (show spinner), "login failed" (show error), and "not logged in" (show login form). The state machine makes each case explicit and the UI code becomes a simple switch on the current state.
+        A boolean can't represent intermediate states. With just `isLoggedIn = false`, the UI can't distinguish between "never checked" (show splash), "checking token" (show spinner), "login failed" (show error), and "not logged in" (show login form). The state machine makes each case ==explicit== and the UI code becomes a simple switch on the current state.
+
+!!! success "Checkpoint: Part 4 complete"
+    The auth state machine is working — `AuthNotifier` manages login,
+    logout, and session restoration with ==clean state transitions==. The
+    entire app's navigation will be driven by these states.
 
 ---
 
 ## Part 5: Dynamic Token Injection (~10 min)
+
+!!! abstract "TL;DR"
+    Replace the ==hardcoded `_headers` getter== with an async `_getHeaders()` method that reads the real token from `FlutterSecureStorage`. Update all 4 HTTP methods to `await` it.
+
+!!! warning "Common mistake"
+    Don't assume your stored token is still valid. JWTs expire — if you
+    blindly send an expired token, the API returns ==`401 Unauthorized`==.
+    Check expiry before each call and refresh proactively.
 
 Open `lib/services/api_client.dart`. This file currently uses a hardcoded `tempAuthToken` from `config.dart`.
 
@@ -548,7 +598,7 @@ Find the `TODO 5` comments. You need to make two changes:
     final response = await http.get(url, headers: headers);
     ```
 
-    **Key insight:** The `if (token != null)` inside the map literal is a Dart collection-if. If no token is stored (user not logged in), the `Authorization` header is simply omitted. This prevents sending `Bearer null` to the server.
+    **Key insight:** The `if (token != null)` inside the map literal is a ==Dart collection-if==. If no token is stored (user not logged in), the `Authorization` header is simply omitted. This prevents sending `Bearer null` to the server.
 
     **Why async?** `FlutterSecureStorage.read()` is an async operation because it interacts with the platform's encrypted storage. This means `_headers` cannot be a synchronous getter anymore -- it must become an async method. Every call site must `await` it.
 
@@ -560,6 +610,15 @@ Find the `TODO 5` comments. You need to make two changes:
 - [ ] All four HTTP methods (`get`, `post`, `delete`, `put`) now use `await _getHeaders()`.
 - [ ] The `Authorization` header is only included when a token exists.
 - [ ] The `tempAuthToken` from `config.dart` is no longer referenced in this file.
+
+??? question "Scenario: Expired token mid-session"
+    A patient's JWT expires mid-session while they're writing a long symptom note. What happens when they tap "Save"? Design the UX: does the app silently refresh the token, show a re-login dialog, or lose the note?
+
+    ??? success "Answer"
+        The ideal UX: (1) The API client detects the 401 response. (2) It attempts a ==silent token refresh== using a stored refresh token. (3) If refresh succeeds, it retries the original POST automatically — the patient never notices. (4) If refresh fails, the app saves the note locally (draft), shows a non-blocking re-login dialog, and re-sends after successful login. **Never lose user data** — that's the cardinal rule of mHealth UX.
+
+!!! success "Checkpoint: Part 5 complete"
+    API requests now use ==dynamically injected tokens== from secure storage instead of the hardcoded test token. The `tempAuthToken` in `config.dart` is no longer used.
 
 ---
 
@@ -637,6 +696,9 @@ sequenceDiagram
 
 ## Part 6: Connecting UI to Auth (~15 min)
 
+!!! abstract "TL;DR"
+    Wire the login button to `authProvider`: validate the form, call `ref.read(authProvider.notifier).login()`, catch `AuthException` for SnackBar errors, and ==always check `mounted`== before `setState` after async calls.
+
 Open `lib/screens/login_screen.dart`. The login form UI is already built. You need to wire the submit button to the auth provider.
 
 ### 6.1 TODO 6: Implement the _login() method
@@ -682,7 +744,7 @@ Find the `TODO 6` comments. Make these changes:
     }
     ```
 
-    1. `ref.read()` (not `ref.watch()`) is used because this is a **one-time action** inside a callback. `ref.watch()` is for continuous subscriptions in `build()` methods; `ref.read()` fires once and does not set up a listener.
+    1. `ref.read()` (not `ref.watch()`) is used because this is a ==one-time action== inside a callback. `ref.watch()` is for continuous subscriptions in `build()` methods; `ref.read()` fires once and does not set up a listener.
     2. The `mounted` check prevents calling `setState()` or accessing `context` on a widget that has already been disposed. After an `await`, the widget may no longer be in the tree if the user navigated away.
 
     **Why the `mounted` check?** The `login()` call is asynchronous. While awaiting the network response, the user might navigate away (e.g., press the back button), which would dispose the widget. Calling `setState()` or `ScaffoldMessenger.of(context)` on a disposed widget throws an error. The `mounted` property is `true` only when the widget is still in the tree.
@@ -701,7 +763,7 @@ Find the `TODO 6` comments. Make these changes:
       setState(() => _isLoading = false);
     }
     ```
-    If the user presses back or the `AuthGate` navigates away while `login()` is running, the widget gets disposed. Calling `setState` on a disposed widget throws: "setState() called after dispose()". The `mounted` check prevents this.
+    If the user presses back or the `AuthGate` navigates away while `login()` is running, the widget gets disposed. Calling `setState` on a disposed widget throws: =="`setState() called after dispose()`"==. The `mounted` check prevents this.
 
 ### 6.2 Bonus: Wire the RegisterScreen
 
@@ -727,9 +789,17 @@ The register screen at `lib/screens/register_screen.dart` has a similar `_regist
 - [ ] `AuthException` is caught and displayed in a SnackBar.
 - [ ] `mounted` checks are used before `setState()` and `ScaffoldMessenger`.
 
+!!! success "Checkpoint: Part 6 complete"
+    The login screen is wired to the auth provider. Users can log in with
+    real credentials, see ==loading feedback==, and get meaningful error
+    messages on failure.
+
 ---
 
 ## Part 7: Route Guarding & Auto-Login (~15 min)
+
+!!! abstract "TL;DR"
+    Change `MoodTrackerApp` to a `ConsumerWidget` that ==watches `authProvider`==. Use a Dart 3 switch expression to show `LoginScreen`, `HomeScreen`, or a loading spinner based on auth state. Add `_AuthCheckScreen` to trigger `checkAuth()` on startup.
 
 Open `lib/main.dart`. Currently, the app always shows `HomeScreen`. You need to make it show the correct screen based on the auth state.
 
@@ -785,7 +855,7 @@ Find the `TODO 7` comments. Make these changes:
     }
     ```
 
-    1. Dart 3 **switch expression** provides exhaustive pattern matching -- the compiler ensures every `AuthState` variant is handled, so adding a new state later causes a compile error rather than a silent bug.
+    1. Dart 3 ==switch expression== provides exhaustive pattern matching -- the compiler ensures every `AuthState` variant is handled, so adding a new state later causes a compile error rather than a silent bug.
 
     Add the `_AuthCheckScreen` widget:
 
@@ -821,11 +891,9 @@ Find the `TODO 7` comments. Make these changes:
     2. `_AuthCheckScreen.initState()` calls `checkAuth()`, which reads the stored token.
     3. If a token exists, state transitions to `authenticated` and `MoodTrackerApp` rebuilds to show `HomeScreen`.
     4. If no token exists, state transitions to `unauthenticated` and `MoodTrackerApp` rebuilds to show `LoginScreen`.
-    5. After a successful login, state transitions to `authenticated` and the app automatically switches to `HomeScreen`.
+    5. After a successful login, state transitions to `authenticated` and the app ==automatically switches== to `HomeScreen`.
 
-    **Why `Future.microtask()`?** Riverpod does not allow modifying provider state during `initState()` synchronously. `Future.microtask()` schedules the call to run after the current build cycle completes, which is the safe way to trigger state changes during widget initialization.
-
-    **Dart 3 switch expression:** The `switch (authState) { ... }` syntax is a Dart 3 feature called a switch expression. It is like a traditional switch statement but returns a value, making it ideal for choosing which widget to display.
+~~Route guards require a navigation library~~ — you don't need `go_router` or `auto_route` for basic auth routing. A ==switch expression on auth state== in the root widget handles login/home/splash transitions cleanly. Add a routing library when you need deep linking or complex navigation stacks.
 
 ---
 
@@ -837,11 +905,22 @@ Find the `TODO 7` comments. Make these changes:
 - [ ] The app shows `HomeScreen` when authenticated.
 - [ ] `_AuthCheckScreen` calls `checkAuth()` on startup to restore the session.
 
-??? question "Quick check: Why Future.microtask?"
+??? question "Scenario: Why Future.microtask?"
     Why do we wrap `checkAuth()` in `Future.microtask()` instead of calling it directly in `build()`?
 
     ??? success "Answer"
-        Flutter's `build()` method must be synchronous and side-effect-free. Calling `checkAuth()` directly would modify provider state during the build phase, which triggers a rebuild during a rebuild -- causing a framework error. `Future.microtask()` defers the call to the next microtask, after the current build completes.
+        Flutter's `build()` method must be ==synchronous and side-effect-free==. Calling `checkAuth()` directly would modify provider state during the build phase, which triggers a rebuild during a rebuild -- causing a framework error. `Future.microtask()` defers the call to the next microtask, after the current build completes.
+
+??? challenge "Stretch Goal: Remember me"
+    Add a "remember me" checkbox to the login screen. If unchecked, clear the stored token when the app is closed (use `WidgetsBindingObserver` to detect app lifecycle).
+
+    *Hint:* Override `didChangeAppLifecycleState()` and check for `AppLifecycleState.detached`.
+
+!!! success "Checkpoint: Part 7 complete"
+    Route guarding is active — unauthenticated users see the login
+    screen, authenticated users see the home screen, and the app
+    ==auto-restores sessions== on startup. The full auth flow works
+    end-to-end.
 
 ---
 
@@ -873,7 +952,7 @@ Make sure to import `auth_provider.dart` at the top of the file. After logging o
 
 ## Applying This to Your Team Project
 
-Authentication is a cross-cutting concern that affects every API call:
+Authentication is a ==cross-cutting concern== that affects every API call:
 
 - **Does your app need authentication?** If it stores any personal health data — yes.
 - **Token management:** Adapt the `AuthService` pattern for your API's auth flow.
@@ -907,7 +986,7 @@ graph LR
 
 Walk through this complete flow to verify everything works:
 
-1. Launch the app. You should see a loading indicator, then the **login screen** (since no token is stored).
+1. Launch the app. You should see a loading indicator, then the ==login screen== (since no token is stored).
 2. **Register a test user** using curl (or via the register screen if you completed the bonus in Part 6):
     ```bash
     curl -X POST http://localhost:8000/auth/register \
@@ -915,11 +994,11 @@ Walk through this complete flow to verify everything works:
       -d '{"email": "test@test.com", "username": "testuser", "password": "test123"}'
     ```
 3. **Log in** on the login screen with the credentials you just registered.
-4. You should see the **home screen** after a successful login.
+4. You should see the ==home screen== after a successful login.
 5. Close and reopen the app. You should be **automatically logged in** (the stored token is detected).
 6. Add a mood entry to verify the API works with the real token.
-7. Tap the **logout** icon in the app bar. You should be taken back to the **login screen**.
-8. Log in again with your credentials. You should see the **home screen**.
+7. Tap the **logout** icon in the app bar. You should be taken back to the ==login screen==.
+8. Log in again with your credentials. You should see the home screen.
 
 If all 8 steps work correctly, you have completed the lab.
 
@@ -927,25 +1006,25 @@ If all 8 steps work correctly, you have completed the lab.
 
 | TODO | File | What you did |
 |------|------|-------------|
-| 1 | `services/auth_service.dart` | Implemented `saveTokens`, `getAccessToken`, `getRefreshToken`, `deleteTokens` using `FlutterSecureStorage`. |
-| 2 | `services/auth_service.dart` | Implemented `login()` -- POST form-encoded to `/auth/login`, parse token response, store tokens. |
-| 3 | `services/auth_service.dart` | Implemented `register()` -- POST JSON to `/auth/register`, handle 400 errors. |
-| 4 | `providers/auth_provider.dart` | Implemented `AuthNotifier` state machine with `checkAuth`, `login`, `register`, `logout`. |
-| 5 | `services/api_client.dart` | Replaced hardcoded `_headers` with async `_getHeaders()` that reads the real token. |
-| 6 | `screens/login_screen.dart` | Implemented `_login()` with form validation, provider call, error SnackBar, and `mounted` checks. |
-| 7 | `main.dart` | Implemented auth-based route guarding with `ConsumerWidget` and `_AuthCheckScreen`. |
+| 1 | `services/auth_service.dart` | Implemented `saveTokens`, `getAccessToken`, `getRefreshToken`, `deleteTokens` using `FlutterSecureStorage` |
+| 2 | `services/auth_service.dart` | Implemented `login()` -- POST form-encoded to `/auth/login`, parse token response, store tokens |
+| 3 | `services/auth_service.dart` | Implemented `register()` -- POST JSON to `/auth/register`, handle 400 errors |
+| 4 | `providers/auth_provider.dart` | Implemented `AuthNotifier` state machine with `checkAuth`, `login`, `register`, `logout` |
+| 5 | `services/api_client.dart` | Replaced hardcoded `_headers` with async `_getHeaders()` that reads the real token |
+| 6 | `screens/login_screen.dart` | Implemented `_login()` with form validation, provider call, error SnackBar, and `mounted` checks |
+| 7 | `main.dart` | Implemented auth-based route guarding with `ConsumerWidget` and `_AuthCheckScreen` |
 
 ### 8.3 Key concepts learned
 
 | Concept | Key Takeaway |
 |---------|--------------|
-| `FlutterSecureStorage` | Uses OS-level encryption (Keychain / EncryptedSharedPreferences) for sensitive data like tokens. |
-| JWT auth flow | Client sends credentials, server returns access + refresh tokens, client stores and sends them with every request. |
-| OAuth2 form encoding | Login endpoints following OAuth2 spec use `application/x-www-form-urlencoded`, not JSON. |
-| State machine pattern | Auth state transitions (`initial -> loading -> authenticated/unauthenticated`) drive which screen is shown. |
-| `mounted` check | Always check `mounted` before calling `setState()` or accessing `context` after an `await`. |
-| Route guarding | Watch auth state in a root `ConsumerWidget` and conditionally render screens. |
-| `Future.microtask()` | Safe way to trigger provider state changes during widget initialization. |
+| `FlutterSecureStorage` | Uses OS-level encryption (Keychain / EncryptedSharedPreferences) for sensitive data like tokens |
+| JWT auth flow | Client sends credentials, server returns access + refresh tokens, client stores and sends them with every request |
+| OAuth2 form encoding | Login endpoints following OAuth2 spec use `application/x-www-form-urlencoded`, not JSON |
+| State machine pattern | Auth state transitions (`initial → loading → authenticated/unauthenticated`) drive which screen is shown |
+| `mounted` check | Always check `mounted` before calling `setState()` or accessing `context` after an `await` |
+| Route guarding | Watch auth state in a root `ConsumerWidget` and conditionally render screens |
+| `Future.microtask()` | Safe way to trigger provider state changes during widget initialization |
 
 !!! info "Grading"
     For detailed sprint review rubrics and grading criteria, see the [Project Grading Guide](../../resources/PROJECT_GRADING.md).
@@ -958,7 +1037,7 @@ In the following weeks, you will extend this Mood Tracker app:
 
 - **Week 10:** Sprint Review #2, testing workshop -- unit tests, widget tests, and integration tests for your project.
 
-The authentication foundation you built today ensures that every API request is properly authorized and that patient data is protected.
+The authentication foundation you built today ensures that every API request is properly authorized and that ==patient data is protected==.
 
 ---
 
@@ -968,27 +1047,86 @@ The authentication foundation you built today ensures that every API request is 
     This native plugin requires a full restart (not hot reload). Stop the app, run `flutter clean && flutter pub get`, then `flutter run`. On Android, you may also need to set the minimum SDK version to 18+ in `android/app/build.gradle`.
 
 ??? question "Login succeeds in curl but fails in the app"
-    Check that: (1) Your `login()` method uses `application/x-www-form-urlencoded` (not JSON) for the content type. (2) The email is sent in the `'username'` field (OAuth2 convention). (3) The `apiBaseUrl` in `config.dart` matches the server address. For Android emulator, use `http://10.0.2.2:8000`.
+    Check that: (1) Your `login()` method uses ==`application/x-www-form-urlencoded`== (not JSON) for the content type. (2) The email is sent in the `'username'` field (OAuth2 convention). (3) The `apiBaseUrl` in `config.dart` matches the server address. For Android emulator, use `http://10.0.2.2:8000`.
 
 ??? question "App shows login screen even after successful login"
     Check that `saveTokens()` is called after a successful login response and that `authProvider` transitions to `AuthState.authenticated`. Add `print()` statements in `AuthNotifier.login()` to trace the state transitions.
 
 ??? question "`setState() called after dispose()` error"
-    You are calling `setState()` after the widget has been removed from the tree. This happens when an async operation (like `login()`) completes after the user navigated away. Add `if (mounted)` checks before every `setState()` and `ScaffoldMessenger.of(context)` call.
+    You are calling `setState()` after the widget has been removed from the tree. This happens when an async operation (like `login()`) completes after the user navigated away. Add ==`if (mounted)`== checks before every `setState()` and `ScaffoldMessenger.of(context)` call.
 
 ??? question "Auto-login doesn't work after restarting the app"
     Check that: (1) `_AuthCheckScreen.initState()` calls `checkAuth()` via `Future.microtask()`. (2) `checkAuth()` reads the token from `FlutterSecureStorage` and sets the state to `authenticated` if found. (3) The `switch (authState)` in `MoodTrackerApp` includes a case for `AuthState.initial` that shows the check screen.
 
+??? question "Android emulator shows `CERTIFICATE_VERIFY_FAILED`"
+    The emulator doesn't trust your machine's local certificates. For development, you can temporarily disable certificate verification (==never in production==): add `HttpOverrides.global = _DevHttpOverrides();` in `main()`. Better: use `http://` (not `https://`) for your local development server.
+
 ---
 
-## Further Reading
+## Quick Quiz
 
-- [FlutterSecureStorage package on pub.dev](https://pub.dev/packages/flutter_secure_storage)
-- [JWT.io -- JSON Web Token introduction](https://jwt.io/introduction)
-- [OAuth2 Resource Owner Password Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.3)
-- [Flutter Riverpod documentation](https://riverpod.dev/)
-- [HIPAA Security Rule -- Technical Safeguards](https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html)
-- [OWASP Mobile Security -- Authentication](https://owasp.org/www-project-mobile-top-10/)
+<quiz>
+What are the three parts of a JWT token?
+
+- [ ] Username, password, expiry
+- [x] Header, payload, signature
+- [ ] Token, refresh token, session ID
+- [ ] Public key, private key, hash
+</quiz>
+
+<quiz>
+Why is `FlutterSecureStorage` better than `SharedPreferences` for tokens?
+
+- [ ] It's faster to read and write
+- [ ] It supports larger data sizes
+- [x] It encrypts data at rest using the OS keychain (Keystore/Keychain)
+- [ ] It automatically refreshes expired tokens
+</quiz>
+
+<quiz>
+What state does `AuthNotifier` start in?
+
+- [x] Initial (checking for stored token)
+- [ ] Authenticated
+- [ ] Unauthenticated
+- [ ] Error
+</quiz>
+
+<quiz>
+What does the route guard (AuthGate) do?
+
+- [ ] Encrypts all network traffic
+- [ ] Validates JWT signatures on the client
+- [x] Routes users to login or home screen based on authentication state
+- [ ] Stores the auth token securely
+</quiz>
+
+<quiz>
+How is the Bearer token sent with API requests?
+
+- [ ] As a query parameter: `?token=abc`
+- [ ] In the request body as JSON
+- [x] In the `Authorization` header: `Bearer <token>`
+- [ ] As a cookie
+</quiz>
+
+<quiz>
+Why must you check `mounted` before calling `setState()` after an `await`?
+
+- [ ] Flutter requires it for all `setState()` calls
+- [ ] It improves performance
+- [x] The widget may have been disposed during the async operation, and calling setState on a disposed widget crashes
+- [ ] It prevents duplicate state updates
+</quiz>
+
+<quiz>
+What encoding does the OAuth2 login endpoint require?
+
+- [ ] `application/json`
+- [x] `application/x-www-form-urlencoded`
+- [ ] `multipart/form-data`
+- [ ] `text/plain`
+</quiz>
 
 ---
 
@@ -1000,3 +1138,14 @@ The authentication foundation you built today ensures that every API request is 
     3. **For your team project:** Does your app need authentication? If it handles any personal health data, the answer is yes. List 3 security improvements your team should make before the next sprint review.
 
     Write your answers in your lab notebook or discuss with your neighbor.
+
+---
+
+## Further Reading
+
+- [FlutterSecureStorage package on pub.dev](https://pub.dev/packages/flutter_secure_storage)
+- [JWT.io -- JSON Web Token introduction](https://jwt.io/introduction)
+- [OAuth2 Resource Owner Password Credentials Grant](https://datatracker.ietf.org/doc/html/rfc6749#section-4.3)
+- [Flutter Riverpod documentation](https://riverpod.dev/)
+- [HIPAA Security Rule -- Technical Safeguards](https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html)
+- [OWASP Mobile Security -- Authentication](https://owasp.org/www-project-mobile-top-10/)

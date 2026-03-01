@@ -95,6 +95,13 @@
     if (el._glBound) return
     el._glBound = true
 
+    /* Skip abbreviations inside quiz elements — tooltips spoil answers */
+    if (el.closest(".quiz")) {
+      var title = el.getAttribute("title")
+      if (title) el.removeAttribute("title")   // strip native tooltip too
+      return
+    }
+
     /* Store definition immediately so it survives title removal */
     var title = el.getAttribute("title")
     if (title) {

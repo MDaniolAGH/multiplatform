@@ -18,6 +18,7 @@ Complete these **before students arrive**:
 - [ ] Prepare a merge conflict demo repository (two branches modifying the same file -- `patient_info.txt` with conflicting blood pressure values; see Appendix at the end of this guide)
 - [ ] Test that `pip install fastapi uvicorn` works on the lab network (try it inside a venv)
 - [ ] Have the starter template `fastapi-starter/main.py` ready and accessible to students
+- [ ] GitHub Classroom assignment created and accept link ready to share (see "GitHub Classroom Setup" section below)
 - [ ] Open the student workbook (`README.md`) on the projector
 - [ ] Increase terminal font size to at least 18pt
 - [ ] Have a browser tab ready for the GitHub PR demo
@@ -624,7 +625,8 @@ curl -X POST http://localhost:8000/mood -H "Content-Type: application/json" -d "
 **Talking points:**
 
 - Walk through the individual assignment in the workbook
-- Emphasize the workflow: Fork > Clone > Branch > Code > Test with curl > Commit > Push > Open PR
+- Share the GitHub Classroom assignment accept link (see the "GitHub Classroom Setup" section below)
+- Emphasize the workflow: Accept assignment > Clone > Branch > Code > Test with curl > Commit > Push > Open PR to your own `main`
 - "Your PR description must include an example curl command and the expected response. This is standard practice -- when you document an API, you show how to use it."
 - Deadline: before Week 3 lab
 - "Choose one of the suggested endpoints, or propose your own. Clear it with me first if you go custom."
@@ -900,7 +902,7 @@ Every student should leave the lab with:
 - [ ] Opened or reviewed at least one Pull Request on GitHub
 - [ ] FastAPI server running with all three endpoints working (`/health`, `/mood`, `/moods`)
 - [ ] Tested at least one endpoint with curl
-- [ ] Understands the assignment (fork, branch, new endpoint, PR)
+- [ ] Understands the assignment (accept GitHub Classroom link, branch, new endpoint, PR)
 
 ### Quick Verification Method
 
@@ -925,6 +927,54 @@ to confirm their API is responding.
 - The merge conflict exercise requires the prepared repo -- provide the URL or have them create the conflict locally using the Appendix instructions below
 - Remind them the assignment deadline is before Week 3 lab
 - Offer office hours or a communication channel for questions
+
+---
+
+## GitHub Classroom Setup
+
+Follow these steps **before the lab session** to prepare the individual assignment.
+
+### Step 1: Create the Template Repository on GitHub
+
+1. Create a new repository on GitHub (e.g., `mood-tracker-api-template`).
+2. Push the contents of `week-02-git-apis-curl/assignment-template/` to it:
+
+```bash
+cd week-02-git-apis-curl/assignment-template
+git init
+git add .
+git commit -m "Initial mood tracker API template"
+git remote add origin git@github.com:YOUR-ORG/mood-tracker-api-template.git
+git push -u origin main
+```
+
+3. Go to the repository **Settings** on GitHub.
+4. Under **General**, check **Template repository**.
+
+### Step 2: Create the Assignment in GitHub Classroom
+
+1. Go to [classroom.github.com](https://classroom.github.com) and select your classroom.
+2. Click **New assignment**.
+3. Configure the assignment:
+   - **Title:** `week-02-mood-tracker-endpoint`
+   - **Type:** Individual
+   - **Visibility:** Private (recommended)
+   - **Template repository:** Select `mood-tracker-api-template`
+   - **Deadline:** Before the start of Week 3 lab
+4. Click **Create assignment**.
+5. Copy the **assignment accept link** — this is what you share with students.
+
+### Step 3: Share with Students
+
+- Post the accept link on the course page or share it during the lab session.
+- When a student clicks the link, GitHub Classroom automatically creates a private copy of the template repository under their account.
+- Students clone their repo, create a feature branch, add an endpoint, and open a PR from the feature branch to their own `main`.
+
+### Reviewing Student Work
+
+- Use the GitHub Classroom **dashboard** to see all student repositories at a glance.
+- Click into individual repos to review PRs, code, and commit history.
+- You can leave review comments directly on student PRs.
 
 ---
 
