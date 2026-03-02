@@ -3,7 +3,6 @@
 <div class="lab-meta" markdown>
 <div class="lab-meta__row"><span class="lab-meta__label">Course</span> Mobile Apps for Healthcare</div>
 <div class="lab-meta__row"><span class="lab-meta__label">Duration</span> ~2 hours (including Q&A)</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Format</span> Student-facing notes with presenter cues</div>
 </div>
 
 <div class="grid cards" markdown>
@@ -35,9 +34,6 @@
     | 6. Key Takeaways | ~5 min |
 
 </div>
-
-> Lines marked with `> PRESENTER NOTE:` are for the instructor only. Students can
-> ignore these or treat them as bonus context.
 
 !!! tip "Remember from Week 1?"
     Last week you used `git push` to send code to GitHub over SSH. That connection used **HTTP's cousin** (the SSH protocol) running on top of TCP/IP --- the exact same networking stack you'll study today. The difference? SSH is optimized for secure shell access; HTTP is optimized for transferring web content and API data. Same foundation, different purpose.
@@ -86,10 +82,6 @@ graph LR
 
 In the lab, you played **both roles** on one machine -- `curl` was the client and FastAPI was the server. In production, these two live on ==completely different computers==, connected over the internet.
 
-> PRESENTER NOTE: Ask students: "When you typed `curl localhost:8000/moods` in the
-> lab, which part was the client and which was the server?" Make sure this is crystal
-> clear before moving on.
-
 ### DNS: The Phone Book of the Internet
 
 When you type `google.com` into a browser, your computer does not know where Google's server actually lives. It needs an ==IP address== -- a numerical address like `142.250.185.14`. ==DNS== (Domain Name System) translates human-readable names into these addresses.
@@ -97,16 +89,6 @@ When you type `google.com` into a browser, your computer does not know where Goo
 **Analogy:** DNS is like a phone book. You know the name you want to reach ("google.com"), but you need the phone number (IP address) to actually make the call. Your computer asks a DNS server: "What is the IP address for google.com?" and gets back the number.
 
 In the lab, you used `localhost`, which is a special name that always resolves to `127.0.0.1` -- ==your own machine==. No DNS lookup needed.
-
-> PRESENTER NOTE: Demo DNS lookup live in the terminal:
-> ```bash
-> nslookup google.com
-> ```
-> Show students that a real domain name resolves to an IP address. Then try:
-> ```bash
-> nslookup localhost
-> ```
-> to show that localhost resolves to 127.0.0.1.
 
 ### TCP/IP: The Postal System of the Internet
 
@@ -164,10 +146,6 @@ FastAPI defaults to port 8000 so it does not conflict with anything else running
 
     The concepts you are learning today are exactly what power real healthcare systems worldwide.
 
-> PRESENTER NOTE: Don't spend too much time on FHIR here -- we'll revisit it in
-> Section 3. Just plant the seed that these "abstract" internet concepts have direct,
-> life-and-death applications.
-
 ---
 
 ## 2. HTTP Deep Dive (25 min)
@@ -221,12 +199,6 @@ An HTTP request has four key parts:
 2. **URL/Path** -- ==which resource== you are targeting (`/mood`, `/moods`, `/patients/123`)
 3. **Headers** -- ==metadata== about the request (content type, authentication, etc.)
 4. **Body** -- the ==actual data== you are sending (not all requests have a body)
-
-> PRESENTER NOTE: Open a browser, go to any website, and open DevTools (F12) ->
-> Network tab. Reload the page and click on any request. Walk through the request
-> headers, response headers, and response body. Students should see that every
-> page load involves dozens of HTTP requests. "Even loading Google's homepage
-> sends 20+ HTTP requests."
 
 ### Anatomy of an HTTP Response
 
@@ -300,11 +272,6 @@ Status codes are three-digit numbers grouped into categories. You do not need to
 
 ~~A 4xx error means the server is broken~~ --- no, it means ==your request== was wrong. Check your URL, headers, and body first. The server is working fine; it just can't process what you sent.
 
-> PRESENTER NOTE: Ask students: "Remember when you got a 422 error in the lab? That
-> was FastAPI telling you that your JSON was structurally correct but failed validation
-> -- maybe the mood score was out of range or a required field was missing. Pydantic
-> caught it before your code even ran."
-
 ### Headers: The Metadata
 
 Headers carry extra information about the request or response. The most important ones:
@@ -374,9 +341,6 @@ REST stands for ==Representational State Transfer==. It was described by Roy Fie
 
 In the lab, your `/mood` and `/moods` endpoints followed REST principles without you necessarily knowing it. You used a noun (mood) as the resource and HTTP verbs (GET, POST) as the actions. That is REST in a nutshell.
 
-> PRESENTER NOTE: Don't let students think REST is something you "install" or "turn on."
-> It's a set of conventions. An API is RESTful if it follows the conventions.
-
 ### The REST Constraints
 
 REST defines six constraints. You do not need to memorize them, but understanding the first four will make you a better API designer:
@@ -394,10 +358,6 @@ REST defines six constraints. You do not need to memorize them, but understandin
 **5. Layered System:** The client does not need to know whether it is connected directly to the server or to an intermediary (load balancer, cache, proxy). This enables scaling.
 
 **6. Code on Demand (optional):** The server can send executable code to the client (like JavaScript). This is the only optional constraint.
-
-> PRESENTER NOTE: Don't spend too long on the theoretical constraints. Students need
-> to understand statelessness (because it affects how they design their app) and uniform
-> interface (because that is what API design is about). The rest can be briefly mentioned.
 
 ### Resources and URIs
 
@@ -443,11 +403,6 @@ This is exactly what you built in the lab. Your endpoints:
 
 You were following the uniform interface pattern.
 
-> PRESENTER NOTE: Point out that the lab used `/mood` (singular) for POST and `/moods`
-> (plural) for GET. In strict REST, you would typically use the plural form for
-> everything: `POST /moods` to create, `GET /moods` to list, `GET /moods/42` to read
-> one. We will refine the API design as the course progresses.
-
 ### FHIR: REST for Healthcare
 
 !!! example "Healthcare Context: FHIR --- The Language Hospitals Speak"
@@ -472,14 +427,6 @@ You were following the uniform interface pattern.
     Notice how familiar this looks? It is the ==same pattern== -- nouns for resources, HTTP methods for actions, JSON for data. FHIR adds standardized resource definitions and terminologies on top, but the REST foundation is identical to what you built in the lab.
 
     Hospitals, insurance companies, and health apps use FHIR to exchange data. When your Apple Watch sends health data to your doctor's EHR (Electronic Health Record) system, FHIR is often the protocol in the middle.
-
-> PRESENTER NOTE: If time allows, open https://hapi.fhir.org/ (a public FHIR test
-> server) and show a live query. For example:
-> ```bash
-> curl https://hapi.fhir.org/baseR4/Patient?_count=2
-> ```
-> This returns real (synthetic) patient data in FHIR JSON format. Students can see
-> that it follows the exact same request/response pattern they used in the lab.
 
 ??? question "Think about it: Why does healthcare need a standard like FHIR?"
     Imagine Hospital A uses `GET /patients/123` with fields `{first_name, last_name, dob}` and Hospital B uses `GET /people/123` with fields `{given_name, family_name, birth_date}`. Same data, completely different APIs. A patient transferring from A to B requires custom translation code.
@@ -608,12 +555,6 @@ OpenAPI is a standard format for describing REST APIs. It defines:
 
 FastAPI generates this ==automatically== from your Python type hints and Pydantic models. This is one of the reasons we chose FastAPI for this course -- you get ==production-quality documentation for free==.
 
-> PRESENTER NOTE: Open the lab's FastAPI server and navigate to `/docs`. Walk through
-> the Swagger UI. Show students how they can test endpoints directly from the browser.
-> Then navigate to `/openapi.json` and show the raw OpenAPI specification. "This JSON
-> file fully describes your API. Tools can read it to generate client code automatically
-> -- you write the server, and the Flutter client code can be partially auto-generated."
-
 ### Idempotency
 
 An operation is ==idempotent== if performing it multiple times has the same effect as performing it once.
@@ -732,13 +673,6 @@ Remember when you sent malformed data and got that detailed error response? That
     | **Minimum necessary** | Systems should only request and share the ==minimum data needed== |
 
     Violating these regulations can result in massive fines and, more importantly, ==real harm to patients== whose data is exposed.
-
-> PRESENTER NOTE: Briefly acknowledge the elephant in the room: "The API you built
-> in the lab has absolutely zero security. Anyone who can reach the server can read
-> and write all the data. No authentication, no encryption, no access controls. This
-> is completely fine for learning -- we needed to start simple. But if this were a
-> real healthcare app, it would be a compliance nightmare and a danger to patients.
-> We will add authentication in Week 9 and discuss deployment security later."
 
 ### Preview: What's Coming in Week 9
 

@@ -1,75 +1,63 @@
 # Week 2 Cheatsheet: Git Branching, REST APIs & curl
 
-<div class="grid cards" markdown>
+## Git Branching Commands
 
-- :material-source-branch: **Git Branching Commands**
+| Command | Purpose |
+|---------|---------|
+| `git branch` | List branches |
+| `git branch <name>` | Create branch |
+| `git switch <name>` | Switch to branch |
+| `git switch -c <name>` | Create + switch |
+| `git merge <branch>` | Merge into current branch |
+| `git branch -d <name>` | Delete merged branch |
+| `git push -u origin <name>` | Push branch to remote |
+| `git pull origin main` | Update local main |
 
-    ---
+## HTTP Methods
 
-    | Command | Purpose |
-    |---------|---------|
-    | `git branch` | List branches |
-    | `git branch <name>` | Create branch |
-    | `git switch <name>` | Switch to branch |
-    | `git switch -c <name>` | Create + switch |
-    | `git merge <branch>` | Merge into current branch |
-    | `git branch -d <name>` | Delete merged branch |
-    | `git push -u origin <name>` | Push branch to remote |
-    | `git pull origin main` | Update local main |
+| Method | Purpose | Example |
+|--------|---------|---------|
+| `GET` | Fetch data | `GET /moods` |
+| `POST` | Create new data | `POST /mood` |
+| `PUT` | Replace data | `PUT /mood/1` |
+| `PATCH` | Partial update | `PATCH /mood/1` |
+| `DELETE` | Remove data | `DELETE /mood/1` |
 
-- :material-web: **HTTP Methods**
+## curl Recipes
 
-    ---
+```bash
+# GET request
+curl http://localhost:8000/moods
 
-    | Method | Purpose | Example |
-    |--------|---------|---------|
-    | `GET` | Fetch data | `GET /moods` |
-    | `POST` | Create new data | `POST /mood` |
-    | `PUT` | Replace data | `PUT /mood/1` |
-    | `PATCH` | Partial update | `PATCH /mood/1` |
-    | `DELETE` | Remove data | `DELETE /mood/1` |
+# POST with JSON body
+curl -X POST http://localhost:8000/mood \
+  -H "Content-Type: application/json" \
+  -d '{"score": 7, "note": "good"}'
 
-- :material-console: **curl Recipes**
+# Pretty-print JSON
+curl -s http://localhost:8000/moods \
+  | python3 -m json.tool
 
-    ---
+# Verbose output (see headers)
+curl -v http://localhost:8000/health
+```
 
-    ```bash
-    # GET request
-    curl http://localhost:8000/moods
+## Merge Conflict Markers
 
-    # POST with JSON body
-    curl -X POST http://localhost:8000/mood \
-      -H "Content-Type: application/json" \
-      -d '{"score": 7, "note": "good"}'
+```
+<<<<<<< HEAD
+Your branch's version
+=======
+Incoming branch's version
+>>>>>>> other-branch
+```
 
-    # Pretty-print JSON
-    curl -s http://localhost:8000/moods \
-      | python3 -m json.tool
+**Resolution steps:**
 
-    # Verbose output (see headers)
-    curl -v http://localhost:8000/health
-    ```
-
-- :material-alert-circle: **Merge Conflict Markers**
-
-    ---
-
-    ```
-    <<<<<<< HEAD
-    Your branch's version
-    =======
-    Incoming branch's version
-    >>>>>>> other-branch
-    ```
-
-    **Resolution steps:**
-
-    1. Read both versions
-    2. Choose what to keep
-    3. Delete all 3 marker lines
-    4. `git add` + `git commit`
-
-</div>
+1. Read both versions
+2. Choose what to keep
+3. Delete all 3 marker lines
+4. `git add` + `git commit`
 
 ## curl Flags Quick Reference
 

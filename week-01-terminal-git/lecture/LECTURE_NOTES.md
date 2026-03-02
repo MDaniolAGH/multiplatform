@@ -3,7 +3,6 @@
 <div class="lab-meta" markdown>
 <div class="lab-meta__row"><span class="lab-meta__label">Course</span> Mobile Apps for Healthcare</div>
 <div class="lab-meta__row"><span class="lab-meta__label">Duration</span> ~2 hours (including Q&A)</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Format</span> Student-facing notes with presenter cues</div>
 </div>
 
 <div class="grid cards" markdown>
@@ -34,9 +33,6 @@
     | 6. Course Overview | ~5 min |
 
 </div>
-
-> Lines marked with `> PRESENTER NOTE:` are for the instructor only. Students can
-> ignore these or treat them as bonus context.
 
 ---
 
@@ -69,9 +65,6 @@ University courses teach you algorithms, data structures, signal processing, bio
 These are the =="missing semester"== --- the skills that everyone assumes you already know when you start your first job or research position.
 
 ~~You'll learn these tools on the job~~ --- healthcare employers expect them from day one. Version control, code review, and traceability are not optional in medical software.
-
-> PRESENTER NOTE: Ask the audience: "How many of you have used the terminal before
-> today's lab?" and "How many of you have heard of Git?" Get a sense of the room.
 
 ### The Iceberg of Professional Software Development
 
@@ -118,10 +111,6 @@ report_v2_final_REAL_submitted_fixed.docx
 
 Which one is actually the latest? Which one was submitted? What changed between versions? Nobody knows.
 
-> PRESENTER NOTE: Open a file explorer and show a messy Desktop or folder with
-> "final_v2_REAL" files. Students will laugh and recognize this pattern. If you
-> have a real example from your own work, even better.
-
 #### The "Someone Overwrote My Work" Problem
 
 Scenario: Two students are working on the same project. Both download the file from a shared drive, make changes independently, and upload their version. The second upload **overwrites** the first. The first student's work is gone.
@@ -150,10 +139,6 @@ With Git, ==every version of the code is preserved==. You can always go back to 
     - **Patient safety:** A bug in a healthcare app can harm patients. Version control helps you track down when bugs were introduced and revert them quickly.
 
     You are not just learning tools for convenience. In healthcare, these practices are **regulatory requirements**.
-
-> PRESENTER NOTE: Mention IEC 62304 (medical device software lifecycle standard)
-> briefly. Don't go deep --- just plant the seed that version control is not optional
-> in medical software development. We'll revisit this in later weeks.
 
 ??? question "Think about it: Why can't hospitals just use Google Docs?"
     Google Docs tracks changes --- so why not use it for code?
@@ -206,10 +191,6 @@ graph LR
 !!! note "Efficiency under the hood"
     In practice, Git is smart about storage. If a file did not change between commits, Git reuses the previous version instead of storing a duplicate copy. So it stores snapshots conceptually but is efficient about disk space.
 
-> PRESENTER NOTE: This is a common misconception. Many students (and professionals!)
-> think Git stores diffs. Emphasize the snapshot model --- it makes branching and merging
-> much easier to understand later.
-
 ### The Three Areas --- Revisited
 
 You practiced this in the lab. Now let's go deeper:
@@ -234,9 +215,6 @@ You are fixing a bug, and while doing so, you notice a typo in a comment. You fi
 4. `git commit -m "Fix typo in measurement module comment"`
 
 Two clean, focused commits from one editing session.
-
-> PRESENTER NOTE: Demo this scenario live if time allows. Create a file, make two
-> unrelated changes, and show how to commit them separately using selective `git add`.
 
 ??? protip "Pro tip: Why small, focused commits matter"
     A commit that says "Fix temperature bug and update docs and refactor utils" is hard to review, hard to revert, and hard to understand six months later. One commit = one logical change. Your future self (and your code reviewer) will thank you.
@@ -281,10 +259,6 @@ graph RL
 ```
 
 Each commit points back to its parent. The hash of each commit depends on its parent's hash, creating an ==unbreakable chain==. Change any commit, and all subsequent hashes change too.
-
-> PRESENTER NOTE: If students ask about SHA-1 collisions, briefly mention that Git is
-> transitioning to SHA-256, but SHA-1 collisions are not a practical concern for version
-> control (they are for cryptographic signing). Don't go deep into this.
 
 ### Branches Are Just Pointers
 
@@ -361,17 +335,6 @@ graph RL
     style HEAD fill:#ffcdd2,stroke:#e57373
     style feat fill:#bbdefb,stroke:#2196f3
 ```
-
-> PRESENTER NOTE: Open a terminal and show `.git/HEAD`:
-> ```bash
-> cat .git/HEAD
-> ```
-> It will show something like `ref: refs/heads/main`. Then show:
-> ```bash
-> cat .git/refs/heads/main
-> ```
-> It will show the commit hash. This makes branches concrete --- they are literally
-> just text files containing a hash.
 
 ### Putting It All Together
 
@@ -476,11 +439,6 @@ graph LR
 
 ==Asymmetric encryption== solves the key-sharing problem: you freely share your public key, and keep your private key secret. ==No secret needs to travel over the internet.==
 
-> PRESENTER NOTE: This is one of the most elegant ideas in computer science. Pause and
-> let it sink in. Ask: "How is this possible? How can one key lock and a different key
-> unlock?" You don't need to explain the math (RSA, elliptic curves). Just emphasize
-> that it works because of mathematical relationships between the two keys.
-
 ### How SSH Authentication Actually Works
 
 When you run `ssh -T git@github.com`, here is what happens step by step:
@@ -528,11 +486,6 @@ Both are secure. ==ED25519== is newer, produces shorter keys, and is faster. Tha
 
 ~~A bigger key is always more secure~~ --- ED25519 at 256 bits is as secure as RSA at 3072 bits because elliptic curve math is harder to crack per bit.
 
-> PRESENTER NOTE: If students ask "but isn't a bigger key more secure?", explain that
-> elliptic curve cryptography achieves the same security level with much smaller keys
-> because the underlying math problem is harder to solve. A 256-bit ED25519 key is
-> roughly as secure as a 3072-bit RSA key.
-
 ### Why "Never Share Your Private Key"
 
 Your private key is your ==digital identity==. Consider what happens if someone obtains it:
@@ -562,15 +515,6 @@ unauthorized changes.
     1. Remove the public key from every service that has it
     2. Generate a brand new key pair
     3. Re-add the new public key everywhere
-
-> PRESENTER NOTE: Demo `~/.ssh/` contents. `cat` the public key and explain each part:
-> ```
-> ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... user@email.com
-> ^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^^
-> algorithm    the actual key (base64)      comment (your email)
-> ```
-> Point out that the private key file has no `.pub` extension and should have
-> permissions `600` (owner read/write only).
 
 ---
 
@@ -630,10 +574,6 @@ graph LR
 - **Safe experimentation:** If a feature branch breaks things, `main` is unaffected
 - **History:** Each feature/fix is a clear unit in the git history
 
-> PRESENTER NOTE: Open a real open-source project on GitHub (e.g., any popular health-tech
-> repo). Show the branches, the PRs, the code review comments. Let students see what
-> professional collaboration looks like.
-
 ### A Typical Day on a Software Team
 
 Here is what a developer's day might look like:
@@ -669,11 +609,6 @@ You will practice this workflow starting in Week 2.
     | **Audit trails** | Git log provides a complete, tamper-evident history |
     | **Reproducibility** | Tags and branches mark exactly which code was released |
     | **Defect tracking** | GitHub Issues link directly to the code changes that fix them |
-
-> PRESENTER NOTE: You don't need to go deep into IEC 62304 or FDA regulations. The point
-> is: in healthcare, version control and code review are not just "nice to have" ---
-> they are legally required. Students who learn these practices now will be ahead of
-> their peers in the job market.
 
 ### Code Review: What Does It Look Like?
 
@@ -725,15 +660,6 @@ Code review catches bugs, improves code quality, and ==spreads knowledge across 
 
 Over the next 14 weeks, you will build a complete **mood tracking application** --- from a mobile app (Flutter) to a backend API (FastAPI) to deployment.
 
-> PRESENTER NOTE: Have the mood tracker app running on an emulator or physical device.
-> Walk through the screens live. Show:
-> - The mood logging screen (select mood, add notes)
-> - The history/calendar view
-> - The data visualization (charts over time)
-> - The settings screen
-> Then briefly show the codebase and the git history. "All of this is tracked in Git.
-> You can see every feature being added, commit by commit."
-
 ### The Stack
 
 ```mermaid
@@ -780,10 +706,6 @@ graph TD
 
 ==Every week builds on the previous ones.== The skills you learned today (terminal, Git, GitHub) will be used in **every** subsequent week.
 
-> PRESENTER NOTE: Emphasize that week 1 skills compound. "You'll run git commands
-> hundreds of times. If it feels awkward now, that's normal. By week 4, it will
-> be muscle memory."
-
 ---
 
 ## 6. Course Overview (5 min)
@@ -817,10 +739,6 @@ Next week you will learn:
 - **curl** --- making HTTP requests from the terminal
 
 Come to the lab with your SSH keys working and at least one repository on GitHub.
-
-> PRESENTER NOTE: End with: "The hardest part is over. The terminal and Git are the
-> most unfamiliar tools in this course. Everything else builds on top of what you
-> already know from programming. See you next week."
 
 ---
 
