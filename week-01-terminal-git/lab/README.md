@@ -1294,10 +1294,10 @@ Open your repository URL on GitHub. What can you see there?
 > ```mermaid
 > graph LR
 >     subgraph "Your Computer"
->         LOCAL["my-first-repo/<br/>├── .git/<br/>├── .gitignore<br/>├── README.md<br/>├── ecg-notes.txt<br/>└── imaging-notes.txt<br/><i>(full history)</i>"]
+>         LOCAL["<div style='text-align:left;font-family:monospace'><b>my-first-repo/</b><br/>├── .git/<br/>├── .gitignore<br/>├── README.md<br/>├── ecg-notes.txt<br/>└── imaging-notes.txt<br/><i>(full history)</i></div>"]
 >     end
 >     subgraph "GitHub (Remote)"
->         REMOTE["my-first-repo/<br/>├── .gitignore<br/>├── README.md<br/>├── ecg-notes.txt<br/>└── imaging-notes.txt<br/><i>(full history)</i>"]
+>         REMOTE["<div style='text-align:left;font-family:monospace'><b>my-first-repo/</b><br/>├── .gitignore<br/>├── README.md<br/>├── ecg-notes.txt<br/>└── imaging-notes.txt<br/><i>(full history)</i></div>"]
 >     end
 >     LOCAL -->|"git push"| REMOTE
 >     REMOTE -->|"git clone"| LOCAL
