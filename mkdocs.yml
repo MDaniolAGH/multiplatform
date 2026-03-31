@@ -65,11 +65,11 @@ nav:
     - Lab Workbook: week-02-git-apis-curl/lab/README.md
     - Cheatsheet: week-02-git-apis-curl/lab/CHEATSHEET.md
     - Lecture Notes: week-02-git-apis-curl/lecture/LECTURE_NOTES.md
+  - Week 3 — Dart Fundamentals:
+    - Lab Workbook: week-03-dart-fundamentals/lab/README.md
+    - Cheatsheet: week-03-dart-fundamentals/lab/CHEATSHEET.md
+    - Lecture Notes: week-03-dart-fundamentals/lecture/LECTURE_NOTES.md
   # --- Unreleased weeks (uncomment as course progresses) ---
-  # - Week 3 — Dart Fundamentals:
-  #   - Lab Workbook: week-03-dart-fundamentals/lab/README.md
-  #   - Cheatsheet: week-03-dart-fundamentals/lab/CHEATSHEET.md
-  #   - Lecture Notes: week-03-dart-fundamentals/lecture/LECTURE_NOTES.md
   # - Week 4 — Flutter Fundamentals:
   #   - Lab Workbook: week-04-flutter-fundamentals/lab/README.md
   #   - Cheatsheet: week-04-flutter-fundamentals/lab/CHEATSHEET.md
