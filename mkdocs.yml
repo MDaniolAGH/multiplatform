@@ -75,15 +75,15 @@ nav:
     - Lab Workbook: week-04-flutter-fundamentals/lab/README.md
     - Cheatsheet: week-04-flutter-fundamentals/lab/CHEATSHEET.md
     - Lecture Notes: week-04-flutter-fundamentals/lecture/LECTURE_NOTES.md
+  - Week 5 — Layouts, Forms & Sprints:
+    - Lab Workbook: week-05-layouts-forms-sprints/lab/README.md
+    - Cheatsheet: week-05-layouts-forms-sprints/lab/CHEATSHEET.md
+    - Lecture Notes: week-05-layouts-forms-sprints/lecture/LECTURE_NOTES.md
+  - Week 6 — State Management:
+    - Lab Workbook: week-06-state-management/lab/README.md
+    - Cheatsheet: week-06-state-management/lab/CHEATSHEET.md
+    - Lecture Notes: week-06-state-management/lecture/LECTURE_NOTES.md
   # --- Unreleased weeks (uncomment as course progresses) ---
-  # - Week 5 — Layouts & Sprints:
-  #   - Lab Workbook: week-05-layouts-forms-sprints/lab/README.md
-  #   - Cheatsheet: week-05-layouts-forms-sprints/lab/CHEATSHEET.md
-  #   - Lecture Notes: week-05-layouts-forms-sprints/lecture/LECTURE_NOTES.md
-  # - Week 6 — State Management:
-  #   - Lab Workbook: week-06-state-management/lab/README.md
-  #   - Cheatsheet: week-06-state-management/lab/CHEATSHEET.md
-  #   - Lecture Notes: week-06-state-management/lecture/LECTURE_NOTES.md
   # - Week 7 — Local Data:
   #   - Lab Workbook: week-07-local-data/lab/README.md
   #   - Cheatsheet: week-07-local-data/lab/CHEATSHEET.md

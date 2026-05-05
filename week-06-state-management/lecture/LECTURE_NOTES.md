@@ -35,7 +35,7 @@ State management is one of those topics that sounds academic until you hit the w
 
 ### The Problem: Multiple Screens, Same Data
 
-Consider what happens in a typical app. You have a list screen showing all mood entries, a detail screen showing one entry, a stats screen showing averages and counts. All three screens need the same underlying data. When the data changes, all three screens need to update.
+Consider what happens in a typical app. You have a list screen showing all entries, a detail screen showing one entry, a stats screen showing averages and counts. All three screens need the same underlying data. When the data changes, all three screens need to update.
 
 With `setState()`, you can manage state within a single widget. But `setState()` is **local** -- it only triggers a rebuild of the widget that calls it. There is no built-in mechanism for one widget to tell a completely separate widget that something changed.
 
@@ -43,64 +43,55 @@ With `setState()`, you can manage state within a single widget. But `setState()`
 
 The naive solution is to pass data down through constructors:
 
-```
-MyApp
-  -> HomePage(moods: moods, onAdd: addMood)
-    -> MoodList(moods: moods)
-      -> MoodCard(mood: moods[0])
-    -> StatsBar(moods: moods)
-  -> AddMoodPage(onAdd: addMood)
+```mermaid
+graph TD
+    App["MyApp"] -->|"moods,<br/>onAdd"| Home["HomePage"]
+    App -->|"onAdd"| AddMood["AddMoodPage"]
+    Home -->|"moods"| List["MoodList"]
+    Home -->|"moods"| Stats["StatsBar"]
+    List -->|"mood"| Card["MoodCard"]
+    style App fill:#FFCDD2,stroke:#e53935
+    style Home fill:#FFE0B2,stroke:#fb8c00
+    style AddMood fill:#FFE0B2,stroke:#fb8c00
+    style List fill:#FFF9C4,stroke:#fbc02d
+    style Stats fill:#FFF9C4,stroke:#fbc02d
+    style Card fill:#E8F5E9,stroke:#388e3c
 ```
 
 This is called "prop drilling" -- you drill props through every intermediate widget, even if that widget does not need the data itself. It is like passing a note through a chain of people in a crowded room. Everyone in the chain has to handle the note, even if they do not care about its contents.
 
-At small scale, this is manageable. At real-world scale -- a hospital EHR app might have 50+ screens sharing patient data, medication lists, lab results, and imaging orders -- prop drilling becomes a maintenance nightmare. Change the shape of your data, and you have to update every widget in the chain.
+At small scale, this is manageable. At real-world scale -- a productivity app might have 50+ screens sharing user preferences, project lists, recent activity, and notification state -- prop drilling becomes a maintenance nightmare. Change the shape of your data, and you have to update every widget in the chain.
 
 ### The Single Source of Truth
 
 The fundamental principle behind every state management solution is the **single source of truth**: your data should live in exactly one place, and every widget should read from that one place.
 
-Think of a hospital's patient record system. There should be ONE record per patient, not a copy in each department. When a lab result arrives, the emergency department, the ward, and the outpatient clinic all see it immediately. Nobody has to call around asking "did you get the new results?" -- the system handles it. That is what state management gives your app.
+Think of a shared document in a collaboration tool. There should be ONE canonical version, not a copy on each user's device that they manually try to keep in sync. When someone edits, every other viewer immediately sees the new version. Nobody calls around asking "did you get the latest copy?" -- the system handles it. That is what state management gives your app.
 
 ### Visualizing the Problem
 
-```d2
-direction: right
-
-without: "WITHOUT state management" {
-  style.fill: "#FFCDD2"
-
-  a: "Screen A" {
-    style.fill: "#FFF"
-    d: "moods: [copy]\nOut of sync!"
-  }
-  b: "Screen B" {
-    style.fill: "#FFF"
-    d: "moods: [copy]\nOut of sync!"
-  }
-  c: "Screen C" {
-    style.fill: "#FFF"
-    d: "moods: [copy]\nAlso out of sync!"
-  }
-}
-
-with: "WITH state management" {
-  style.fill: "#C8E6C9"
-
-  store: "MoodNotifier\n(single source of truth)" {
-    style.fill: "#E8F5E9"
-    style.bold: true
-    d: "state: [moods]"
-  }
-
-  sa: "Screen A\nref.watch()" {style.fill: "#FFF"}
-  sb: "Screen B\nref.watch()" {style.fill: "#FFF"}
-  sc: "Screen C\nref.watch()" {style.fill: "#FFF"}
-
-  store -> sa: "" {style.stroke-dash: 3}
-  store -> sb: "" {style.stroke-dash: 3}
-  store -> sc: "" {style.stroke-dash: 3}
-}
+```mermaid
+graph TD
+    subgraph Without["WITHOUT state management"]
+    direction LR
+    SA["Screen A<br/>moods: copy<br/>❌ out of sync"]
+    SB["Screen B<br/>moods: copy<br/>❌ out of sync"]
+    SC["Screen C<br/>moods: copy<br/>❌ also out of sync"]
+    end
+    subgraph With["WITH state management"]
+    direction TB
+    Store["MoodNotifier<br/>(single source of truth)<br/>state: [moods]"]
+    Store -->|"ref.watch"| WA["Screen A"]
+    Store -->|"ref.watch"| WB["Screen B"]
+    Store -->|"ref.watch"| WC["Screen C"]
+    end
+    style SA fill:#FFCDD2,stroke:#e53935
+    style SB fill:#FFCDD2,stroke:#e53935
+    style SC fill:#FFCDD2,stroke:#e53935
+    style Store fill:#E8F5E9,stroke:#388e3c,stroke-width:2px
+    style WA fill:#C8E6C9,stroke:#388e3c
+    style WB fill:#C8E6C9,stroke:#388e3c
+    style WC fill:#C8E6C9,stroke:#388e3c
 ```
 
 On the left, each screen holds its own copy of the mood list. When Screen A adds a mood entry, Screen B and Screen C have no idea. The data drifts out of sync. On the right, a single `MoodNotifier` holds the truth. Every screen watches it and rebuilds automatically when it changes.
@@ -152,7 +143,7 @@ We chose Riverpod for several reasons:
 
 2. **Independent of the widget tree:** Unlike Provider, Riverpod providers do not live inside the widget tree. This means you can access any provider from anywhere without needing a `BuildContext`. This makes testing dramatically easier.
 
-3. **Easy to test:** You can create a `ProviderContainer` in a unit test and verify your state logic without ever building a widget. In healthcare apps, where correctness is critical, testability is not optional.
+3. **Easy to test:** You can create a `ProviderContainer` in a unit test and verify your state logic without ever building a widget. In any non-trivial app — where correctness matters and bugs are expensive — testability is not optional.
 
 4. **Growing ecosystem:** Riverpod has strong community support and is the direction the Flutter ecosystem is heading. Learning it now prepares you for the industry.
 
@@ -182,7 +173,7 @@ We chose Riverpod for several reasons:
 
 ### Provider Types: Picking the Right Tool
 
-Riverpod offers several provider types, each designed for a specific use case. Choosing the right one is like choosing the right medical instrument -- you could technically use a scalpel for everything, but a suture kit works better for stitching.
+Riverpod offers several provider types, each designed for a specific use case. Choosing the right one is like choosing the right tool from a workshop -- you could technically use a hammer for everything, but a screwdriver works much better for screws.
 
 **Provider -- Read-only computed values**
 Returns a value that cannot be modified directly. Perfect for derived or computed data. In the lab, `moodStatsProvider` is a `Provider` that computes statistics from the mood list. It does not hold its own state -- it derives its value from another provider.
@@ -207,21 +198,21 @@ final moodProvider = StateNotifierProvider<MoodNotifier, List<MoodEntry>>((ref) 
 ```
 
 **FutureProvider -- Async data loading**
-Returns a `Future` and automatically handles loading/error/data states. Ideal for one-time async operations like fetching a patient's profile from an API.
+Returns a `Future` and automatically handles loading/error/data states. Ideal for one-time async operations like fetching a user profile or a list of items from a backend.
 
 ```dart
-final patientProvider = FutureProvider<Patient>((ref) async {
-  final response = await api.getPatient(id: 123);
-  return Patient.fromJson(response);
+final userProfileProvider = FutureProvider<UserProfile>((ref) async {
+  final response = await api.getProfile(id: currentUserId);
+  return UserProfile.fromJson(response);
 });
 ```
 
 **StreamProvider -- Real-time data streams**
-Wraps a `Stream` and rebuilds widgets whenever a new value arrives. Perfect for real-time data -- vital signs from a Bluetooth device, live chat messages, or WebSocket connections.
+Wraps a `Stream` and rebuilds widgets whenever a new value arrives. Perfect for real-time data -- live notifications, WebSocket connections, position updates from a sensor, or any continuously changing source.
 
 ```dart
-final heartRateProvider = StreamProvider<int>((ref) {
-  return bluetoothDevice.heartRateStream;
+final notificationsProvider = StreamProvider<List<Notification>>((ref) {
+  return notificationService.stream;
 });
 ```
 
@@ -306,77 +297,55 @@ In the lab, `moodStatsProvider` watches `moodProvider`. When a mood is added, th
 
 Nobody has to orchestrate this. Nobody has to call "refreshStats" manually. The dependency chain handles it.
 
-```d2
-direction: down
-
-action: 'User taps "Add Mood"' {style.fill: "#E3F2FD"; style.bold: true}
-
-notifier: "MoodNotifier.addMood()" {style.fill: "#BBDEFB"}
-
-state: "moodProvider state changes\n(new list)" {style.fill: "#FFF9C4"}
-
-home: "HomeScreen rebuilds\n(ref.watch(moodProvider))" {style.fill: "#E8F5E9"}
-
-stats_provider: "moodStatsProvider recalculates" {style.fill: "#FFE0B2"}
-
-stats_screen: "StatsScreen rebuilds\n(ref.watch(moodStatsProvider))" {style.fill: "#E8F5E9"}
-
-action -> notifier -> state
-state -> home
-state -> stats_provider -> stats_screen
+```mermaid
+graph TD
+    Action['User taps "Add Mood"'] --> Notifier["MoodNotifier.addMood()"]
+    Notifier --> NewState["moodProvider state changes<br/>(new list)"]
+    NewState --> Home["HomeScreen rebuilds<br/>(ref.watch(moodProvider))"]
+    NewState --> StatsProv["moodStatsProvider recalculates"]
+    StatsProv --> StatsScreen["StatsScreen rebuilds<br/>(ref.watch(moodStatsProvider))"]
+    style Action fill:#E3F2FD,stroke:#2196f3,stroke-width:2px
+    style Notifier fill:#BBDEFB,stroke:#1976d2
+    style NewState fill:#FFF9C4,stroke:#fbc02d
+    style Home fill:#E8F5E9,stroke:#388e3c
+    style StatsProv fill:#FFE0B2,stroke:#fb8c00
+    style StatsScreen fill:#E8F5E9,stroke:#388e3c
 ```
 
 This is **reactive programming** -- data flows downhill automatically. You declare dependencies, and the system handles propagation.
 
 ### The Riverpod Data Flow
 
-```d2
-direction: down
-
-scope: "ProviderScope" {
-  style.fill: "#F5F5F5"
-  style.font-size: 20
-
-  direction: right
-
-  mood: "moodProvider\n(StateNotifier)" {
-    style.fill: "#E3F2FD"
-    state: "state: [moods]"
-    add: "addMood()"
-    delete: "deleteMood()"
-  }
-
-  stats: "moodStatsProvider\n(derived/computed)" {
-    style.fill: "#FFF9C4"
-    total: "totalEntries"
-    avg: "averageScore"
-  }
-
-  mood -> stats: "watches"
-
-  direction: down
-
-  home: "HomeScreen\nref.watch()\n(rebuilds on mood change)" {style.fill: "#C8E6C9"}
-  stats_screen: "StatsScreen\nref.watch()\n(rebuilds on stat change)" {style.fill: "#C8E6C9"}
-  add_screen: "AddMoodScreen\nref.read()\n(one-time action)" {style.fill: "#E8F5E9"}
-
-  mood -> home: "ref.watch()"
-  stats -> stats_screen: "ref.watch()"
-  add_screen -> mood: "ref.read()" {style.stroke-dash: 3}
-}
+```mermaid
+graph TD
+    subgraph Scope["ProviderScope"]
+    direction TB
+    Mood["moodProvider<br/>(StateNotifier)<br/>state: [moods]<br/>addMood() / deleteMood()"]
+    Stats["moodStatsProvider<br/>(derived/computed)<br/>totalEntries, averageScore"]
+    Mood -->|"watches"| Stats
+    end
+    Mood -->|"ref.watch()"| Home["HomeScreen<br/>rebuilds on mood change"]
+    Stats -->|"ref.watch()"| StatsScreen["StatsScreen<br/>rebuilds on stat change"]
+    AddScreen["AddMoodScreen<br/>(one-time action)"] -.->|"ref.read()"| Mood
+    style Mood fill:#E3F2FD,stroke:#2196f3,stroke-width:2px
+    style Stats fill:#FFF9C4,stroke:#fbc02d
+    style Home fill:#C8E6C9,stroke:#388e3c
+    style StatsScreen fill:#C8E6C9,stroke:#388e3c
+    style AddScreen fill:#E8F5E9,stroke:#388e3c
 ```
 
 The `ProviderScope` at the top of your widget tree is the container that holds all provider state. Inside it, `moodProvider` holds the authoritative mood list. `moodStatsProvider` derives from it. Screens either watch (for reactive display) or read (for one-time actions).
 
-### Healthcare Connection: A Real-World Reactive Architecture
+### A Real-World Reactive Architecture
 
-In a remote patient monitoring system, you might have:
+Consider a typical productivity app — say, a team-collaboration tool that combines tasks, notifications, and presence:
 
-- A `vitalSignsProvider` (StreamProvider) that streams data from a Bluetooth pulse oximeter
-- A `patientProvider` (FutureProvider) that loads the patient's profile and medical history
-- An `alertsProvider` (Provider) that derives from both -- comparing current vitals against the patient's thresholds and triggering alerts when values are out of range
+- A `tasksProvider` (StateNotifierProvider) that holds the active task list
+- A `currentUserProvider` (FutureProvider) that loads the user's profile and team membership
+- A `notificationsProvider` (StreamProvider) that streams new notifications from the backend
+- A `tasksDueTodayProvider` (Provider) that derives from both — combining tasks with the current date and the user's timezone to compute "what's due today"
 
-When a new heart rate reading arrives, the alerts provider automatically reevaluates. If the heart rate exceeds the patient's threshold, the alert state changes, and the UI displays a warning -- all without a single line of manual orchestration code. Riverpod's dependency system handles this elegantly, and the reactive chain is easy to test in isolation.
+When a teammate completes a task, the backend pushes an update to the stream. The tasks provider receives the new state, the derived "due today" provider re-evaluates, and every screen that watches it (the home dashboard, the badge counter on the icon, the daily summary card) updates simultaneously — all without a single line of manual orchestration. Riverpod's dependency system handles this elegantly, and the reactive chain is easy to test in isolation.
 
 ### Testing with Riverpod
 
@@ -410,7 +379,7 @@ testWidgets('HomeScreen shows moods', (tester) async {
 });
 ```
 
-You can override any provider with test data. No mocking frameworks, no dependency injection containers, no test-only subclasses. This is why healthcare teams that need rigorous testing gravitate toward Riverpod.
+You can override any provider with test data. No mocking frameworks, no dependency injection containers, no test-only subclasses. This is why teams that take testing seriously gravitate toward Riverpod.
 
 > PRESENTER NOTE: If time permits, open the lab code and walk through the finished
 > implementation. Highlight the architectural decisions: why StateNotifier instead of
@@ -443,28 +412,20 @@ This is what you used in the lab to navigate between HomeScreen, AddMoodScreen, 
 
 **Mental model -- a stack of cards:**
 
-```d2
-direction: down
-
-stack: "Navigator Stack" {
-  style.fill: "#F5F5F5"
-
-  add_mood: "AddMood Screen" {
-    style.fill: "#E3F2FD"
-    style.bold: true
-    label: "AddMood Screen ← top (visible)"
-  }
-
-  home: "Home Screen" {
-    style.fill: "#BBDEFB"
-    label: "Home Screen ← hidden underneath"
-  }
-
-  add_mood -> home: "" {style.stroke: "transparent"}
-}
-
-push: "push(AddMoodScreen)\nadds a card on top" {style.fill: "#C8E6C9"}
-pop: "pop()\nremoves the top card" {style.fill: "#FFCDD2"}
+```mermaid
+graph TD
+    Push["push(AddMoodScreen)<br/>adds a card on top"] --> Stack
+    subgraph Stack["Navigator stack (top → bottom)"]
+    direction TB
+    Top["AddMoodScreen<br/>(top, visible)"]
+    Bottom["HomeScreen<br/>(hidden underneath)"]
+    Top --- Bottom
+    end
+    Stack --> Pop["pop()<br/>removes top card"]
+    style Push fill:#C8E6C9,stroke:#388e3c
+    style Top fill:#E3F2FD,stroke:#2196f3,stroke-width:2px
+    style Bottom fill:#BBDEFB,stroke:#1976d2
+    style Pop fill:#FFCDD2,stroke:#e53935
 ```
 
 ### Navigator 2.0: The Declarative Approach
@@ -488,17 +449,22 @@ For this course, Navigator 1.0 is sufficient. We mention Navigator 2.0 so you kn
 The default. Used for drill-down flows: tap an item in a list, see the detail screen, tap back to return. You used this in the lab.
 
 **Tab navigation (BottomNavigationBar)**
-Used for main app sections that are equally important and frequently accessed. Most health apps use this: a home tab, a log/history tab, a profile tab.
+Used for main app sections that are equally important and frequently accessed. Many productivity and content apps use this: a home tab, a history/log tab, a profile tab.
 
-```
-+------------------------------------------+
-|                                          |
-|         [Current Tab Content]            |
-|                                          |
-|                                          |
-+------------------------------------------+
-|  Home  |  History  |  Stats  |  Profile  |
-+------------------------------------------+
+```mermaid
+graph TD
+    Content["[ Current Tab Content ]"] --- Tabs
+    subgraph Tabs["BottomNavigationBar"]
+    direction LR
+    T1["Home"] --- T2["History"]
+    T2 --- T3["Stats"]
+    T3 --- T4["Profile"]
+    end
+    style Content fill:#F5F5F5,stroke:#9e9e9e
+    style T1 fill:#E3F2FD,stroke:#2196f3
+    style T2 fill:#E3F2FD,stroke:#2196f3
+    style T3 fill:#E3F2FD,stroke:#2196f3
+    style T4 fill:#E3F2FD,stroke:#2196f3
 ```
 
 **Drawer navigation (side menu)**
@@ -538,39 +504,39 @@ class MoodDetailScreen extends ConsumerWidget {
 
 Both approaches are valid. Use constructors for simple cases and providers when the data is already managed by your state layer.
 
-### Healthcare UX and Navigation
+### Navigation and Your Users' Mental Model
 
-A clinician switching between patient charts needs fast navigation -- tabs, search, recent patients. Every extra tap costs time in a busy emergency department.
+A power user switching between many records needs fast navigation -- tabs, search, recents. Every extra tap adds friction to a workflow they perform dozens of times a day.
 
-A patient logging symptoms needs a simple, linear flow -- step one, step two, done. Complexity and choice create anxiety for someone who is already stressed about their health.
+A first-time or occasional user needs a simple, linear flow -- step one, step two, done. Complexity and choice create cognitive load for someone unfamiliar with the app.
 
-Choose navigation patterns based on your user. Do not impose a clinician's workflow on a patient, or a patient's workflow on a clinician.
+Choose navigation patterns based on your user. Do not impose a power-user workflow on a first-timer, or vice versa.
 
-> PRESENTER NOTE: If possible, show screenshots from popular health apps. Apple Health
-> uses tab navigation for main sections and push navigation for details. MyFitnessPal
-> uses a prominent "+" button for logging, minimizing the steps to the most common
-> action. These are deliberate UX decisions, not accidents.
+> PRESENTER NOTE: If possible, show screenshots from popular apps. Most productivity apps
+> use tab navigation for main sections and push navigation for details. Many use a
+> prominent "+" button or floating action button to minimize the steps to the most
+> common write action. These are deliberate UX decisions, not accidents.
 
 ---
 
 ## 5. User-Centered Design Principles (15 min)
 
-### Why Healthcare UX Demands More
+### Why UX Determines Whether Your App Survives
 
-You are building health apps. Your users might be patients who are stressed, in pain, elderly, or have disabilities. A 25-year-old tech worker fumbling with a confusing app is annoyed. An 80-year-old patient with diabetes fumbling with a confusing medication tracker might miss a dose. The stakes are different.
+You are building a real app that real people will try. Most users are not a 25-year-old developer at their desk -- they are stressed, multitasking, on a slow connection, or distracted. A confusing app annoys them; a clear app delights them.
 
-UX matters more in healthcare than in most domains. A study found that 47% of health app users abandon an app within the first month. The top reason? Poor usability. Good UX is not a nice-to-have -- it determines whether your app actually helps patients.
+UX matters more than most students realize. A widely cited industry stat: **77% of mobile apps are abandoned within three days of installation**, and the top reason is poor onboarding and confusing flows. Good UX is not a polish step at the end. It determines whether users stick around long enough to discover your features at all.
 
 ### Key Principles
 
 **1. Clarity: Use plain language**
-Write labels, instructions, and messages in language your user understands. For a patient-facing app, "Your heart rate is elevated" is better than "Tachycardia detected." For a clinician-facing app, the medical terminology is appropriate and expected.
+Write labels, instructions, and messages in language your user understands. "Your daily streak ended" is better than "Cycle interruption detected." Use the words your user uses, not the words your engineers use.
 
 **2. Simplicity: Minimize steps**
 Every tap, swipe, and decision is cognitive load. Count the steps it takes to complete the most common task in your app. Then see if you can remove one. In the lab, adding a mood entry takes three steps: tap the add button, fill in the form, tap save. That is about right for a logging action.
 
 **3. Feedback: Confirm actions**
-When a user saves data, show confirmation: "Entry saved." When syncing to a server, show progress. When an error occurs, explain what happened and what to do next. Silence breeds uncertainty, and uncertainty breeds anxiety -- especially in a health context.
+When a user saves data, show confirmation: "Entry saved." When syncing to a server, show progress. When an error occurs, explain what happened and what to do next. Silence breeds uncertainty, and uncertainty breeds anxiety.
 
 **4. Error prevention: Make it hard to do the wrong thing**
 Disable the submit button until required fields are filled. Use date pickers instead of free-text date entry. Validate inputs as the user types. It is always better to prevent an error than to display an error message after the fact.
@@ -580,11 +546,11 @@ WCAG 2.1 compliance is not a checkbox exercise -- it is a commitment to inclusiv
 
 - **Screen reader support:** Every interactive element needs a semantic label
 - **Sufficient contrast:** At least 4.5:1 for normal text, 3:1 for large text
-- **Touch targets:** Minimum 48x48 dp (Material Design standard) -- elderly users and users with motor impairments need generous tap areas
-- **Typography:** Minimum 16sp for body text -- if your elderly patient cannot read the instructions, the app is useless regardless of how good the features are
+- **Touch targets:** Minimum 48x48 dp (Material Design standard) -- users with motor impairments, users tapping one-handed on a moving bus, and older users need generous tap areas
+- **Typography:** Minimum 16sp for body text -- if your user cannot read the instructions, the app is useless regardless of how good the features are
 
 **6. Trust: Be transparent about data**
-Health data is among the most sensitive personal information. Explain what data you collect, how it is stored, and who can access it. Show privacy controls prominently. A patient who does not trust your app will not use it, no matter how well-designed the UI is.
+Users share data with you -- their habits, notes, plans, contacts. The app must feel trustworthy. Explain what data you collect, how it is stored, and who can access it. Show privacy controls prominently. A user who does not trust your app will not use it, no matter how well-designed the UI is.
 
 ### The 5-Second Test
 
@@ -592,54 +558,50 @@ Can a new user understand what a screen does within 5 seconds of seeing it? If n
 
 Show your screen to someone who has never seen it. After 5 seconds, take it away and ask: "What was that screen for?" If they cannot answer confidently, simplify.
 
-This test is especially important for health apps where users may be distracted, fatigued, or in pain. They do not have the cognitive bandwidth to decode a cluttered interface.
+This test is especially important for apps where users may be distracted, multitasking, or new to the product. They do not have the cognitive bandwidth to decode a cluttered interface.
 
-### Color Meaning in Health Apps
+### Color Carries Meaning
 
-Color carries strong semantic meaning in healthcare contexts:
+Color carries strong semantic meaning that users learn very early in life:
 
-```
-+------------------+------------------+------------------+
-|                  |                  |                  |
-|   RED / ORANGE   |     YELLOW       |     GREEN        |
-|                  |                  |                  |
-|   Critical       |   Warning        |   Normal         |
-|   Danger         |   Needs          |   Healthy        |
-|   Out of range   |   attention      |   Within range   |
-|   Alert          |   Borderline     |   OK             |
-|                  |                  |                  |
-+------------------+------------------+------------------+
+```mermaid
+graph LR
+    Red["RED / ORANGE<br/>Critical · Danger<br/>Out of range · Alert"] --- Yellow["YELLOW<br/>Warning · Borderline<br/>Needs attention"]
+    Yellow --- Green["GREEN<br/>OK · Normal<br/>Success · Healthy"]
+    style Red fill:#FFCDD2,stroke:#e53935
+    style Yellow fill:#FFF9C4,stroke:#fbc02d
+    style Green fill:#C8E6C9,stroke:#388e3c
 ```
 
-These associations are deeply ingrained. If you use green for a critical alert or red for a healthy reading, you will confuse and alarm your users.
+These associations are deeply ingrained. If you use green for an error message or red for a confirmation, you will confuse and alarm your users.
 
 **Important caveat:** Do not use color as the ONLY indicator. Approximately 8% of men and 0.5% of women have some form of color vision deficiency. Always pair color with text, icons, or patterns.
 
 ```
-Good:    [!] Critical: Heart rate 142 bpm    (red background + icon + text)
-Bad:     142 bpm                              (red text only)
+Good:    [!] Error: Score must be 1–10  (red background + icon + text)
+Bad:     Score must be 1–10              (red text only)
 ```
 
 ### Typography and Touch Targets
 
-Two often-overlooked details that make or break healthcare app usability:
+Two often-overlooked details that make or break app usability:
 
-**Typography:** The default Flutter text size (14sp) is too small for many health app users. Set body text to at least 16sp. For elderly-focused apps, consider 18sp or even 20sp. Headers and labels should scale proportionally.
+**Typography:** The default Flutter text size (14sp) is too small for many users. Set body text to at least 16sp. For apps targeting older audiences, consider 18sp or even 20sp. Headers and labels should scale proportionally.
 
-**Touch targets:** The Material Design minimum of 48x48 dp applies to every tappable element: buttons, list items, checkboxes, icons. If your "delete" button is 24x24 pixels, a user with essential tremor will struggle to tap it accurately. In healthcare, inaccessible UI is not just bad design -- it is a barrier to care.
+**Touch targets:** The Material Design minimum of 48x48 dp applies to every tappable element: buttons, list items, checkboxes, icons. If your "delete" button is 24x24 pixels, a user tapping one-handed on a crowded subway will struggle to hit it accurately. Inaccessible UI is not just bad design -- it is a barrier.
 
-> PRESENTER NOTE: Show a "bad" health app UI (cluttered, small text, poor contrast)
-> next to a "good" one (clean, readable, accessible). Ask students to identify the
-> differences. This exercise is memorable and directly applicable to their projects.
+> PRESENTER NOTE: Show a "bad" mobile UI (cluttered, small text, poor contrast) next to a
+> "good" one (clean, readable, accessible). Ask students to identify the differences.
+> This exercise is memorable and directly applicable to their projects.
 > If you don't have real examples, mock up two versions of a mood tracker screen --
 > one with 12sp text and tiny buttons, another with 16sp text and generous spacing.
 > The contrast is striking.
 
-### Healthcare Connection: UX is a Clinical Outcome
+### UX Is a Product Outcome
 
-This may sound dramatic, but it is backed by research: the usability of a health app directly affects clinical outcomes. A medication reminder app that is confusing leads to missed doses. A symptom tracker that is tedious to use leads to incomplete data. A telemedicine app that is difficult to navigate leads to missed appointments.
+Good UX is not a polish step -- it is the most direct lever you have on whether users come back. App store ratings, retention curves, and conversion rates are mostly downstream of UX decisions. A confusing onboarding flow loses 60% of users in the first session. A great onboarding flow keeps them.
 
-When you design a health app, you are not just designing software. You are designing a clinical intervention. Treat the UX with the same rigor you would treat a clinical protocol.
+When you design your app, you are not just designing software. You are designing the *experience* of using it. Treat the UX with the same rigor you would treat your code.
 
 !!! tip "Reference: Accessibility Quick Guide"
     For concrete code examples implementing semantic labels, contrast checks, scalable text, and proper touch targets in Flutter, see the [Accessibility Guide](../../resources/ACCESSIBILITY_GUIDE.md). Apply these patterns to your team project — they are graded as part of the Industry & Regulatory Awareness rubric (15 points in the final project).
@@ -670,5 +632,5 @@ If you want to go deeper on any topic covered today:
 - **Flutter state management guide:** [https://docs.flutter.dev/data-and-backend/state-mgmt](https://docs.flutter.dev/data-and-backend/state-mgmt)
 - **Flutter navigation and routing:** [https://docs.flutter.dev/ui/navigation](https://docs.flutter.dev/ui/navigation)
 - **Material Design accessibility:** [https://m3.material.io/foundations/accessible-design](https://m3.material.io/foundations/accessible-design)
-- **mHealth UX guidelines:** [https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6746089/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6746089/)
+- **Mobile UX research summary (NN/g):** [https://www.nngroup.com/articles/mobile-ux/](https://www.nngroup.com/articles/mobile-ux/)
 - **WCAG 2.1 guidelines:** [https://www.w3.org/TR/WCAG21/](https://www.w3.org/TR/WCAG21/)

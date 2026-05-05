@@ -13,14 +13,14 @@
     ```
 
     **Example:**
-    > As a **patient**, I want to **log my mood with a score**
-    > so that I can **track how I feel over time**.
+    > As a **user**, I want to **log my daily habit with one tap**
+    > so that I can **build a consistent streak**.
 
     **Acceptance criteria:**
 
-    - [ ] User can select a score from 1-10
-    - [ ] User can optionally add a note
-    - [ ] Entry appears in history list
+    - [ ] User can mark a habit as done with one tap
+    - [ ] User can optionally add a short note
+    - [ ] Entry appears in today's history list
 
 - :material-speedometer: **Story Point Scale**
 

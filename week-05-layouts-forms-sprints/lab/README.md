@@ -75,13 +75,13 @@ I want to [do something],
 so that [I get some benefit].
 ```
 
-**Examples for a mood tracker:**
+**Examples for a habit tracker app:**
 
-- "As a patient, I want to log my mood with a score so that I can track how I feel over time."
-- "As a patient, I want to see a history of my mood entries so that I can identify patterns."
-- "As a clinician, I want to view a patient's mood trends so that I can adjust treatment."
+- "As a user, I want to log my daily habit completion with a one-tap button so that I can build a consistent routine."
+- "As a user, I want to see a streak counter for each habit so that I stay motivated to keep my chain going."
+- "As a team lead, I want to view aggregated completion stats for my team so that I can recognize consistent contributors."
 
-~~User stories are just a fancy way to say "feature"~~ — a feature describes *what* the system does; a user story describes *who* benefits and *why*. The "so that" clause forces you to think about value, not just functionality. "Add a login page" is a feature. "As a patient, I want to log in so that my health data is private" is a story that explains the *purpose*.
+~~User stories are just a fancy way to say "feature"~~ — a feature describes *what* the system does; a user story describes *who* benefits and *why*. The "so that" clause forces you to think about value, not just functionality. "Add a login page" is a feature. "As a user, I want to log in so that my data stays private" is a story that explains the *purpose*.
 
 ```mermaid
 graph LR
@@ -150,7 +150,7 @@ As a team, write **at least 10-15 user stories** covering:
 - Authentication (login/register)
 - Navigation between screens
 - Data entry and display
-- Any mHealth-specific features
+- Any domain-specific features unique to your project
 
 Add all stories as GitHub Issues. Add them to your Project Board in the **Backlog** column.
 
@@ -169,10 +169,10 @@ Add all stories as GitHub Issues. Add them to your Project Board in the **Backlo
     and ensures every story has acceptance criteria.
 
 ??? question "Scenario: Breaking down an epic"
-    Your team wants to build a "Patient Dashboard." You've written one giant issue: "As a clinician, I want to see all patient data on one screen." This is an XL epic. How would you break it down?
+    Your team wants to build a "Project Dashboard." You've written one giant issue: "As a project manager, I want to see all project data on one screen." This is an XL epic. How would you break it down?
 
     ??? success "Answer"
-        Split it into independently deliverable stories: (1) "As a clinician, I want to see a patient's name and basic info" — **S**, (2) "As a clinician, I want to see today's vital signs" — **M**, (3) "As a clinician, I want to see a chart of vitals over time" — **L**, (4) "As a clinician, I want to filter vitals by date range" — **M**. Each story delivers testable value on its own. Story 1 can ship without stories 2-4.
+        Split it into independently deliverable stories: (1) "As a manager, I want to see a project's title and basic info" — **S**, (2) "As a manager, I want to see today's task completion count" — **M**, (3) "As a manager, I want to see a chart of completions over the last week" — **L**, (4) "As a manager, I want to filter the chart by date range" — **M**. Each story delivers testable value on its own. Story 1 can ship without stories 2–4.
 
 ### 1.4 Add Labels
 
@@ -258,19 +258,18 @@ graph TD
 
 Write a 1-sentence sprint goal as a pinned issue:
 
-> **Sprint 1 Goal:** "Build the app skeleton with navigation between the home, entry, and history screens, with basic mood/health data entry working locally."
+> **Sprint 1 Goal:** "Build the app skeleton with navigation between the home, entry, and history screens, with basic data entry working locally."
 
 !!! info "Grading"
     For detailed sprint review rubrics and grading criteria, see the [Project Grading Guide](../../resources/PROJECT_GRADING.md).
 
-> **Healthcare Context: Why Sprint Planning Matters in mHealth**
->
-> In healthcare software development, disciplined sprint planning is not just a best practice — it can be a regulatory requirement:
->
-> - **IEC 62304** (medical device software standard) requires documented development plans with ==traceable requirements==. Your GitHub Issues and sprint board are the foundation of this traceability.
-> - **Clinical validation** depends on incremental, testable builds. A sprint that delivers a working login screen can be shown to clinicians for feedback — a half-finished "everything" cannot.
-> - **Patient safety** starts with scope management. Feature creep in health apps leads to untested edge cases, which lead to bugs in critical workflows (medication dosing, alert thresholds).
-> - **Real mHealth teams** at companies like Oura, Withings, and Apple Health use 2-week sprints with exactly the ceremonies you practiced today.
+!!! info "Why Sprint Planning Matters in Industry"
+    Disciplined sprint planning is not just a "process" exercise — it is how serious teams keep complex products under control:
+
+    - **Traceability.** A documented backlog with linked PRs is what auditors, customers, and new teammates use to reconstruct *why* a feature exists. Your GitHub Issues + sprint board are exactly this artifact.
+    - **Incremental, testable builds.** A sprint that delivers a working login screen can be demoed and stress-tested. A half-finished "everything" cannot. Working software is the only honest measure of progress.
+    - **Scope discipline.** Feature creep is how projects miss deadlines. Picking 6–8 stories and *committing* to that scope forces conversations about priorities up front instead of at 2 a.m. before the demo.
+    - **Real product teams** at companies like Spotify, GitHub, and Atlassian use 1- to 2-week sprints with exactly the ceremonies you practiced today.
 
 ??? question "Scenario: Sprint scope negotiation"
     Your team planned 8 stories for Sprint 1, but after 3 days, you realize the navigation framework took longer than expected and you've only finished 2 stories. What do you do?
@@ -303,14 +302,14 @@ Write a 1-sentence sprint goal as a pinned issue:
 ### 3.1 Why `setState()` Doesn't Scale
 
 !!! tip "Remember from Week 4?"
-    You used `setState()` to update a single screen — the counter, the mood selector, the health check-in. It worked perfectly because ==one widget owned all the state==. But what happens when multiple screens need the same data?
+    You used `setState()` to update a single screen — the counter, the form, the toggle. It worked perfectly because ==one widget owned all the state==. But what happens when multiple screens need the same data?
 
-Consider a mood tracker app:
+Consider an app with a list, an entry form, and a stats screen — for example, the Mood Tracker you'll work with in Week 6:
 
 ```mermaid
 graph TD
-    subgraph "The problem: each screen has its own copy"
-    A["Home Screen<br/>Mood List"] ---|"❌ out of sync"| B["Add Mood Screen<br/>Score + Note"]
+    subgraph WITHOUT["WITHOUT centralized state — each screen owns a copy"]
+    A["Home Screen<br/>List of entries"] ---|"❌ out of sync"| B["Add Screen<br/>New entry form"]
     B ---|"❌ out of sync"| C["Stats Screen<br/>Average + Total"]
     A ---|"❌ out of sync"| C
     end
@@ -319,7 +318,7 @@ graph TD
     style C fill:#fce4ec,stroke:#e91e63
 ```
 
-When the user saves a new mood on the Add screen:
+When the user saves a new entry on the Add screen:
 
 - The Home Screen list needs to update
 - The Stats Screen averages need to recalculate
@@ -333,16 +332,16 @@ Instead of each screen holding its own copy of the data, we put the data in a ==
 
 ```mermaid
 graph TD
-    A["MoodNotifier<br/>(central state)<br/>moods: [...]<br/>addMood() / deleteMood()"] --> B["Home Screen<br/>(watches)"]
-    A --> C["Add Screen<br/>(calls addMood)"]
-    A --> D["Stats Screen<br/>(watches)"]
+    A["EntriesNotifier<br/>(central state)<br/>entries: [...]<br/>add() / delete()"] --> B["Home Screen<br/>(watches list)"]
+    A --> C["Add Screen<br/>(calls add)"]
+    A --> D["Stats Screen<br/>(watches list)"]
     style A fill:#e8f5e9,stroke:#4caf50
     style B fill:#e3f2fd,stroke:#2196f3
     style C fill:#e3f2fd,stroke:#2196f3
     style D fill:#e3f2fd,stroke:#2196f3
 ```
 
-When `addMood()` is called, ==every screen watching the state automatically updates==. No callbacks, no prop drilling.
+When `add()` is called, ==every screen watching the state automatically updates==. No callbacks, no prop drilling.
 
 ### 3.3 Key Vocabulary for Next Week
 
@@ -393,7 +392,7 @@ class HomeScreen extends ConsumerWidget {
 
 // 4. A button handler — uses ref.read() to call a method once
 onPressed: () {
-  ref.read(moodProvider.notifier).addMood(7, 'Feeling okay');
+  ref.read(moodProvider.notifier).addMood(7, 'Feeling okay today');
 },
 ```
 
@@ -435,20 +434,20 @@ Before leaving today, **pitch your project to the instructor**. This is informal
 
 ### What to Cover (2 minutes max)
 
-1. **The problem:** What health-related problem does your app address?
-2. **Target users:** Who will use it? (patients, clinicians, caregivers?)
+1. **The problem:** What real-world problem does your app address?
+2. **Target users:** Who will use it? Be specific — students, runners, freelancers, small teams?
 3. **3 key features:** What are the most important things the app will do?
 
 ### Why a Pitch?
 
-The verbal pitch gives you early feedback before you invest time writing the full proposal. The instructor can flag scope issues, suggest features, or point out regulatory considerations you haven't thought of.
+The verbal pitch gives you early feedback before you invest time writing the full proposal. The instructor can flag scope issues, suggest features, or point out platform considerations you haven't thought of.
 
 ??? protip "Pro tip: The elevator test"
     If you can't explain your app in ==30 seconds== to someone who has never
     heard of it, your scope is too broad. Try: "We're building a [type of app]
     for [target user] that helps them [key benefit]." Example: "We're building
-    a medication reminder app for elderly patients that helps them take the
-    right dose at the right time."
+    a habit-tracking app for busy professionals that helps them maintain
+    daily streaks with one-tap logging."
 
 > **Full written proposal** is due at the end of **this week (Week 5)**. Use the template at `templates/project-proposal/PROPOSAL_TEMPLATE.md`. Submitting it now ensures Sprint 1 (Weeks 6–7) can start with a clear, approved scope.
 
@@ -549,7 +548,7 @@ Today you learned:
     Go back to the [Week 4 Team Setup](../../week-04-flutter-fundamentals/lab/README.md#part-7-team-setup-homework) and complete steps 7.2-7.4. The member needs to be added as a collaborator with "Write" access, clone the repo, and verify they can push to a branch. Do this now — not during Week 6.
 
 ??? question "We don't know what app to build"
-    Think about a health problem you or someone you know faces: medication reminders, symptom tracking, mental health journaling, exercise logging, hydration tracking, or sleep monitoring. Pick something you're personally interested in — you'll be more motivated to build it. The instructor can help narrow your scope during the verbal pitch.
+    Think about a real friction you or someone you know faces every day: a habit tracker, a study planner, a recipe organizer, a workout logger, a personal finance tool, a reading list, or a journaling app. Pick something you're personally interested in — you'll be more motivated to build it. The instructor can help narrow your scope during the verbal pitch.
 
 ??? question "Can we change our stories after today?"
     Yes! The backlog is a ==living document==. You'll refine, add, and remove stories throughout the semester. Today's plan is your best guess — sprint reviews and retrospectives exist precisely because plans change. What matters is that you *have* a plan to adjust from.

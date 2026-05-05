@@ -249,15 +249,15 @@ The app currently uses **hardcoded data** and placeholder logic. Your job in thi
 
 ---
 
-> **Healthcare Context: Why State Management Matters in mHealth**
->
-> In real mobile health applications, state management is critical. Consider:
-> - **Real-time vital signs** from wearable sensors must update across multiple screens simultaneously.
-> - **Medication reminders** need consistent state so a dismissal on one screen is reflected everywhere.
-> - **Patient mood tracking** (exactly what you are building) requires that adding, editing, or deleting an entry immediately propagates to lists, detail views, and statistical dashboards.
-> - **Data integrity** -- in healthcare, showing stale or inconsistent data is not just a bug, it is a safety risk.
->
-> The patterns you learn today -- centralized state, immutable updates, and reactive UI -- are the same patterns used in production mHealth apps.
+!!! info "Why centralized state matters in production apps"
+    State management is the difference between a toy app and a real product. In any non-trivial app you encounter daily — task managers, chat apps, expense trackers, the Mood Tracker you're building — multiple screens look at the *same data* and must stay perfectly consistent:
+
+    - **Live updates across screens.** A new entry typed on one screen must appear instantly on the list view, the detail view, and any summary/stats screen — no manual refresh.
+    - **Consistent actions.** Dismissing a notification, marking a task done, or deleting a record on one screen must be reflected everywhere the same data is shown.
+    - **Derived data stays in sync.** If your stats screen shows averages, counts, or streaks, those numbers must recompute automatically the moment the underlying data changes.
+    - **Data integrity.** Showing stale or contradictory data on different screens is one of the fastest ways to lose user trust.
+
+    The patterns you'll learn today — centralized state, immutable updates, and reactive UI — are exactly what apps like Notion, Trello, and Spotify use under the hood.
 
 !!! example "Think of it like... a group chat"
     Riverpod providers are like a **group chat** — when someone sends a message (state changes), everyone in the chat (widgets using `ref.watch`) sees it instantly. `ref.read()` is like checking the chat once without turning on notifications.
@@ -282,6 +282,32 @@ In Weeks 4--5, you used `setState()` to update the UI. This works well for **loc
 - **The app grows.** With 10+ screens, passing state through constructors and callbacks becomes unmanageable.
 
 ~~`setState()` works fine for apps with multiple screens~~ — it doesn't. Each widget holds its own copy, so the home screen and stats screen show different data.
+
+The picture below shows why. On the left, every screen owns its own copy of the list, so they drift out of sync the moment one screen edits its copy. On the right, every screen reads from the **same** central state — adding an entry from the form instantly updates the list and the stats:
+
+```mermaid
+graph TD
+    subgraph WITHOUT["WITHOUT Riverpod (prop drilling)"]
+    direction TB
+    H1["Home Screen<br/>moods: copy A"] -.->|"❌ stale"| A1["Add Screen<br/>moods: copy B"]
+    A1 -.->|"❌ stale"| S1["Stats Screen<br/>moods: copy C"]
+    H1 -.->|"❌ stale"| S1
+    end
+    subgraph WITH["WITH Riverpod (single source of truth)"]
+    direction TB
+    N["MoodNotifier<br/>state: [moods]<br/>addMood / deleteMood"]
+    N -->|"ref.watch"| H2["Home Screen"]
+    N -->|"ref.read on submit"| A2["Add Screen"]
+    N -->|"ref.watch"| S2["Stats Screen"]
+    end
+    style H1 fill:#fce4ec,stroke:#e91e63
+    style A1 fill:#fce4ec,stroke:#e91e63
+    style S1 fill:#fce4ec,stroke:#e91e63
+    style N fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
+    style H2 fill:#e3f2fd,stroke:#2196f3
+    style A2 fill:#e3f2fd,stroke:#2196f3
+    style S2 fill:#e3f2fd,stroke:#2196f3
+```
 
 ### 1.2 What is Riverpod?
 
@@ -420,8 +446,8 @@ graph LR
     D -->|ref.read| A
 ```
 
-!!! example "Real-world mHealth: How Apple Health uses this pattern"
-    Apple Health aggregates data from multiple sources (Apple Watch, third-party apps, manual entries) into a centralized health store — conceptually similar to a `StateNotifier` holding a list of health records. Each data source writes to the store, and multiple screens (Heart, Activity, Sleep) reactively display derived statistics. Your `moodStatsProvider` computing averages from `moodProvider` mirrors exactly how Apple Health computes weekly step averages from daily data.
+!!! example "Real-world parallel: how production apps use this pattern"
+    Apps like Notion, Todoist, and Spotify follow the same architecture you're about to build. A central store holds the canonical list of items (notes, tasks, queued songs), and dozens of UI surfaces — sidebars, detail panes, mini-players, statistics — reactively re-render whenever the store updates. Your `moodStatsProvider` computing averages from `moodProvider` mirrors exactly how Todoist's "tasks completed today" counter recomputes from the central task list.
 
 ### 2.1 TODO 1: Implement the MoodNotifier class
 
@@ -540,11 +566,11 @@ Handle the empty-list edge case by returning zeros.
         - **`ref.read()`**: Inside callbacks, event handlers, `onPressed` — reads the current value once without subscribing
         - **Rule of thumb**: If the code runs once (button press), use `read()`. If it should react to changes (display data), use `watch()`.
 
-??? question "Scenario: The patient's mood log"
-    A patient logs their mood on the entry screen, then immediately swipes to the stats dashboard. Without Riverpod, what would the dashboard show? With Riverpod, why is it different?
+??? question "Scenario: Adding an entry then jumping to stats"
+    A user logs a new entry on the Add screen, then immediately swipes over to the Stats screen. Without Riverpod, what would Stats show? With Riverpod, why is it different?
 
     ??? success "Answer"
-        Without Riverpod, the stats dashboard would show stale data — it has its own copy of the mood list that wasn't updated when the entry screen added a new mood. With Riverpod, both screens use `ref.watch(moodProvider)` to subscribe to the **same** centralized state. The moment `MoodNotifier` adds an entry, `moodStatsProvider` recalculates, and the stats screen rebuilds with accurate numbers. No manual refresh needed.
+        Without Riverpod, the stats screen would show stale data — it has its own copy of the list that wasn't updated when the entry screen added a new item. With Riverpod, both screens use `ref.watch(moodProvider)` to subscribe to the **same** centralized state. The moment `MoodNotifier` adds an entry, `moodStatsProvider` recalculates, and the stats screen rebuilds with accurate numbers. No manual refresh needed.
 
 ??? challenge "Stretch Goal: Add a sort method"
     Add a `sortByDate()` method to `MoodNotifier` that toggles between newest-first and oldest-first ordering.
@@ -927,7 +953,7 @@ If all 8 steps work correctly, you have completed the lab.
     The final project rubric awards up to **15 points for Industry & Regulatory Awareness**, and accessibility is graded explicitly. Every team project must demonstrate semantic labels, safe text scaling, and 48×48 touch targets. Complete this part during the lab — don't save it for later.
 
 !!! info "Why this matters"
-    In healthcare apps, accessibility is not optional. Patients with low vision, motor impairments, or cognitive load (stressed, elderly, in pain) must be able to use your app safely. A medication reminder that a blind patient cannot navigate is a patient-safety failure, not a UX polish issue. This short exercise teaches you the highest-impact accessibility improvements — apply these patterns to your team project as you build it.
+    Accessibility is not optional in any production app. Users with low vision, motor impairments, or cognitive load (commuting, multitasking, fatigued, older adults) must be able to use your app effectively. A submit button that a screen-reader user can't activate isn't a polish issue — it's a broken feature for that user. This short exercise teaches you the highest-impact accessibility improvements — apply these patterns to your team project as you build it.
 
 ### 8.1 Add Semantic Labels
 
@@ -954,7 +980,7 @@ Add `tooltip` or `Semantics` wrappers to at least 3 interactive elements in the 
 
 ### 8.2 Check Text Scaling
 
-Patients with reduced vision use larger text sizes in their device settings. Verify your app handles this:
+Users with reduced vision often increase the system text size. Verify your app handles this:
 
 1. On your emulator/device, go to **Settings → Accessibility → Font size** and set it to the **largest** option.
 2. Reopen the Mood Tracker. Do any text elements overflow or get cut off?
@@ -970,7 +996,7 @@ If you have a physical Android device:
 
 1. Go to **Settings → Accessibility → TalkBack** and turn it on.
 2. Navigate through the Mood Tracker by swiping.
-3. Listen to what the screen reader announces. Can a blind user understand the app?
+3. Listen to what the screen reader announces. Can a screen-reader user understand the app without seeing it?
 4. Turn TalkBack off when done (swipe down with two fingers, then double-tap "OK").
 
 !!! tip "Reference"
