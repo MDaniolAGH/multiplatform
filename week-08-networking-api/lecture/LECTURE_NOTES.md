@@ -2,10 +2,6 @@
 
 **Course:** Multiplatform Mobile Software Engineering in Practice
 **Duration:** ~2 hours (including Q&A)
-**Format:** Student-facing notes with presenter cues
-
-> Lines marked with `> PRESENTER NOTE:` are for the instructor only. Students can
-> ignore these or treat them as bonus context.
 
 ---
 
@@ -33,33 +29,19 @@ When a user taps a button to submit their mood entry, the app needs to send data
 
 This is why HTTP in mobile apps must be **asynchronous**. The app sends the request, continues running (showing a loading indicator, accepting other taps), and handles the response when it eventually arrives.
 
-```d2
-direction: right
+```mermaid
+graph LR
+    subgraph CURL["curl (Week 2)"]
+        direction TB
+        C1["type command"] --> C2["wait..."] --> C3["wait..."] --> C4["wait..."] --> C5["see response"] --> C6["done"]
+    end
+    subgraph FLUTTER["Flutter (this week)"]
+        direction TB
+        F1["user taps 'Save'"] --> F2["send request"] --> F3["show spinner"] --> F4["user can still navigate"] --> F5["response arrives"] --> F6["update UI"] --> F7["hide spinner"]
+    end
 
-curl: "curl (Week 2)" {
-  style.fill: "#FFE0B2"
-  direction: down
-  s1: "type command"
-  s2: "wait..."
-  s3: "wait..."
-  s4: "wait..."
-  s5: "see response"
-  s6: "done"
-  s1 -> s2 -> s3 -> s4 -> s5 -> s6
-}
-
-flutter: "Flutter (this week)" {
-  style.fill: "#C8E6C9"
-  direction: down
-  s1: 'user taps "Save"'
-  s2: "send request"
-  s3: "show spinner"
-  s4: "user can still navigate"
-  s5: "response arrives"
-  s6: "update UI"
-  s7: "hide spinner"
-  s1 -> s2 -> s3 -> s4 -> s5 -> s6 -> s7
-}
+    style CURL fill:#ffe0b2,stroke:#ef6c00
+    style FLUTTER fill:#c8e6c9,stroke:#2e7d32
 ```
 
 ### Dart's async/await
@@ -77,10 +59,6 @@ Future<List<MoodEntry>> fetchMoods() async {
 ```
 
 The `await` keyword tells Dart: "Pause this function, go do other things (like rendering the UI), and come back when the response is ready." The rest of the app keeps running.
-
-> PRESENTER NOTE: Demo a simple `http.get()` call in Flutter. Show what happens when
-> the server is down (timeout, error handling). Then show what happens with no internet
-> connection. If possible, toggle airplane mode on the emulator to demonstrate.
 
 ### Flutter HTTP Packages
 
@@ -112,11 +90,6 @@ When you tested with curl in Week 2, you were on a reliable wired or Wi-Fi conne
 
 None of these problems exist when you run `curl` on your laptop. All of them exist when your app runs on a phone in someone's pocket.
 
-> PRESENTER NOTE: Ask students: "What happens in your app right now if the user has
-> no internet?" Most will admit they haven't thought about it. That's fine -- that's
-> what this lecture is for. The lab today focuses on getting the happy path working.
-> Error handling comes next.
-
 ### Healthcare Connection
 
 A telemedicine app that freezes while uploading patient data is not just annoying -- it could delay critical care. A nurse entering vitals at a patient's bedside should not have to wait for a spinner while the server responds. The app should accept the data immediately, store it locally, and sync when possible. Network resilience in healthcare is a **patient safety concern**, not just a user experience preference.
@@ -133,25 +106,15 @@ The core problem: **JSON is untyped, and Dart is typed.**
 
 When you call `jsonDecode(response.body)`, you get a `Map<String, dynamic>`. That `dynamic` means "anything" -- an int, a String, a null, a nested Map. Dart's type system cannot help you if you write `json['scor']` instead of `json['score']`. The typo compiles fine and crashes at runtime.
 
-```d2
-direction: right
+```mermaid
+graph LR
+    JSON["<b>JSON world</b><br/>'score' can be anything:<br/>7, '7', null, [7]<br/>Keys are strings<br/>No compile-time checking"]
+    DART["<b>Dart world</b><br/>score must be int<br/>note must be String<br/>timestamp must be DateTime<br/>Compile-time type checking"]
 
-json: "JSON world" {
-  style.fill: "#FFCDD2"
-  d1: '"score" can be anything:\n7, "7", null, [7]'
-  d2: "Keys are strings"
-  d3: "No compile-time checking"
-}
+    JSON ==>|The serialization layer<br/>bridges this gap| DART
 
-dart: "Dart world" {
-  style.fill: "#C8E6C9"
-  d1: "score must be int"
-  d2: "note must be String"
-  d3: "timestamp must be DateTime"
-  d4: "Compile-time type checking"
-}
-
-json -> dart: "The serialization layer\nbridges this gap" {style.bold: true}
+    style JSON fill:#ffcdd2,stroke:#c62828
+    style DART fill:#c8e6c9,stroke:#2e7d32
 ```
 
 ### Manual Serialization
@@ -253,39 +216,20 @@ This gives you `fromJson`, `toJson`, `copyWith`, `==`, `hashCode`, and `toString
 
 For your course project, manual serialization is perfectly fine. You have a small number of models, and writing the mapping by hand helps you understand what is happening under the hood.
 
-> PRESENTER NOTE: Show a live example of manual `fromJson`/`toJson` for a MoodEntry.
-> Then show the `json_serializable` approach side by side. Emphasize that the manual
-> approach works but does not scale -- typos in string keys are a common source of
-> bugs that surface only at runtime, often in production.
-
 ### The Full Serialization Flow
 
 Here is how data flows between your FastAPI backend and your Flutter app:
 
-```d2
-direction: right
+```mermaid
+graph LR
+    SERVER["<b>Server (FastAPI)</b><br/>Python dict<br/>{ 'score': 7,<br/>  'note': 'good day' }"]
+    FLUTTER["<b>Flutter App</b><br/>Dart Object<br/>MoodEntry(<br/>  score: 7,<br/>  note: 'good day'<br/>)"]
 
-server: "Server (FastAPI)" {
-  style.fill: "#E3F2FD"
-  python: "Python dict" {
-    style.fill: "#BBDEFB"
-    d: |md
-      {"score": 7,
-       "note": "good day"}
-    |
-  }
-}
+    SERVER ==>|HTTP Response<br/>jsonDecode → fromJson| FLUTTER
+    FLUTTER ==>|HTTP Request<br/>toJson → jsonEncode| SERVER
 
-flutter: "Flutter App" {
-  style.fill: "#E8F5E9"
-  dart_obj: "Dart Object" {
-    style.fill: "#C8E6C9"
-    d: "MoodEntry(\n  score: 7,\n  note: \"good day\"\n)"
-  }
-}
-
-server -> flutter: "HTTP Response\njsonDecode()\nfromJson()" {style.stroke: "#1565C0"}
-flutter -> server: "HTTP Request\ntoJson()\njsonEncode()" {style.stroke: "#2E7D32"}
+    style SERVER fill:#e3f2fd,stroke:#1565c0
+    style FLUTTER fill:#e8f5e9,stroke:#2e7d32
 ```
 
 Two transformations on each side: between the wire format (JSON string) and the language's native data structure. On the Python side, FastAPI handles this automatically. On the Dart side, you need to handle it yourself -- that is what `fromJson` and `toJson` are for.
@@ -371,58 +315,23 @@ class MoodApiClient {
 - **Consistent error handling** in `_checkResponse`
 - **Easy to swap** -- point to a different backend by changing one URL
 
-> PRESENTER NOTE: Show a simple `ApiClient` class with methods like `getMoods()`,
-> `createMood()`, etc. Show how the notifier uses it. Emphasize that the UI code
-> from Week 6 does not change at all -- only the data source changes.
-
 ### The Layered Architecture
 
 Your app should have clear layers of responsibility. Here is how everything you have built so far fits together:
 
-```d2
-direction: down
+```mermaid
+graph TD
+    UI["<b>UI Layer</b><br/>Widgets, screens<br/>'What does the user see?'"]
+    STATE["<b>State Layer</b><br/>Riverpod notifiers<br/>'What is the current state?'"]
+    REPO["<b>Repository Layer</b><br/>Decides: local DB or API?<br/>'Where does the data come from?'"]
+    DATA["<b>Data Layer</b><br/>API client + Local DB<br/>'How do we read/write data?'"]
 
-ui: "UI Layer" {
-  style.fill: "#E3F2FD"
-  style.font-size: 18
-  label: |md
-    **UI Layer**
-    Widgets, screens
-    "What does the user see?"
-  |
-}
+    UI --> STATE --> REPO --> DATA
 
-state: "State Layer" {
-  style.fill: "#BBDEFB"
-  style.font-size: 18
-  label: |md
-    **State Layer**
-    Riverpod notifiers
-    "What is the current state?"
-  |
-}
-
-repo: "Repository Layer" {
-  style.fill: "#FFF9C4"
-  style.font-size: 18
-  label: |md
-    **Repository Layer**
-    Decides: local DB or API?
-    "Where does the data come from?"
-  |
-}
-
-data: "Data Layer" {
-  style.fill: "#E8F5E9"
-  style.font-size: 18
-  label: |md
-    **Data Layer**
-    API client + Local DB
-    "How do we read/write data?"
-  |
-}
-
-ui -> state -> repo -> data
+    style UI fill:#e3f2fd,stroke:#1565c0
+    style STATE fill:#bbdefb,stroke:#1565c0
+    style REPO fill:#fff9c4,stroke:#f9a825
+    style DATA fill:#e8f5e9,stroke:#2e7d32
 ```
 
 Your Riverpod notifier from Week 6 currently has hardcoded data or simple in-memory lists. In Sprint 2, you replace that data source with a repository that can talk to both SQLite (Week 7) and your API (this week). The beauty of this architecture is that the UI layer does not know or care where the data comes from. It just calls `ref.watch(moodProvider)` and renders whatever state it gets.
@@ -469,49 +378,17 @@ Think of it this way: if your app only works with a perfect internet connection,
 
 Not all errors are equal. The appropriate response depends on the type:
 
-```d2
-direction: down
+```mermaid
+graph LR
+    NET["<b>Network Errors</b><br/>No internet<br/>Timeout<br/>DNS failure<br/>User action:<br/>Check WiFi, try again"]
+    SERVER["<b>Server Errors</b><br/>500 Internal<br/>502 Bad Gateway<br/>503 Unavailable<br/>User action:<br/>Retry later — not user's fault"]
+    CLIENT["<b>Client Errors</b><br/>400 Bad Request<br/>401 Unauthorized<br/>404 Not Found<br/>422 Validation<br/>User action:<br/>Fix input or re-login"]
+    PARSING["<b>Parsing Errors</b><br/>Unexpected JSON<br/>Missing fields<br/>Wrong types<br/>Developer's fault<br/>— fix the code"]
 
-title: "ERROR CATEGORIES" {
-  style.fill: "#F5F5F5"
-  style.font-size: 20
-  style.bold: true
-
-  direction: right
-
-  network: "Network Errors" {
-    style.fill: "#FFCDD2"
-    d1: "No internet"
-    d2: "Timeout"
-    d3: "DNS failure"
-    action: "User action:\nCheck WiFi, try again" {style.fill: "#FFF"}
-  }
-
-  server: "Server Errors" {
-    style.fill: "#FFE0B2"
-    d1: "500 Internal"
-    d2: "502 Bad Gateway"
-    d3: "503 Unavailable"
-    action: "User action:\nRetry later, not\nuser's fault" {style.fill: "#FFF"}
-  }
-
-  client: "Client Errors" {
-    style.fill: "#FFF9C4"
-    d1: "400 Bad Request"
-    d2: "401 Unauth"
-    d3: "404 Not Found"
-    d4: "422 Validation"
-    action: "User action:\nFix input or re-login" {style.fill: "#FFF"}
-  }
-
-  parsing: "Parsing Errors" {
-    style.fill: "#E3F2FD"
-    d1: "Unexpected JSON"
-    d2: "Missing fields"
-    d3: "Wrong types"
-    action: "Developer's fault\n— fix the code" {style.fill: "#FFF"}
-  }
-}
+    style NET fill:#ffcdd2,stroke:#c62828
+    style SERVER fill:#ffe0b2,stroke:#ef6c00
+    style CLIENT fill:#fff9c4,stroke:#f9a825
+    style PARSING fill:#e3f2fd,stroke:#1565c0
 ```
 
 Each category demands a different response:
@@ -552,11 +429,6 @@ The error message your user sees determines whether they trust your app or unins
 - "The mood score must be between 1 and 10."
 
 The worst error message in a health app is "Something went wrong." The best one tells the user what happened, whether their data is safe, and what they can do about it.
-
-> PRESENTER NOTE: Show examples of good vs bad error messages from real apps.
-> Health apps should never show stack traces or raw error codes to patients.
-> If you have screenshots of poor error handling in real health apps, this is
-> a good time to show them.
 
 ### Healthcare Connection
 
@@ -620,11 +492,6 @@ If you were building a production health app, you would need:
 
 For your course project, you do not need all of these. But implementing a "delete my data" button and a "download my data" export feature would be excellent additions that demonstrate you understand the principles.
 
-> PRESENTER NOTE: Show examples of GDPR consent screens in health apps. Point out
-> good practices (clear language, granular consent options, easy to decline) and bad
-> practices (dark patterns, pre-checked boxes, "accept all" as the prominent button,
-> vague language like "we may share your data with partners").
-
 ### Health Data Gets Extra Protection
 
 Under GDPR Article 9, health data is classified as **"special category data"** alongside biometric data, genetic data, racial/ethnic origin, and religious beliefs. Special category data receives stricter protections:
@@ -667,20 +534,13 @@ Both Android and iOS enforce this by default:
 
 HTTPS protects against eavesdropping, but there is a subtler attack: **man-in-the-middle (MITM)**. An attacker could present a fake certificate that your phone trusts (perhaps by compromising a certificate authority). Certificate pinning solves this:
 
-```d2
-direction: right
+```mermaid
+graph LR
+    WITHOUT["<b>Without pinning</b><br/>App trusts ANY valid cert<br/><br/>Attacker with fake cert:<br/>App: 'Cert valid? Yes.'<br/>App: 'Connected!'<br/>Attacker: reads all data"]
+    WITHPIN["<b>With pinning</b><br/>App trusts ONLY your server's cert<br/><br/>Attacker with fake cert:<br/>App: 'Cert matches pin? No.'<br/>App: 'Connection refused!'<br/>Attacker: blocked"]
 
-without: "Without pinning" {
-  style.fill: "#FFCDD2"
-  desc: "App trusts ANY valid cert"
-  attack: 'Attacker with fake cert:\nApp: "Cert valid? Yes."\nApp: "Connected!"\nAttacker: reads all data' {style.fill: "#FFF"}
-}
-
-with_pin: "With pinning" {
-  style.fill: "#C8E6C9"
-  desc: "App trusts ONLY your server's cert"
-  attack: 'Attacker with fake cert:\nApp: "Cert matches pin? No."\nApp: "Connection refused!"\nAttacker: blocked' {style.fill: "#FFF"}
-}
+    style WITHOUT fill:#ffcdd2,stroke:#c62828
+    style WITHPIN fill:#c8e6c9,stroke:#2e7d32
 ```
 
 Certificate pinning is essential for high-security applications -- banking, healthcare, government. For your course project, HTTPS is sufficient. But know that pinning exists for when the stakes are higher.
@@ -719,10 +579,6 @@ This is fine during development. But in production, logging patient data to the 
 
 Rule of thumb: **Log metadata (status codes, request durations, error types), never log payload data in production.**
 
-> PRESENTER NOTE: Preview for next week: "Next week we will cover authentication
-> in depth -- JWT tokens, OAuth2, and secure storage of credentials on the device.
-> Today's focus was on the transport layer. Next week is about identity."
-
 ---
 
 ## 7. Key Takeaways (5 min)
@@ -738,13 +594,6 @@ Rule of thumb: **Log metadata (status codes, request durations, error types), ne
 5. **GDPR gives users control over their health data** -- consent, access, deletion, and portability are legal requirements, not nice-to-have features. Health data receives extra protection under Article 9.
 
 6. **Always use HTTPS, never hardcode secrets, and never log sensitive data** -- these are baseline security practices, not advanced techniques.
-
-> PRESENTER NOTE: End with a connection to the lab: "In the lab today, you are
-> connecting your Flutter app to your FastAPI backend from Week 2. You will create
-> an ApiClient class, implement fromJson/toJson on your model, and modify your
-> notifier to fetch real data. The key insight: the UI code you wrote in Week 6
-> should not change at all -- only the data layer changes. That is the power of
-> layered architecture."
 
 ---
 

@@ -70,11 +70,13 @@ class MoodApiService {
   //   // DELETE /moods/{id}
   // }
 
-  Future<MoodEntry> updateMood(String id, int score, String? note) async {
-    final data = await _apiClient.put('/moods/$id', {
-      'score': score,
-      'note': note,
-    });
-    return MoodEntry.fromJson(data as Map<String, dynamic>);
-  }
+  // Bonus / stretch goal — uncomment after completing TODO 1 (fromJson):
+  //
+  // Future<MoodEntry> updateMood(String id, int score, String? note) async {
+  //   final data = await _apiClient.put('/moods/$id', {
+  //     'score': score,
+  //     'note': note,
+  //   });
+  //   return MoodEntry.fromJson(data as Map<String, dynamic>);
+  // }
 }

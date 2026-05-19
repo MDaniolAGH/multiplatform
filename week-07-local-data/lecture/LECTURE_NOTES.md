@@ -2,10 +2,6 @@
 
 **Course:** Multiplatform Mobile Software Engineering in Practice
 **Duration:** ~2 hours (including Q&A)
-**Format:** Student-facing notes with presenter cues
-
-> Lines marked with `> PRESENTER NOTE:` are for the instructor only. Students can
-> ignore these or treat them as bonus context.
 
 ---
 
@@ -29,10 +25,6 @@
 Your Mood Tracker app from Week 6 lost all data when you restarted it. Every mood entry, every note, every score -- gone the moment the app closed. For a demo or prototype, that is fine. For a real health app, that is a critical failure.
 
 Think about it from a patient's perspective. Imagine someone managing a chronic condition -- depression, diabetes, hypertension. They log their mood or blood sugar every morning. They depend on that data to see trends, to share with their doctor, to feel in control. If the app loses their data because they received a phone call or stepped into an elevator, they will uninstall the app and never come back.
-
-> PRESENTER NOTE: Ask the audience: "How many of you noticed data disappearing when you
-> restarted the Mood Tracker in Week 6?" This is the perfect setup -- they lived the
-> problem, now we solve it.
 
 ### Five Reasons to Store Data Locally
 
@@ -162,41 +154,41 @@ await file.writeAsString(csvContent);
 
 When deciding which storage to use, walk through this tree:
 
-```d2
-direction: down
+```mermaid
+graph TD
+    Q["What kind of data?"]
+    KV["Simple key-value<br/>(settings, flags)?"]
+    STRUCT["Structured records<br/>(patients, moods, vitals)?"]
+    SENS["Sensitive credentials<br/>(tokens, keys, passwords)?"]
+    FILES["Large files<br/>(images, PDFs, CSVs)?"]
 
-q: "What kind of data?" {style.fill: "#E3F2FD"; style.bold: true}
+    SP["SharedPreferences"]
+    SQLQ{"Need SQL queries or<br/>complex relationships?"}
+    SQLITE["SQLite<br/>(sqflite / drift)"]
+    HIVE["Hive / Isar"]
+    SECURE["flutter_secure_storage"]
+    FS["File system<br/>(path_provider + dart:io)"]
 
-kv: "Simple key-value\n(settings, flags)?" {style.fill: "#FFF9C4"}
-structured: "Structured records\n(patients, moods, vitals)?" {style.fill: "#FFF9C4"}
-sensitive: "Sensitive credentials\n(tokens, keys, passwords)?" {style.fill: "#FFF9C4"}
-files: "Large files\n(images, PDFs, CSVs)?" {style.fill: "#FFF9C4"}
+    Q --> KV
+    Q --> STRUCT
+    Q --> SENS
+    Q --> FILES
 
-sp: "SharedPreferences" {style.fill: "#C8E6C9"; style.bold: true}
-sql_q: "Need SQL queries or\ncomplex relationships?" {style.fill: "#FFE0B2"}
-sqlite: "SQLite\n(sqflite / drift)" {style.fill: "#C8E6C9"; style.bold: true}
-hive: "Hive / Isar" {style.fill: "#C8E6C9"; style.bold: true}
-secure: "flutter_secure_storage" {style.fill: "#C8E6C9"; style.bold: true}
-fs: "File system\n(path_provider + dart:io)" {style.fill: "#C8E6C9"; style.bold: true}
+    KV --> SP
+    STRUCT --> SQLQ
+    SQLQ -->|Yes| SQLITE
+    SQLQ -->|No| HIVE
+    SENS --> SECURE
+    FILES --> FS
 
-q -> kv
-q -> structured
-q -> sensitive
-q -> files
-
-kv -> sp
-structured -> sql_q
-sql_q -> sqlite: "Yes"
-sql_q -> hive: "No"
-sensitive -> secure
-files -> fs
+    style Q fill:#e3f2fd,stroke:#1976d2
+    style SP fill:#c8e6c9,stroke:#388e3c
+    style SQLITE fill:#c8e6c9,stroke:#388e3c
+    style HIVE fill:#c8e6c9,stroke:#388e3c
+    style SECURE fill:#c8e6c9,stroke:#388e3c
+    style FS fill:#c8e6c9,stroke:#388e3c
+    style SQLQ fill:#ffe0b2,stroke:#ff9800
 ```
-
-> PRESENTER NOTE: This is a good time for interaction. Ask the class: "What kind of
-> data does your team's project need to store? Which storage option fits best?" Have
-> 2-3 teams share their answers. Common answers will include patient records (SQLite),
-> user settings (SharedPreferences), and auth tokens (secure storage). If a team says
-> "we'll just put everything in SharedPreferences," gently correct them.
 
 ---
 
@@ -369,10 +361,6 @@ WHERE id = 'abc-123';
 DELETE FROM mood_entries WHERE id = 'abc-123';
 ```
 
-> PRESENTER NOTE: Walk through these examples on the projector. Students will practice
-> all of these operations hands-on in the lab's Part 0 (SQL Console warm-up), so focus
-> on concepts here rather than memorization.
-
 ### 3.6 SQL Clause Reference
 
 Here is a quick reference for the SQL clauses you will use most often:
@@ -386,11 +374,6 @@ Here is a quick reference for the SQL clauses you will use most often:
 | `AVG(col)` | Average value | `SELECT AVG(score) FROM mood_entries` |
 | `MAX(col)` / `MIN(col)` | Largest / smallest value | `SELECT MAX(score) FROM mood_entries` |
 | `LIMIT` | Return only N rows | `LIMIT 10` |
-
-> PRESENTER NOTE: Do not go deep into JOINs or subqueries. Students only need basic
-> CRUD for the lab and their projects. If asked about JOINs, say: "That is how you
-> combine data from multiple tables. We will not need it today, but it is worth learning
-> if your project has related tables."
 
 ---
 
@@ -442,31 +425,16 @@ In the lab, you implemented the repository pattern. Let's examine *why* it exist
 
 The repository pattern places a clean abstraction layer between your business logic and your data source:
 
-```d2
-direction: right
+```mermaid
+graph LR
+    UI["UI (Widget)<br/>ref.watch()"] --> NOTIFIER["Riverpod Notifier<br/>state: moods"]
+    NOTIFIER --> REPO["Repository<br/>addMood / getMoods / deleteMood"]
+    REPO --> DB["SQLite Database<br/>(file)"]
 
-ui: "UI (Widget)" {
-  style.fill: "#E3F2FD"
-  label: "UI (Widget)\nref.watch()"
-}
-
-notifier: "Riverpod\nNotifier" {
-  style.fill: "#BBDEFB"
-  label: "Riverpod Notifier\nstate: moods"
-}
-
-repo: "Repository" {
-  style.fill: "#FFF9C4"
-  add: "addMood()"
-  get: "getMoods()"
-  delete: "deleteMood()"
-}
-
-db: "SQLite\nDatabase\n(file)" {
-  style.fill: "#E8F5E9"
-}
-
-ui -> notifier -> repo -> db
+    style UI fill:#e3f2fd,stroke:#1976d2
+    style NOTIFIER fill:#bbdefb,stroke:#1565c0
+    style REPO fill:#fff9c4,stroke:#f9a825
+    style DB fill:#e8f5e9,stroke:#388e3c
 ```
 
 The key insight: **your Riverpod notifier talks to the repository, not directly to the database.** The notifier calls `repository.addMood(entry)`. It does not know or care whether the repository saves that entry to SQLite, sends it to a REST API, writes it to a CSV file, or does all three.
@@ -474,11 +442,6 @@ The key insight: **your Riverpod notifier talks to the repository, not directly 
 This matters in healthcare for a very practical reason. During development, you use a local SQLite database. In a clinical trial deployment, you might need to sync data with a FHIR server. In a hospital integration, you might need to write to an HL7 interface. The repository pattern lets you swap the data source without changing a single line of UI code or business logic.
 
 It also makes testing easy. In your unit tests, you can replace the real repository with a mock that returns pre-defined data. No database setup, no cleanup, no flaky tests.
-
-> PRESENTER NOTE: This is a good moment to connect to the lab. "In the lab, you noticed
-> that the UI code from Week 6 stayed EXACTLY the same. The only files you changed were
-> in the data layer and the notifier. The screens and widgets did not need a single edit.
-> That is the power of the repository pattern."
 
 ### The Optimistic Update Pattern
 
@@ -537,42 +500,30 @@ Offline-first is not just a nice architecture pattern. In healthcare, it can be 
 
 **Patient safety requires the app to always work.** If a nurse is administering medication based on data in the app, the app MUST display that data. "Network error -- please try again" is not acceptable when a patient's medication dose depends on it.
 
-> PRESENTER NOTE: Demo the concept of offline-first live. Open the Notes app on your
-> phone (or any note-taking app). Put the phone in airplane mode. Create a few notes,
-> edit them, delete one. Everything works. Now turn airplane mode off. The notes sync.
-> That is offline-first. The user never noticed the network was down.
-
 ### The Architecture
 
 Here is how offline-first works in practice:
 
-```d2
-direction: down
+```mermaid
+graph TD
+    UI["UI"]
+    DB["Local DB<br/>(SQLite)"]
+    SYNC["Sync Engine"]
+    SERVER["Remote Server<br/>(FastAPI)"]
 
-title: "Offline-First Architecture" {
-  style.fill: "#F5F5F5"
-  style.font-size: 20
+    UI ==>|always reads/writes| DB
+    DB -.->|data| UI
+    DB -->|when online| SYNC
+    SYNC <-->|push / pull| SERVER
 
-  ui: "UI" {style.fill: "#E3F2FD"}
-
-  db: "Local DB\n(SQLite)" {style.fill: "#C8E6C9"}
-
-  sync: "Sync Engine" {style.fill: "#FFF9C4"}
-
-  server: "Remote Server\n(FastAPI)" {style.fill: "#F3E5F5"}
-
-  ui -> db: "always reads/writes" {style.bold: true}
-  db -> ui: "data" {style.stroke-dash: 3}
-
-  db -> sync: "when online"
-  sync -> server: "push/pull"
-
-  note: |md
-    User never waits for network.
-    Data syncs in background when possible.
-  |
-}
+    style UI fill:#e3f2fd,stroke:#1976d2
+    style DB fill:#c8e6c9,stroke:#388e3c
+    style SYNC fill:#fff9c4,stroke:#f9a825
+    style SERVER fill:#f3e5f5,stroke:#8e24aa
 ```
+
+> User never waits for the network. Data syncs in the background whenever a
+> connection is available.
 
 **The UI always talks to the local database.** Every read and every write goes to SQLite first. The user experience is identical whether the device is online or offline.
 
@@ -586,11 +537,6 @@ title: "Offline-First Architecture" {
 Offline-first architecture introduces a hard problem: **conflict resolution.** When the same record is modified in two places while offline, the system must decide which version wins. Common strategies include last-write-wins, field-level merging, and manual resolution -- each with trade-offs between simplicity and data safety.
 
 For this course, you do not need to implement sync. A simple "push local changes, pull remote changes" approach is sufficient for your projects. But be aware that sync is one of the hardest problems in distributed systems, and healthcare makes it even harder because data accuracy has clinical consequences.
-
-> PRESENTER NOTE: Don't let this section scare students. They are not implementing
-> sync in this course. The point is awareness: if they build health apps professionally,
-> they will encounter this problem. For now, local-only storage (which they built in the
-> lab) is perfectly appropriate for their projects.
 
 ### What You Built in the Lab Is the Foundation
 
@@ -643,28 +589,18 @@ For a health app, this is not acceptable.
 
 **Key management:** Store the encryption key in secure storage (Keychain on iOS, Keystore on Android), NEVER in SharedPreferences or hardcoded in the source code. The key should be protected by the device's hardware security module.
 
-```d2
-direction: right
+```mermaid
+graph LR
+    SECURE["Platform Secure Storage<br/>Encryption key<br/>(hardware-backed)"]
+    APP["Your App<br/>SQLite DB<br/>(encrypted with sqlcipher)"]
 
-app: "Your App" {
-  style.fill: "#E3F2FD"
-  db: "SQLite DB\n(encrypted with\nsqlcipher)"
-}
+    SECURE ==>|key| APP
 
-secure: "Platform Secure\nStorage" {
-  style.fill: "#E8F5E9"
-  key_item: "Encryption key\n(hardware-backed)"
-}
-
-secure -> app: "key" {style.bold: true}
+    style SECURE fill:#e8f5e9,stroke:#388e3c
+    style APP fill:#e3f2fd,stroke:#1976d2
 ```
 
 Even if the phone is stolen, the data should be unreadable without the encryption key, which is protected by the device's biometrics or PIN.
-
-> PRESENTER NOTE: Brief mention: "We'll go deeper into GDPR, HIPAA, and security in
-> Weeks 8 and 9. Today, just be aware that health data storage has legal requirements.
-> The key takeaway: encrypt sensitive data at rest and store encryption keys in secure
-> storage."
 
 ### The Cost of Getting It Wrong
 

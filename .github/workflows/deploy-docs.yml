@@ -27,8 +27,8 @@ jobs:
           # rm -f docs/week-04-flutter-fundamentals  # Published
           # rm -f docs/week-05-layouts-forms-sprints  # Published
           # rm -f docs/week-06-state-management  # Published
-          rm -f docs/week-07-local-data
-          rm -f docs/week-08-networking-api
+          # rm -f docs/week-07-local-data  # Published
+          # rm -f docs/week-08-networking-api  # Published
           rm -f docs/week-09-authentication
       - uses: actions/setup-python@v5
         with:

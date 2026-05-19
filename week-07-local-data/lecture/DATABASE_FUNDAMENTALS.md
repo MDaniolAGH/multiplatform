@@ -32,49 +32,19 @@ When you call `db.insert('mood_entries', entry.toMap())` in your Flutter app, wh
 
 Imagine a bookshelf filled with binders. Each binder holds exactly one **page** of paper -- 4,096 bytes (4 KB). That is the fundamental unit of storage in SQLite. The database never reads or writes a single row; it always reads or writes an entire page.
 
-```d2
-direction: right
+```mermaid
+graph LR
+    subgraph DB["SQLite Database File"]
+        direction LR
+        P1["<b>Page 1 (4 KB)</b><br/>Row 1: id=a1b2, score=3<br/>Row 2: id=d4e5, score=5<br/>Row 3: id=g7h8, score=2<br/>...<br/>Row 30: id=x9y0, score=4"]
+        P2["<b>Page 2 (4 KB)</b><br/>Row 31: id=m3n4, score=1<br/>Row 32: id=p5q6, score=5<br/>...<br/>Row 58: id=z1a2, score=3"]
+        P3["<b>Page 3 (4 KB)</b><br/>Row 59: id=b3c4, score=4<br/>Row 60: id=e5f6, score=2<br/>...<br/>(partially filled)"]
+        P1 --> P2 --> P3
+    end
 
-shelf: "SQLite Database File" {
-  style.fill: "#E3F2FD"
-  style.font-size: 16
-
-  direction: right
-
-  p1: "Page 1\n(4 KB)" {
-    style.fill: "#C8E6C9"
-    r: |md
-      Row 1: id=a1b2, score=3
-      Row 2: id=d4e5, score=5
-      Row 3: id=g7h8, score=2
-      ...
-      Row 30: id=x9y0, score=4
-    |
-  }
-
-  p2: "Page 2\n(4 KB)" {
-    style.fill: "#C8E6C9"
-    r: |md
-      Row 31: id=m3n4, score=1
-      Row 32: id=p5q6, score=5
-      ...
-      Row 58: id=z1a2, score=3
-    |
-  }
-
-  p3: "Page 3\n(4 KB)" {
-    style.fill: "#C8E6C9"
-    r: |md
-      Row 59: id=b3c4, score=4
-      Row 60: id=e5f6, score=2
-      ...
-      (partially filled)
-    |
-  }
-
-  p1 -> p2: {style.animated: true}
-  p2 -> p3: {style.animated: true}
-}
+    style P1 fill:#c8e6c9,stroke:#388e3c
+    style P2 fill:#c8e6c9,stroke:#388e3c
+    style P3 fill:#c8e6c9,stroke:#388e3c
 ```
 
 Your `mood_entries` table is spread across these pages. Each page holds as many rows as will fit. A single mood entry -- an id (TEXT), a score (INTEGER), a note (TEXT), and a created_at (TEXT) -- might take around 100-200 bytes depending on the note length. So a single 4 KB page can hold roughly 20-40 mood entries.
@@ -93,51 +63,30 @@ Without an index, SQLite must perform a **full table scan**: read every page, ex
 
 With an index (and the primary key column automatically has one), SQLite maintains a sorted tree structure. It can jump directly to the right page in 3-4 steps, regardless of table size. Think of it this way: finding "pharmacology" in a 1,000-page textbook takes seconds with the index at the back, but minutes if you flip through every page.
 
-```d2
-direction: down
+```mermaid
+graph TD
+    ROOT["<b>Root Node</b><br/>Keys: entry-20, entry-60"]
+    LEFT["Node<br/>Keys: entry-05, entry-12"]
+    MID["<b>Node</b><br/>Keys: entry-30, entry-42, entry-55"]
+    RIGHT["Node<br/>Keys: entry-70, entry-88"]
+    PAGE["Page → Rows entry-30..entry-42"]
+    RESULT["<b>Found! entry-42</b><br/>score=4, note='...'"]
 
-title: "B-tree Index Lookup: WHERE id = 'entry-42'" {
-  style.fill: "#F5F5F5"
-  style.font-size: 18
+    ROOT -->|< entry-20| LEFT
+    ROOT ==>|entry-20..entry-60| MID
+    ROOT -->|> entry-60| RIGHT
+    MID ==>|load page| PAGE
+    PAGE ==>|return row| RESULT
 
-  root: "Root Node\nKeys: entry-20, entry-60" {
-    style.fill: "#BBDEFB"
-    style.bold: true
-  }
-
-  left_branch: "Node\nKeys: entry-05, entry-12" {
-    style.fill: "#C8E6C9"
-  }
-  mid_branch: "Node\nKeys: entry-30, entry-42, entry-55" {
-    style.fill: "#FFF9C4"
-    style.bold: true
-  }
-  right_branch: "Node\nKeys: entry-70, entry-88" {
-    style.fill: "#C8E6C9"
-  }
-
-  page_a: "Page → Rows entry-30..entry-42" {
-    style.fill: "#FFE0B2"
-  }
-
-  result: "Found! entry-42\nscore=4, note='...'" {
-    style.fill: "#A5D6A7"
-    style.bold: true
-  }
-
-  root -> left_branch: "< entry-20"
-  root -> mid_branch: "entry-20..entry-60" {style.bold: true; style.animated: true}
-  root -> right_branch: "> entry-60"
-
-  mid_branch -> page_a: "load page" {style.bold: true; style.animated: true}
-  page_a -> result: "return row" {style.bold: true; style.animated: true}
-
-  note: |md
-    Only 3 steps to find any row
-    among thousands — no scanning needed
-  | {style.fill: "#E8EAF6"; style.font-size: 13}
-}
+    style ROOT fill:#bbdefb,stroke:#1565c0
+    style LEFT fill:#c8e6c9,stroke:#388e3c
+    style MID fill:#fff9c4,stroke:#f9a825
+    style RIGHT fill:#c8e6c9,stroke:#388e3c
+    style PAGE fill:#ffe0b2,stroke:#ef6c00
+    style RESULT fill:#a5d6a7,stroke:#2e7d32
 ```
+
+> Only 3 steps to find any row among thousands — no scanning needed.
 
 This is why:
 
@@ -244,47 +193,25 @@ Large BLOBs cause three problems:
 
 ### The Pattern
 
-```d2
-direction: right
+```mermaid
+graph LR
+    subgraph APP["Your Flutter App"]
+        SAVE["Save Logic"]
+        READ["Read Logic"]
+    end
+    DB["<b>mood_entries</b><br/>id: 'entry-42'<br/>score: 4<br/>note: 'Good day'<br/><b>image_path: '/files/img/photo_001.jpg'</b><br/>created_at: '2026-02-22T14:30:00'"]
+    FS["Device Filesystem<br/>/files/img/<br/>photo_001.jpg (1.2 MB)<br/>photo_002.jpg (0.8 MB)<br/>ecg_export.pdf (4.5 MB)"]
 
-app: "Your Flutter App" {
-  style.fill: "#E3F2FD"
-  style.font-size: 14
+    SAVE ==>|① save file to disk| FS
+    SAVE ==>|② store path as TEXT| DB
+    DB -.->|③ query path| READ
+    FS -.->|④ load file from disk| READ
 
-  save_logic: "Save Logic" {style.fill: "#BBDEFB"}
-  read_logic: "Read Logic" {style.fill: "#BBDEFB"}
-}
-
-db: "SQLite Database" {
-  style.fill: "#C8E6C9"
-  style.font-size: 14
-
-  row: |md
-    **mood_entries**
-    id: 'entry-42'
-    score: 4
-    note: 'Good day'
-    **image_path: '/files/img/photo_001.jpg'**
-    created_at: '2026-02-22T14:30:00'
-  |
-}
-
-fs: "Device Filesystem" {
-  style.fill: "#FFF9C4"
-  style.font-size: 14
-
-  dir: |md
-    📁 /files/img/
-      photo_001.jpg (1.2 MB)
-      photo_002.jpg (0.8 MB)
-      ecg_export.pdf (4.5 MB)
-  |
-}
-
-app.save_logic -> db: "② store path\nas TEXT" {style.stroke: "#2E7D32"; style.bold: true; style.animated: true}
-app.save_logic -> fs: "① save file\nto disk" {style.stroke: "#1565C0"; style.bold: true; style.animated: true}
-db -> app.read_logic: "③ query path" {style.stroke: "#E65100"; style.stroke-dash: 3; style.animated: true}
-fs -> app.read_logic: "④ load file\nfrom disk" {style.stroke: "#E65100"; style.stroke-dash: 3; style.animated: true}
+    style APP fill:#e3f2fd,stroke:#1976d2
+    style SAVE fill:#bbdefb,stroke:#1565c0
+    style READ fill:#bbdefb,stroke:#1565c0
+    style DB fill:#c8e6c9,stroke:#388e3c
+    style FS fill:#fff9c4,stroke:#f9a825
 ```
 
 Here is what this looks like in Dart:
@@ -444,40 +371,18 @@ CREATE TABLE patient_doctors (
 
 Each row in `patient_doctors` represents one relationship: "this patient sees this doctor." The combination of `patient_id` and `doctor_id` forms a **composite primary key** -- no duplicate pairs allowed.
 
-```d2
-direction: right
+```mermaid
+graph LR
+    PATIENTS["<b>patients</b><br/>id TEXT PK<br/>name TEXT"]
+    JUNCTION["<b>patient_doctors</b><br/>patient_id TEXT FK<br/>doctor_id TEXT FK<br/>(composite PK)"]
+    DOCTORS["<b>doctors</b><br/>id TEXT PK<br/>name TEXT<br/>specialty TEXT"]
 
-patients: "patients" {
-  style.fill: "#E3F2FD"
-  style.bold: true
-  cols: |md
-    **id** TEXT PK
-    name TEXT
-  |
-}
+    PATIENTS ==>|1 → many| JUNCTION
+    DOCTORS ==>|1 → many| JUNCTION
 
-junction: "patient_doctors" {
-  style.fill: "#FFE0B2"
-  style.bold: true
-  cols: |md
-    **patient_id** TEXT FK
-    **doctor_id** TEXT FK
-    (composite PK)
-  |
-}
-
-doctors: "doctors" {
-  style.fill: "#C8E6C9"
-  style.bold: true
-  cols: |md
-    **id** TEXT PK
-    name TEXT
-    specialty TEXT
-  |
-}
-
-patients -> junction: "1 → many" {style.stroke: "#1565C0"; style.bold: true; style.animated: true}
-doctors -> junction: "1 → many" {style.stroke: "#2E7D32"; style.bold: true; style.animated: true}
+    style PATIENTS fill:#e3f2fd,stroke:#1565c0
+    style JUNCTION fill:#ffe0b2,stroke:#ef6c00
+    style DOCTORS fill:#c8e6c9,stroke:#2e7d32
 ```
 
 ### Schema Design Walkthrough: A Small Clinic Database
@@ -518,52 +423,18 @@ CREATE TABLE prescriptions (
 
 **Step 3: Trace the relationships.**
 
-```d2
-direction: right
+```mermaid
+graph LR
+    PATIENTS["<b>patients</b><br/>id TEXT PK<br/>name TEXT<br/>date_of_birth TEXT<br/>phone TEXT<br/>created_at TEXT"]
+    VISITS["<b>visits</b><br/>id TEXT PK<br/>patient_id TEXT FK<br/>visit_date TEXT<br/>reason TEXT<br/>notes TEXT<br/>created_at TEXT"]
+    PRESCRIPTIONS["<b>prescriptions</b><br/>id TEXT PK<br/>visit_id TEXT FK<br/>medication_name TEXT<br/>dosage TEXT<br/>duration_days INTEGER<br/>created_at TEXT"]
 
-patients: "patients" {
-  style.fill: "#E3F2FD"
-  style.bold: true
+    PATIENTS ==>|1 → many<br/>patient_id| VISITS
+    VISITS ==>|1 → many<br/>visit_id| PRESCRIPTIONS
 
-  cols: |md
-    **id** TEXT PK
-    name TEXT
-    date_of_birth TEXT
-    phone TEXT
-    created_at TEXT
-  |
-}
-
-visits: "visits" {
-  style.fill: "#FFF9C4"
-  style.bold: true
-
-  cols: |md
-    **id** TEXT PK
-    **patient_id** TEXT FK
-    visit_date TEXT
-    reason TEXT
-    notes TEXT
-    created_at TEXT
-  |
-}
-
-prescriptions: "prescriptions" {
-  style.fill: "#C8E6C9"
-  style.bold: true
-
-  cols: |md
-    **id** TEXT PK
-    **visit_id** TEXT FK
-    medication_name TEXT
-    dosage TEXT
-    duration_days INTEGER
-    created_at TEXT
-  |
-}
-
-patients -> visits: "1 → many\npatient_id" {style.bold: true; style.stroke: "#1565C0"; style.animated: true}
-visits -> prescriptions: "1 → many\nvisit_id" {style.bold: true; style.stroke: "#2E7D32"; style.animated: true}
+    style PATIENTS fill:#e3f2fd,stroke:#1565c0
+    style VISITS fill:#fff9c4,stroke:#f9a825
+    style PRESCRIPTIONS fill:#c8e6c9,stroke:#2e7d32
 ```
 
 A patient has many visits. Each visit can produce multiple prescriptions. To find all prescriptions for patient "Jan Kowalski", you would join across all three tables.
@@ -574,68 +445,21 @@ A patient has many visits. Each visit can produce multiple prescriptions. To fin
 
 ### The Spreadsheet Horror
 
-```d2
-direction: down
+```mermaid
+graph TD
+    BAD["<b>Denormalized Spreadsheet</b><br/>V001 | Jan Kowalski | 555-1234 | Dr. Nowak | 2026-01-15<br/>V002 | Jan Kowalski | 555-1234 | Dr. Nowak | 2026-02-10<br/>V003 | Jan Kowalski | 555-9999 | Dr. Nowak | 2026-02-22<br/>⚠ Three rows, three copies — which phone is correct?"]
+    ARROW["Normalize ↓"]
+    PT["<b>patients</b><br/>P1 | Jan Kowalski | 555-9999<br/>✅ One row, one truth"]
+    VT["<b>visits</b><br/>V001 | P1 | 2026-01-15<br/>V002 | P1 | 2026-02-10<br/>V003 | P1 | 2026-02-22<br/>✅ References patient, no duplication"]
 
-title: "Normalization: From Spreadsheet Horror to Clean Tables" {
-  style.fill: "#F5F5F5"
-  style.font-size: 18
+    BAD --> ARROW
+    ARROW --> PT
+    PT ==>|patient_id| VT
 
-  direction: down
-
-  bad: "Denormalized Spreadsheet" {
-    style.fill: "#FFCDD2"
-    style.bold: true
-    style.font-size: 16
-
-    data: |||md
-      | visit_id | **patient_name** | **patient_phone** | doctor_name | visit_date |
-      |----------|-----------------|-------------------|-------------|------------|
-      | V001 | Jan Kowalski | **555-1234** | Dr. Nowak | 2026-01-15 |
-      | V002 | Jan Kowalski | **555-1234** | Dr. Nowak | 2026-02-10 |
-      | V003 | Jan Kowalski | **555-9999** | Dr. Nowak | 2026-02-22 |
-
-      ⚠ Three rows, three copies of the name — which phone number is correct?
-    |||
-  }
-
-  arrow: "Normalize ↓" {style.fill: "#FFF9C4"; style.bold: true; style.font-size: 14}
-
-  good: "Normalized Tables" {
-    style.fill: "#C8E6C9"
-    style.bold: true
-    style.font-size: 16
-
-    direction: right
-
-    patients_t: "patients" {
-      style.fill: "#E8F5E9"
-      d: |||md
-        | id | name | phone |
-        |----|------|-------|
-        | P1 | Jan Kowalski | 555-9999 |
-        ✅ One row, one truth
-      |||
-    }
-
-    visits_t: "visits" {
-      style.fill: "#E8F5E9"
-      d: |||md
-        | id | **patient_id** | visit_date |
-        |----|---------------|------------|
-        | V001 | P1 | 2026-01-15 |
-        | V002 | P1 | 2026-02-10 |
-        | V003 | P1 | 2026-02-22 |
-        ✅ References patient, no duplication
-      |||
-    }
-
-    patients_t -> visits_t: "patient_id" {style.stroke: "#2E7D32"; style.bold: true; style.animated: true}
-  }
-
-  bad -> arrow: {style.animated: true}
-  arrow -> good: {style.animated: true}
-}
+    style BAD fill:#ffcdd2,stroke:#c62828
+    style ARROW fill:#fff9c4,stroke:#f9a825
+    style PT fill:#c8e6c9,stroke:#2e7d32
+    style VT fill:#c8e6c9,stroke:#2e7d32
 ```
 
 Imagine a hospital stores visit data in a single Excel spreadsheet:
@@ -753,56 +577,25 @@ CREATE TABLE mood_summary (
 
 When the stats screen opens, read from `mood_summary` -- a single row, no computation needed. When a mood entry is added or deleted, update the summary row.
 
-```d2
-direction: down
+```mermaid
+graph TD
+    SOURCE["<b>Normalized Source of Truth</b><br/>mood_entries (10,000 rows)<br/>entry_tags (25,000 rows)"]
+    COMPUTE["<b>Compute on write</b><br/>(runs once per INSERT/DELETE)"]
+    CACHE["<b>mood_summary cache</b><br/>total_entries: 10,000<br/>average_score: 3.7<br/>last_entry_at: 2026-02-22T18:45:00"]
+    SCREEN["<b>Stats Screen</b><br/>reads single row — instant"]
+    REBUILD["Out of sync?<br/>Recompute from source"]
 
-title: "Denormalization Strategy for Mobile" {
-  style.fill: "#F5F5F5"
-  style.font-size: 18
+    SOURCE ==>|new entry added| COMPUTE
+    COMPUTE ==>|update summary| CACHE
+    CACHE ==>|fast read| SCREEN
+    SOURCE -.-> REBUILD
+    REBUILD -.-> CACHE
 
-  direction: down
-
-  source: "Normalized Source of Truth" {
-    style.fill: "#C8E6C9"
-    style.bold: true
-
-    direction: right
-
-    me: "mood_entries\n(10,000 rows)" {style.fill: "#E8F5E9"}
-    et: "entry_tags\n(25,000 rows)" {style.fill: "#E8F5E9"}
-    me -> et: "entry_id"
-  }
-
-  compute: "Compute on write\n(runs once per INSERT/DELETE)" {
-    style.fill: "#FFF9C4"
-    style.bold: true
-  }
-
-  cache: "Denormalized Cache" {
-    style.fill: "#BBDEFB"
-    style.bold: true
-
-    ms: |md
-      **mood_summary**
-      total_entries: 10,000
-      average_score: 3.7
-      last_entry_at: '2026-02-22T18:45:00'
-    | {style.fill: "#E3F2FD"}
-  }
-
-  screen: "Stats Screen\n(reads single row — instant)" {
-    style.fill: "#F3E5F5"
-    style.bold: true
-  }
-
-  source -> compute: "new entry added" {style.bold: true; style.animated: true}
-  compute -> cache: "update summary" {style.bold: true; style.animated: true}
-  cache -> screen: "fast read" {style.stroke: "#2E7D32"; style.bold: true; style.animated: true}
-
-  rebuild: "Out of sync?\nRecompute from source" {style.fill: "#FFECB3"; style.font-size: 13}
-  source -> rebuild: {style.stroke-dash: 3}
-  rebuild -> cache: {style.stroke-dash: 3}
-}
+    style SOURCE fill:#c8e6c9,stroke:#2e7d32
+    style COMPUTE fill:#fff9c4,stroke:#f9a825
+    style CACHE fill:#bbdefb,stroke:#1565c0
+    style SCREEN fill:#f3e5f5,stroke:#8e24aa
+    style REBUILD fill:#ffecb3,stroke:#f57c00
 ```
 
 ### The Compromise
@@ -829,63 +622,19 @@ Every reliable database guarantees four properties, collectively called ACID. He
 
 **Durability (Survives crashes).** Once the pharmacist confirms the prescription is filled, that record must survive even if the power goes out a millisecond later. SQLite achieves this by flushing data to disk before confirming a transaction is complete. If the app crashes mid-write, the partially written transaction is rolled back on the next open.
 
-```d2
-direction: right
+```mermaid
+graph LR
+    A["<b>Atomicity</b><br/>All-or-nothing<br/>Deduct stock AND<br/>record dispensing<br/>— both or neither"]
+    C["<b>Consistency</b><br/>Rules enforced<br/>Stock ≥ 0<br/>Valid dosage<br/>Patient exists"]
+    I["<b>Isolation</b><br/>No interference<br/>Two pharmacists<br/>fill prescriptions<br/>without conflicts"]
+    D["<b>Durability</b><br/>Survives crashes<br/>Once confirmed,<br/>the record persists<br/>even if power fails"]
 
-title: "ACID: The Hospital Pharmacy Analogy" {
-  style.fill: "#F5F5F5"
-  style.font-size: 18
+    A --> C --> I --> D
 
-  direction: right
-
-  a: "Atomicity" {
-    style.fill: "#FFCDD2"
-    style.bold: true
-    d: |md
-      **All-or-nothing**
-      Deduct stock AND
-      record dispensing
-      — both or neither
-    |
-  }
-
-  c: "Consistency" {
-    style.fill: "#FFF9C4"
-    style.bold: true
-    d: |md
-      **Rules enforced**
-      Stock ≥ 0
-      Valid dosage
-      Patient exists
-    |
-  }
-
-  i: "Isolation" {
-    style.fill: "#C8E6C9"
-    style.bold: true
-    d: |md
-      **No interference**
-      Two pharmacists
-      fill prescriptions
-      without conflicts
-    |
-  }
-
-  d_prop: "Durability" {
-    style.fill: "#BBDEFB"
-    style.bold: true
-    d: |md
-      **Survives crashes**
-      Once confirmed,
-      the record persists
-      even if power fails
-    |
-  }
-
-  a -> c: {style.animated: true}
-  c -> i: {style.animated: true}
-  i -> d_prop: {style.animated: true}
-}
+    style A fill:#ffcdd2,stroke:#c62828
+    style C fill:#fff9c4,stroke:#f9a825
+    style I fill:#c8e6c9,stroke:#2e7d32
+    style D fill:#bbdefb,stroke:#1565c0
 ```
 
 ### Schema Rigidity vs Flexibility
@@ -907,60 +656,35 @@ For health apps, where data correctness has clinical consequences, schema rigidi
 | Scaling | One device | Thousands of clients |
 | Best for | Mobile apps, desktop apps, IoT | Web backends, enterprise systems |
 
-```d2
-direction: down
+```mermaid
+graph TB
+    subgraph EMBEDDED["Embedded (SQLite)"]
+        FLUTTER["Flutter Code"]
+        ENGINE["SQLite Engine"]
+        DBFILE["<b>mood_tracker.db</b>"]
+        FLUTTER -->|query| ENGINE
+        ENGINE -->|read / write| DBFILE
+        ENOTE["Single process<br/>No network<br/>One user"]
+    end
 
-title: "Embedded vs Client-Server" {
-  style.fill: "#F5F5F5"
-  style.font-size: 18
+    subgraph CS["Client-Server (PostgreSQL)"]
+        C1["App 1"]
+        C2["App 2"]
+        C3["Web App"]
+        SERVER["<b>PostgreSQL Server</b><br/>Engine + Storage"]
+        C1 -.->|network| SERVER
+        C2 -.->|network| SERVER
+        C3 -.->|network| SERVER
+        CSNOTE["Separate process<br/>Requires network<br/>Many users"]
+    end
 
-  direction: right
-
-  embedded: "Embedded (SQLite)" {
-    style.fill: "#E8F5E9"
-    style.bold: true
-
-    phone: "📱 Your App" {
-      style.fill: "#C8E6C9"
-
-      app_code: "Flutter Code" {style.fill: "#A5D6A7"}
-      sqlite: "SQLite Engine" {style.fill: "#81C784"}
-      db_file: "mood_tracker.db" {style.fill: "#66BB6A"; style.bold: true}
-
-      app_code -> sqlite: "query" {style.animated: true}
-      sqlite -> db_file: "read/write" {style.animated: true}
-    }
-
-    note: "Single process\nNo network\nOne user" {style.fill: "#DCEDC8"; style.font-size: 13}
-  }
-
-  client_server: "Client-Server (PostgreSQL)" {
-    style.fill: "#E3F2FD"
-    style.bold: true
-
-    direction: down
-
-    clients: "Clients" {
-      style.fill: "#BBDEFB"
-      direction: right
-      c1: "📱 App 1" {style.fill: "#90CAF9"}
-      c2: "📱 App 2" {style.fill: "#90CAF9"}
-      c3: "💻 Web App" {style.fill: "#90CAF9"}
-    }
-
-    server: "🖥️ Database Server" {
-      style.fill: "#64B5F6"
-      style.bold: true
-      pg: "PostgreSQL\nEngine + Storage"
-    }
-
-    clients.c1 -> server: "network" {style.stroke-dash: 3; style.animated: true}
-    clients.c2 -> server: "network" {style.stroke-dash: 3; style.animated: true}
-    clients.c3 -> server: "network" {style.stroke-dash: 3; style.animated: true}
-
-    note2: "Separate process\nRequires network\nMany users" {style.fill: "#E1F5FE"; style.font-size: 13}
-  }
-}
+    style FLUTTER fill:#a5d6a7,stroke:#388e3c
+    style ENGINE fill:#81c784,stroke:#2e7d32
+    style DBFILE fill:#66bb6a,stroke:#1b5e20
+    style C1 fill:#90caf9,stroke:#1565c0
+    style C2 fill:#90caf9,stroke:#1565c0
+    style C3 fill:#90caf9,stroke:#1565c0
+    style SERVER fill:#64b5f6,stroke:#0d47a1
 ```
 
 SQLite is the right choice for mobile. Your app is the only user, the data lives on the device, and no network is needed. When you build the backend in Week 8, you might encounter PostgreSQL -- that is the right choice for a server that many clients connect to simultaneously.
