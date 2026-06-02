@@ -92,11 +92,11 @@ nav:
     - Lab Workbook: week-08-networking-api/lab/README.md
     - Cheatsheet: week-08-networking-api/lab/CHEATSHEET.md
     - Lecture Notes: week-08-networking-api/lecture/LECTURE_NOTES.md
+  - Week 9 — Authentication:
+    - Lab Workbook: week-09-authentication/lab/README.md
+    - Cheatsheet: week-09-authentication/lab/CHEATSHEET.md
+    - Lecture Notes: week-09-authentication/lecture/LECTURE_NOTES.md
   # --- Unreleased weeks (uncomment as course progresses) ---
-  # - Week 9 — Authentication:
-  #   - Lab Workbook: week-09-authentication/lab/README.md
-  #   - Cheatsheet: week-09-authentication/lab/CHEATSHEET.md
-  #   - Lecture Notes: week-09-authentication/lecture/LECTURE_NOTES.md
   # - Resources:
   #   - Accessibility Guide: resources/ACCESSIBILITY_GUIDE.md
   #   - Industry Regulations Reference: resources/MHEALTH_REGULATIONS.md
@@ -118,6 +118,11 @@ extra_css:
 exclude_docs: |
   **/INSTRUCTOR_GUIDE.md
   **/CHECKPOINT_TEMPLATE.md
+  **/TEACHER_WALKTHROUGH.md
+  **/SPEAKER_NOTES.md
+  **/TRANSCRIPT.md
+  **/SLIDE_NOTES.md
+  **/lecture/slides/**
   **/*.py
   **/*.dart
   **/*.json

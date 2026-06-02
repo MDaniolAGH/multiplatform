@@ -29,7 +29,7 @@ jobs:
           # rm -f docs/week-06-state-management  # Published
           # rm -f docs/week-07-local-data  # Published
           # rm -f docs/week-08-networking-api  # Published
-          rm -f docs/week-09-authentication
+          # rm -f docs/week-09-authentication  # Published
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
