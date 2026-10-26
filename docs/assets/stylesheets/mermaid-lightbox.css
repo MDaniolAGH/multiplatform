@@ -1,0 +1,42 @@
+.mermaid-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.8);
+  cursor: zoom-out;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.mermaid-lightbox.active { opacity: 1; }
+
+.mermaid-lightbox svg {
+  max-width: 92vw;
+  max-height: 92vh;
+  background: #fff;
+  border-radius: 6px;
+  padding: 24px;
+  cursor: grab;
+  transform-origin: center;
+  transition: transform 0.1s ease-out;
+}
+.mermaid-lightbox svg:active { cursor: grabbing; }
+
+.mermaid-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 36px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* Hint cursor on the diagram itself */
+pre > code .mermaid {
+  cursor: zoom-in;
+}

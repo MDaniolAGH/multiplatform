@@ -1,0 +1,55 @@
+/*
+ * Course colours, taken from the lecture slides' theme:
+ * teal #0E7490 (primary), dark teal-navy #0B3C4D, amber #F59E0B (accent),
+ * dark amber #92600A for amber text on light backgrounds.
+ * Contrast (WCAG): white on #0E7490 5.4:1; #0E7490 and #92600A on white
+ * 5.4:1; #5FC4DB and #F59E0B on the dark scheme's background 8.0 and 7.5:1.
+ */
+
+:root > * {
+  --md-primary-fg-color: #0E7490;
+  --md-primary-fg-color--light: #3B8FA6;
+  --md-primary-fg-color--dark: #0B3C4D;
+  --md-primary-bg-color: #FFFFFF;
+  --md-primary-bg-color--light: rgba(255, 255, 255, 0.7);
+
+  --md-accent-fg-color: #92600A;
+  --md-accent-fg-color--transparent: rgba(245, 158, 11, 0.12);
+  --md-accent-bg-color: #FFFFFF;
+  --md-accent-bg-color--light: rgba(255, 255, 255, 0.7);
+}
+
+/* Dark scheme: the slides' teal is too dark for text on a dark background,
+   so links use a lighter teal and accents use the slides' amber. */
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: #5FC4DB;
+  --md-accent-fg-color: #F59E0B;
+  --md-accent-fg-color--transparent: rgba(245, 158, 11, 0.12);
+}
+
+/* Admonitions use the slides' palette instead of Material's defaults.
+   Each type sets --course-adm; the three rules below apply it. */
+.md-typeset :is(.admonition, details):is(.note, .seealso, .info, .todo) { --course-adm: #1D4ED8; }
+.md-typeset :is(.admonition, details):is(.abstract, .summary, .tldr, .quote, .cite) { --course-adm: #6B7280; }
+.md-typeset :is(.admonition, details):is(.tip, .hint, .important) { --course-adm: #0E7490; }
+.md-typeset :is(.admonition, details):is(.success, .check, .done) { --course-adm: #22A06B; }
+.md-typeset :is(.admonition, details):is(.question, .help, .faq) { --course-adm: #0B3C4D; }
+.md-typeset :is(.admonition, details):is(.warning, .caution, .attention) { --course-adm: #F59E0B; }
+.md-typeset :is(.admonition, details):is(.failure, .fail, .missing, .danger, .error, .bug) { --course-adm: #D64545; }
+.md-typeset :is(.admonition, details):is(.example) { --course-adm: #1B7F55; }
+/* The course's own types (custom-admonitions.css) */
+.md-typeset :is(.admonition, details):is(.challenge) { --course-adm: #F59E0B; }
+.md-typeset :is(.admonition, details):is(.protip) { --course-adm: #1D4ED8; }
+
+.md-typeset :is(.admonition, details)[class] {
+  border-color: var(--course-adm, var(--md-primary-fg-color));
+}
+.md-typeset :is(.admonition, details)[class] > :is(.admonition-title, summary) {
+  background-color: color-mix(in srgb, var(--course-adm, var(--md-primary-fg-color)) 10%, transparent);
+}
+.md-typeset :is(.admonition, details)[class] > :is(.admonition-title, summary)::before {
+  background-color: var(--course-adm, var(--md-primary-fg-color));
+}
+
+/* The question type is navy, which is too dark on the dark scheme. */
+[data-md-color-scheme="slate"] .md-typeset :is(.admonition, details):is(.question, .help, .faq) { --course-adm: #5FC4DB; }

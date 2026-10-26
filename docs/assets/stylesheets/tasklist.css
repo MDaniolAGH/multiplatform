@@ -1,0 +1,4 @@
+/* Checked checkboxes use the site's primary teal color */
+.md-typeset [type=checkbox]:checked + .task-list-indicator::before {
+  background-color: var(--md-primary-fg-color);
+}

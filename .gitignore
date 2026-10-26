@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+.env
+*.egg-info/
+dist/
+build/
+
+# Dart/Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sqlite3
+
+# MkDocs
+_site/
+
+# D2 build cache
+.cache/
+
+# Virtual environment
+venv/
+
+# Claude
+.claude/
+
+# Previous edition's week folders: removed from the repository, may still
+# exist in local copies
+/week-*/
+/docs/week-*

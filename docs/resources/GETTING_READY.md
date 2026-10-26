@@ -1,0 +1,1 @@
+../../resources/GETTING_READY.md

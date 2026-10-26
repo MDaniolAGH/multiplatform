@@ -1,0 +1,130 @@
+/**
+ * Quiz layout overrides — styled to match Material admonitions.
+ *
+ * The mkdocs-quiz plugin embeds its CSS inside the page content, which gets
+ * encrypted by encryptcontent. These overrides are loaded via extra_css
+ * (outside the encrypted blob) so they apply immediately after decryption.
+ */
+
+/* ── Quiz container ─ match Material admonition styling ────────────── */
+.quiz {
+  background-color: var(--md-admonition-bg-color);
+  border: 0.075rem solid var(--md-primary-fg-color, #009688);
+  border-radius: 0.2rem;
+  color: var(--md-admonition-fg-color);
+  display: flow-root;
+  font-size: 0.64rem;
+  margin: 1.5625em 0;
+  padding: 0 0.6rem 0.6rem;
+  page-break-inside: avoid;
+  position: relative;
+}
+
+/* ── Question text ─ styled like admonition title bar ──────────────── */
+.quiz .quiz-question {
+  background-color: color-mix(in srgb, var(--md-primary-fg-color, #009688) 10%, transparent);
+  border: none;
+  font-weight: 700;
+  margin: 0 -0.6rem 0.5rem;
+  padding: 0.4rem 0.6rem;
+  position: relative;
+  font-size: 0.72rem;
+}
+
+.quiz .quiz-question > *:first-child {
+  margin-top: 0;
+}
+
+.quiz .quiz-question > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Question text paragraphs — compact */
+.quiz .quiz-question p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Fieldset: stack answers vertically ────────────────────────────── */
+.quiz fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* ── Answer row: radio left, label right ──────────────────────────── */
+.quiz fieldset > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding: 0.15rem 0;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+/* Radio / checkbox — fixed size, aligned */
+.quiz fieldset input[type="radio"],
+.quiz fieldset input[type="checkbox"] {
+  flex-shrink: 0;
+  margin: 0;
+  cursor: pointer;
+  width: 0.85em;
+  height: 0.85em;
+  position: relative;
+  top: 0.05em;
+}
+
+/* Label text */
+.quiz fieldset label {
+  margin: 0;
+  cursor: pointer;
+  line-height: 1.5;
+  flex: 1;
+  font-size: inherit;
+}
+
+/* ── Feedback message ─────────────────────────────────────────────── */
+.quiz .quiz-feedback {
+  padding: 0.4rem 0.6rem;
+  margin: 0.4rem 0 0.2rem;
+  border-radius: 0.2rem;
+  font-weight: 500;
+  font-size: inherit;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.quiz form button {
+  margin-top: 0.35rem;
+  border-radius: 0.2rem;
+  font-size: 0.64rem;
+  padding: 0.3rem 0.8rem;
+}
+
+/* ── Content section (shown after answer) ─────────────────────────── */
+.quiz section.content {
+  margin: 0.4rem 0 0;
+  font-size: inherit;
+}
+
+/* ── Header link (anchor #) ───────────────────────────────────────── */
+.quiz .quiz-header-link {
+  font-size: 0.7rem;
+}
+
+/* ── Hide "Try Again" button on correct answers ─────────────────── */
+.quiz .quiz-feedback.correct ~ .quiz-reset-button {
+  display: none !important;
+}
+
+/* ── Disable glossary tooltips inside quizzes (spoil answers) ─────── */
+.quiz abbr,
+.quiz abbr[title],
+.quiz abbr[data-gl-title] {
+  text-decoration: none;
+  border-bottom: none;
+  cursor: default;
+  pointer-events: none;
+}

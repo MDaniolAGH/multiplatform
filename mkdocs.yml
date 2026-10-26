@@ -1,0 +1,136 @@
+site_name: Multiplatform Mobile Software Engineering in Practice
+site_description: Course materials for AGH students
+site_url: https://MDaniolAGH.github.io/multiplatform/
+repo_url: https://github.com/MDaniolAGH/multiplatform
+repo_name: MDaniolAGH/multiplatform
+
+docs_dir: docs
+site_dir: _site
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  # Custom colours match the lecture slides; see assets/stylesheets/course-theme.css
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.path
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tooltips
+
+hooks:
+  - hooks/strip_presenter_notes.py
+
+plugins:
+  - search: {}
+  - mkdocs_quiz:
+      disable_after_submit: false
+  - d2:
+      layout: dagre
+      theme: 0
+      dark_theme: 200
+      sketch: false
+      pad: 100
+      scale: -1.0
+      cache: true
+      cache_dir: .cache
+
+nav:
+  - Home: README.md
+  - Getting Ready: resources/GETTING_READY.md
+  - Meeting 1:
+    - "Lab 1: Terminal, Git & GitHub": labs/lab-01-terminal-git/README.md
+    - "Lab 1 Cheatsheet": labs/lab-01-terminal-git/CHEATSHEET.md
+    - "Lecture 1: Mobile Systems and Multiplatform Development": lectures/lecture-01-mobile-systems/README.md
+  - Meeting 2:
+    - "Lab 2: Dart Fundamentals": labs/lab-02-dart-fundamentals/README.md
+    - "Lab 2 Cheatsheet": labs/lab-02-dart-fundamentals/CHEATSHEET.md
+    - "Lecture 2: Dart, Widgets and Layout": lectures/lecture-02-dart-widgets-layout/README.md
+  # Release a later meeting by linking its folders under docs/labs and
+  # docs/lectures, then adding it here. Only linked folders are published.
+
+extra_javascript:
+  - assets/javascripts/mermaid-lightbox.js
+  - assets/javascripts/enhanced-tooltips.js
+  - assets/javascripts/quiz-correct-only-reveal.js
+
+extra_css:
+  - assets/stylesheets/course-theme.css
+  - assets/stylesheets/mermaid-lightbox.css
+  - assets/stylesheets/tasklist.css
+  - assets/stylesheets/tooltips.css
+  - assets/stylesheets/custom-admonitions.css
+  - assets/stylesheets/quiz-overrides.css
+  - assets/stylesheets/progress-breadcrumb.css
+
+exclude_docs: |
+  **/INSTRUCTOR_GUIDE.md
+  **/CHECKPOINT_TEMPLATE.md
+  **/TEACHER_WALKTHROUGH.md
+  **/AGENTS.md
+  **/CLAUDE.md
+  **/SPEAKER_NOTES.md
+  **/TRANSCRIPT.md
+  **/SLIDE_NOTES.md
+  **/*WALKTHROUGH.md
+  **/*TEACHING_GUIDE.md
+  **/lecture/slides/**
+  **/*.py
+  **/*.dart
+  **/*.json
+  **/*.yaml
+  **/*.yml
+  **/*.toml
+  **/*.lock
+  **/*.sh
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+      clickable_checkbox: true
+  - pymdownx.snippets:
+      auto_append:
+        - includes/abbreviations.md
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.caret
+  - pymdownx.tilde
+  - tables
+  - toc:
+      permalink: true
