@@ -49,19 +49,19 @@
 
 The course has **13 meetings**. In the first labs you build individual foundations: the terminal and Git, the Dart language, and your first Flutter screen, each with a short individual assignment (A1–A3). After that you form a team of 3–4 students and build a real mobile app together, while the labs and lectures keep adding what you need: interaction and state, data and networking, testing and release.
 
-~~This is a lecture-heavy theory course~~ — it's the opposite. You'll write code from day one, and the lectures *follow* the labs to clarify what you experienced hands-on.
+~~This is a lecture-heavy theory course~~ — it's the opposite. You'll write code from day one: every lecture is followed by a lab in which you apply what it showed.
 
-### Lab Before Lecture
+### Lecture, Then Lab
 
-This course flips the traditional order: ==**lab comes first, lecture comes second**== in each meeting. You'll wrestle with the material hands-on, then the lecture clarifies and deepens what you experienced. This is intentional — struggling first makes the explanations stick.
+In each meeting ==**the lecture comes first and the lab second**==. The lecture introduces the ideas and works through an example; the lab right after it is where you practise them yourself, with the instructor in the room.
 
 ### The First Two Meetings
 
-| Meeting | Lab (first) | Lecture (second) |
-|---------|-------------|------------------|
-| **Before the course** | **You are here.** Set up tools, assess skills | — |
-| **1** | Terminal, Git and GitHub; assignment A1 | Mobile systems and multiplatform development |
-| **2** | Dart fundamentals; assignment A2 | Dart, widgets and layout in Flutter |
+| Meeting | Lecture (first) | Lab (second) |
+|---------|-----------------|--------------|
+| **Before the course** | — | **You are here.** Set up tools, assess skills |
+| **1** | Mobile systems and multiplatform development | Terminal, Git and GitHub; assignment A1 |
+| **2** | Dart, widgets and layout in Flutter | Dart fundamentals; assignment A2 |
 
 Later meetings are published on the course website as the course progresses.
 
@@ -71,7 +71,7 @@ Later meetings are published on the course website as the course progresses.
 
 Before continuing, make sure you understand:
 
-- [ ] Each meeting has a lab first and a lecture second
+- [ ] Each meeting has a lecture first and a lab second
 - [ ] Labs 1–3 each end with a short individual assignment (A1–A3)
 - [ ] Later you form a team and build a real mobile app
 
@@ -650,7 +650,7 @@ If `flutter doctor` reports problems, check these common fixes before asking for
 
 Print this or keep it open. Check off each item:
 
-- [ ] Read how the course works — lab first, lecture second
+- [ ] Read how the course works — lecture first, lab second
 - [ ] Completed the self-assessment — I know which tier I'm at
 - [ ] Addressed Tier 1 skill gaps (if any) using the remediation links
 - [ ] **Git** installed and configured (`git --version` works)
@@ -673,8 +673,8 @@ Print this or keep it open. Check off each item:
 <quiz>
 What is the order within each meeting?
 
-- [ ] Lecture first, then lab
-- [x] Lab first, then lecture
+- [x] Lecture first, then lab
+- [ ] Lab first, then lecture
 - [ ] Lecture only, no lab
 - [ ] Lab only, no lecture
 </quiz>

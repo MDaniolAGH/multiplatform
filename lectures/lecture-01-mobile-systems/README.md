@@ -4,7 +4,7 @@
 <div class="lab-meta" markdown>
 <div class="lab-meta__row"><span class="lab-meta__label">Course</span> Multiplatform Mobile Software Engineering in Practice</div>
 <div class="lab-meta__row"><span class="lab-meta__label">Duration</span> 90 min</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> None. Lab 1 (terminal and Git) takes place earlier in the same meeting.</div>
+<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> None. Lab 1 (terminal and Git) follows this lecture in the same meeting.</div>
 </div>
 
 <div class="grid cards" markdown>

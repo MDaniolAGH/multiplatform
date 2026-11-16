@@ -17,17 +17,18 @@ In this course you build mobile apps for Android and iOS with **Flutter**, and y
 
 ## How the Course Works
 
-The course has **13 meetings**. Each meeting has a **90-minute lab** followed by a **90-minute lecture**. The lab comes first on purpose: you try things hands-on, and the lecture then explains and deepens what you met in the lab.
+The course has **13 meetings**. Each meeting has a **90-minute lecture** followed by a **90-minute lab**. The lecture introduces the ideas and shows them in a worked example; in the lab straight afterwards you put them into practice yourself.
 
 Materials are published here as the course progresses.
 
 ## Available Now
 
-| | Lab (first) | Lecture (second) |
+| | Lecture (first) | Lab (second) |
 |---|---|---|
 | **Before the course** | [Getting Ready](resources/GETTING_READY.md): install the tools and check your skills | |
-| **Meeting 1** | [Lab 1: Terminal, Git & GitHub](labs/lab-01-terminal-git/README.md), with assignment A1 | [Lecture 1: Mobile Systems and Multiplatform Development](lectures/lecture-01-mobile-systems/README.md) |
-| **Meeting 2** | [Lab 2: Dart Fundamentals](labs/lab-02-dart-fundamentals/README.md), with assignment A2 | [Lecture 2: Dart, Widgets and Layout](lectures/lecture-02-dart-widgets-layout/README.md) |
+| **Meeting 1** | [Lecture 1: Mobile Systems and Multiplatform Development](lectures/lecture-01-mobile-systems/README.md) | [Lab 1: Terminal, Git & GitHub](labs/lab-01-terminal-git/README.md), with assignment A1 |
+| **Meeting 2** | [Lecture 2: Dart, Widgets and Layout](lectures/lecture-02-dart-widgets-layout/README.md) | [Lab 2: Dart Fundamentals](labs/lab-02-dart-fundamentals/README.md), with assignment A2 |
+| **Meeting 4** | [Lecture 4: Interaction, Local State and Forms](lectures/lecture-04-interaction-state-forms/README.md), with the [starter code](lectures/lecture-04-interaction-state-forms/README.md#get-the-code) | [Lab 4: Interaction and Local State](labs/lab-04-interaction-state/README.md), the first agent-assisted task |
 
 Each lab has a one-page cheatsheet, linked in the menu.
 

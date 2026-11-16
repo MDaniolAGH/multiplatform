@@ -56,13 +56,16 @@ nav:
   - Home: README.md
   - Getting Ready: resources/GETTING_READY.md
   - Meeting 1:
+    - "Lecture 1: Mobile Systems and Multiplatform Development": lectures/lecture-01-mobile-systems/README.md
     - "Lab 1: Terminal, Git & GitHub": labs/lab-01-terminal-git/README.md
     - "Lab 1 Cheatsheet": labs/lab-01-terminal-git/CHEATSHEET.md
-    - "Lecture 1: Mobile Systems and Multiplatform Development": lectures/lecture-01-mobile-systems/README.md
   - Meeting 2:
+    - "Lecture 2: Dart, Widgets and Layout": lectures/lecture-02-dart-widgets-layout/README.md
     - "Lab 2: Dart Fundamentals": labs/lab-02-dart-fundamentals/README.md
     - "Lab 2 Cheatsheet": labs/lab-02-dart-fundamentals/CHEATSHEET.md
-    - "Lecture 2: Dart, Widgets and Layout": lectures/lecture-02-dart-widgets-layout/README.md
+  - Meeting 4:
+    - "Lecture 4: Interaction, Local State and Forms": lectures/lecture-04-interaction-state-forms/README.md
+    - "Lab 4: Interaction and Local State": labs/lab-04-interaction-state/README.md
   # Release a later meeting by linking its folders under docs/labs and
   # docs/lectures, then adding it here. Only linked folders are published.
 
@@ -85,6 +88,7 @@ exclude_docs: |
   **/CHECKPOINT_TEMPLATE.md
   **/TEACHER_WALKTHROUGH.md
   **/AGENTS.md
+  **/ACCEPTANCE.md
   **/CLAUDE.md
   **/SPEAKER_NOTES.md
   **/TRANSCRIPT.md

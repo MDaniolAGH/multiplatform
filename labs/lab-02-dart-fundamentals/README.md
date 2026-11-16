@@ -86,7 +86,7 @@ graph LR
     P3 --> P4["Part 4<br/>Null Safety"]
     P4 --> P5["Part 5<br/>OOP (Classes)"]
     P5 --> P6["Part 6 (optional)<br/>Async"]
-    P6 --> FL["Lecture 2 and Lab 3<br/>Flutter!"]
+    P6 --> FL["Lab 3<br/>Flutter!"]
     style FL fill:#22A06B26,stroke:#22A06B,stroke-width:3px
     style P4 fill:#F59E0B26,stroke:#F59E0B
 ```
@@ -242,7 +242,7 @@ print(formatName('Marie', 'Curie', 'Dr.'));     // Dr. Marie Curie
 
 ??? protip "Pro tip"
     In Flutter, almost every widget uses named parameters: `Text('Hello', style: TextStyle(fontSize: 16))`.
-    Learning named parameters now means widget constructors will feel natural in Lecture 2 and Lab 3.
+    Learning named parameters now means the widget constructors from Lecture 2 will feel natural when you write your own in Lab 3.
 
 ### Exercises
 

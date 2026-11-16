@@ -4,7 +4,7 @@
 <div class="lab-meta" markdown>
 <div class="lab-meta__row"><span class="lab-meta__label">Course</span> Multiplatform Mobile Software Engineering in Practice</div>
 <div class="lab-meta__row"><span class="lab-meta__label">Duration</span> 90 min</div>
-<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> Lecture 1; Lab 2 (Dart fundamentals) earlier in this meeting</div>
+<div class="lab-meta__row"><span class="lab-meta__label">Prerequisites</span> Lecture 1. Lab 2 (Dart fundamentals) follows this lecture in the same meeting</div>
 </div>
 
 <div class="grid cards" markdown>
@@ -60,7 +60,7 @@ Each entry has a **score** from 1 to 10 in a coloured circle, an optional **note
 
 ## 2. Dart Essentials (20 min)
 
-You practised these features in Lab 2. Here we focus on the ones that Flutter code uses constantly.
+You will practise these features in Lab 2, straight after this lecture. Here we focus on the ones that Flutter code uses constantly.
 
 ### Every Dart value has a type, written out or inferred
 
