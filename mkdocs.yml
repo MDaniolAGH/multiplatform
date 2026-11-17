@@ -37,6 +37,7 @@ theme:
 
 hooks:
   - hooks/strip_presenter_notes.py
+  - hooks/cache_bust.py
 
 plugins:
   - search: {}
