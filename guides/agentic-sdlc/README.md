@@ -168,6 +168,7 @@ A language model on its own does one thing: given a prompt, it produces text. In
 
 An **agent** closes that loop. It wraps the model in a **harness**: the software that lets the model read files, run commands, look at the results and try again.
 
+<div class="harness-lab">
 <div class="agent-compare">
 <div class="agent-compare__panel">
 <p class="agent-compare__title">Chat assistant</p>
@@ -184,14 +185,65 @@ An **agent** closes that loop. It wraps the model in a **harness**: the software
 <p class="agent-compare__title">Agent = model + harness</p>
 <div class="harness">
 <span class="harness__label">Harness</span>
-<div class="harness__part harness__part--tools"><b>Tools</b>read and edit files, run commands, search; more through MCP</div>
-<div class="harness__part harness__part--auto"><b>Automation</b>the loop: plan, act, observe, repeat; hooks</div>
+<button type="button" class="harness__part harness__part--tools" data-part="tools" aria-pressed="true"><b>Tools</b>read and edit files, run commands, search; more through MCP</button>
+<button type="button" class="harness__part harness__part--auto" data-part="automation" aria-pressed="true"><b>Automation</b>the loop: plan, act, observe, repeat; hooks</button>
 <div class="harness__model">Model</div>
-<div class="harness__part harness__part--instr"><b>Instructions</b>the task prompt and reusable commands</div>
-<div class="harness__part harness__part--std"><b>Standards</b><code>AGENTS.md</code>: the project's rules</div>
+<button type="button" class="harness__part harness__part--instr" data-part="instructions" aria-pressed="true"><b>Instructions</b>the task prompt and reusable commands</button>
+<button type="button" class="harness__part harness__part--std" data-part="standards" aria-pressed="true"><b>Standards</b><code>AGENTS.md</code>: the project's rules</button>
 </div>
 <p class="harness__task">A harness is a kit put together for one kind of task.</p>
 </div>
+</div>
+<p class="harness-lab__hint"><b>Try it:</b> click a part of the harness to take it away, and see what the same model does without it.</p>
+<div class="harness-lab__result" aria-live="polite"></div>
+<div class="harness-lab__data">
+<div data-missing="none"><h4>The full harness</h4><p>The agent can act, check its own work, stay inside the task and follow the project's rules. It still needs your criteria, and your review.</p></div>
+<div data-missing="tools"><h4>Without tools</h4><p>It cannot open files or run <code>flutter test</code>. It writes "all tests pass" because that is the most likely next sentence, not because anything ran. You are back to copying and pasting.</p></div>
+<div data-missing="automation"><h4>Without automation</h4><p>It makes one edit and stops. The analyzer error that follows is yours to find, paste back and ask about: one round trip per mistake.</p></div>
+<div data-missing="instructions"><h4>Without instructions</h4><p>No task boundary and no criteria. While it is in the file, it "improves" two other screens and renames a widget. Each change looks reasonable; together they are a review nobody can finish.</p></div>
+<div data-missing="standards"><h4>Without standards</h4><p>It adds a chart package, changes a list in place and skips the tests. The code is plausible, and wrong for <em>this</em> project.</p></div>
+</div>
+</div>
+
+### Same task, two ways
+
+The task from Lecture 3: *add a helpful message when there are no mood entries.* Step through both ways of doing it, and watch who carries the tool output.
+
+<div class="race">
+<div class="race__controls">
+<button type="button" class="sdlc-btn sdlc-btn--primary" data-race="next">▶ Next step</button>
+<button type="button" class="sdlc-btn" data-race="reset">Start again</button>
+<span class="race__status" aria-live="polite"></span>
+</div>
+<div class="race__cols">
+<div class="race__col">
+<p class="race__title">Chat assistant</p>
+<ol class="race__steps">
+<li data-who="you" data-handoff="1">You paste <code>home_screen.dart</code> and the task into the chat.</li>
+<li data-who="model">The model answers with a new <code>build</code> method.</li>
+<li data-who="you" data-handoff="1">You copy it into the file and run <code>flutter analyze</code>.</li>
+<li data-who="tool">Analyzer: <code>Undefined name 'EmptyMoodMessage'</code>. Only you can see it.</li>
+<li data-who="you" data-handoff="1">You paste the error back into the chat.</li>
+<li data-who="model">"Sorry! Here is the missing widget."</li>
+<li data-who="you" data-handoff="1">You paste it in and run <code>flutter test</code>. It passes, and the model never saw it run.</li>
+</ol>
+<p class="race__count">Copy-and-paste hand-offs by you: <b>4</b></p>
+</div>
+<div class="race__col">
+<p class="race__title">Agent</p>
+<ol class="race__steps">
+<li data-who="you">You give the task and the criteria.</li>
+<li data-who="agent">The agent opens <code>AGENTS.md</code> and <code>home_screen.dart</code> itself.</li>
+<li data-who="agent">It proposes a plan; you approve it.</li>
+<li data-who="agent">It edits two files.</li>
+<li data-who="tool">It runs <code>flutter analyze</code>: <code>Undefined name 'EmptyMoodMessage'</code>. The agent sees the error.</li>
+<li data-who="agent">It adds the missing import and runs the analyzer again: <code>No issues found!</code></li>
+<li data-who="agent">It runs <code>flutter test</code> and reports the real result. You review the diff.</li>
+</ol>
+<p class="race__count">Copy-and-paste hand-offs by you: <b>0</b></p>
+</div>
+</div>
+<p class="race__moral">The difference is not the model. It is who sees the error first: you, by hand, or the agent, through its tools and its loop.</p>
 </div>
 
 | Part of the harness | What it does | Where you meet it in this course |
@@ -213,18 +265,41 @@ Two consequences matter in practice:
 
 ## 2. Context: What the Agent Knows
 
-The model knows nothing about your project except what is in its **context window** for the current task. Everything the agent works from has to fit there:
+The model knows nothing about your project except what is in its **context window** for the current task. Everything the agent works from has to fit there.
+
+**Build a context** for the weekly-summary task (Section 5): tick what goes in, or try a preset, and watch the size, the cost, the focus and the gaps.
+
+<div class="ctx-lab">
+<div class="ctx-lab__presets">
+<span class="sdlc-legend__hint">Try:</span>
+<button type="button" class="sdlc-btn" data-preset="lean">Lean and complete</button>
+<button type="button" class="sdlc-btn" data-preset="all">Everything, just in case</button>
+<button type="button" class="sdlc-btn" data-preset="bare">Just the prompt</button>
+</div>
+<div class="ctx-lab__items">
+<label class="ctx-item" data-kind="rules"><input type="checkbox" data-tokens="1500" data-need="the project's rules"> <code>AGENTS.md</code></label>
+<label class="ctx-item" data-kind="rules"><input type="checkbox" data-tokens="1200" data-need="the criteria"> the task and <code>ACCEPTANCE.md</code></label>
+<label class="ctx-item" data-kind="knowledge"><input type="checkbox" data-tokens="4000" data-need="the architecture and the decisions"> <code>ARCHITECTURE.md</code> and decision records</label>
+<label class="ctx-item" data-kind="knowledge"><input type="checkbox" data-tokens="1500" data-need="the known traps (UTC dates)"> latest <code>NOTES.md</code> entries</label>
+<label class="ctx-item" data-kind="code"><input type="checkbox" data-tokens="12000" data-need="the code it will change"> the 3 files the change touches</label>
+<label class="ctx-item" data-kind="noise"><input type="checkbox" data-tokens="70000"> the whole <code>lib/</code> and <code>test/</code> folders</label>
+<label class="ctx-item" data-kind="stale"><input type="checkbox" data-tokens="45000"> yesterday's chat session</label>
+<label class="ctx-item" data-kind="stale"><input type="checkbox" data-tokens="25000"> last week's full test log</label>
+<label class="ctx-item" data-kind="noise"><input type="checkbox" data-tokens="380000"> the entire Flutter documentation</label>
+<label class="ctx-item" data-kind="danger"><input type="checkbox" data-tokens="200" data-danger="a secret"> <code>.env</code> with the backend's API key</label>
+<label class="ctx-item" data-kind="danger"><input type="checkbox" data-tokens="30000" data-danger="real health data"> an export of real users' mood entries</label>
+</div>
+<div class="ctx-lab__bar" role="img" aria-label="Context window fill"></div>
+<div class="ctx__scale"><span>0</span><span class="ctx-lab__used"></span><span>window: 200k tokens (illustrative)</span></div>
+<div class="ctx-lab__meters">
+<div class="meter" data-meter="cost"><span class="meter__label">Cost per step</span><span class="meter__value"></span><span class="meter__bar"><i></i></span></div>
+<div class="meter" data-meter="focus"><span class="meter__label">Focus</span><span class="meter__value"></span><span class="meter__bar"><i></i></span></div>
+<div class="meter" data-meter="gaps"><span class="meter__label">Missing facts</span><span class="meter__value"></span><span class="meter__bar"><i></i></span></div>
+</div>
+<div class="ctx-lab__verdict" aria-live="polite"></div>
+</div>
 
 <div class="ctx">
-<div class="ctx__bar" role="img" aria-label="Illustrative context window: rules, project knowledge, code, work log, changes, and free space">
-<div class="ctx__seg" style="--w:5;background:#0B3C4D">Rules</div>
-<div class="ctx__seg" style="--w:11;background:#4F46E5">Knowledge</div>
-<div class="ctx__seg" style="--w:20;background:#0E7490">Code it has read</div>
-<div class="ctx__seg" style="--w:15;background:#92600A">Work log</div>
-<div class="ctx__seg" style="--w:8;background:#1B7F55">Changes</div>
-<div class="ctx__seg ctx__seg--free" style="--w:41">free</div>
-</div>
-<div class="ctx__scale"><span>start of the task</span><span>illustrative proportions</span><span>window limit</span></div>
 <div class="subagents">
 <div class="subagents__main"><b>Main agent</b>: keeps the plan and the criteria, delegates the parts</div>
 <div class="subagents__child"><b>Sub-agent A</b><br>find every place that reads entries</div>
@@ -587,7 +662,7 @@ The `Key: value` lines at the end are **Git trailers**. Git and other tools can 
     - Edits to files the plan did not mention.
     - "Fixing" a failing test by weakening it. `AGENTS.md` forbids this, and the diff shows it.
 
-### 5.6 Quality Gate: Deterministic Tools {#stage-gate}
+### 5.6 Quality Gate: What Must Be True Before Anyone Reads the Code {#stage-gate}
 
 <div class="stage-facts is-tool">
 <span>Who</span><span><span class="sdlc-chip is-tool">Deterministic tools</span></span>
@@ -595,38 +670,140 @@ The `Key: value` lines at the end are **Git trailers**. Git and other tools can 
 <span>Out</span><span>Pass, or an exact error message that goes back to the agent</span>
 </div>
 
-A deterministic tool gives the **same verdict for the same input, every time**, cheaply and without an opinion. A language model gives none of those guarantees, which is exactly why the gate exists. When the gate fails, its output goes back to the agent, which reads the error and fixes the code (the red loop on the map).
+A **quality gate** is a set of automatic checks that every change must pass before it moves on. Do not start from a list of tools. Start from the questions: **what do we need to be sure of about every change, every time, whoever or whatever wrote it?** Each tool is just one way to answer one of those questions.
 
-| Tool | What it checks | Command |
-|---|---|---|
-| Lint rules (`flutter_lints` in `analysis_options.yaml`) | Good practice for Dart and Flutter code | part of `flutter analyze` |
-| `flutter analyze` (`dart analyze` for pure Dart) | Types, imports, lint rules | `flutter analyze` |
-| `dart format` | Consistent formatting | `dart format --output=none --set-exit-if-changed .` |
-| git-secrets | Passwords and keys about to be committed | `git secrets --scan` |
-| Golden tests | The UI against a saved reference image | `flutter test` (tests use `matchesGoldenFile`) |
-| OSV-Scanner | Known vulnerabilities in your dependencies (`pubspec.lock`) | `osv-scanner scan source -r .` |
+#### What we want to be sure about
 
-The gate runs in three places. The agent runs it after every change, because `AGENTS.md` says so. A pre-commit hook can run it before each commit. And CI runs it on every pull request, so nobody can skip it:
+| # | The question | Why it matters | Kind of check | One way to do it in Flutter |
+|---|---|---|---|---|
+| 1 | **Is the code well-formed?** | Code that does not compile, or has type errors, wastes everyone's time from here on | static analysis | `flutter analyze` |
+| 2 | **Is it written the way we write code?** | Consistent code is cheaper to read and review, and style stops being a review topic | lint rules, formatting | `flutter_lints`, `dart format` |
+| 3 | **Does it respect the architecture?** | Layers erode one "small exception" at a time, and agents copy whatever pattern they see | dependency rules | a test that fails if `lib/models/` imports Flutter (below) |
+| 4 | **Is it safe to share?** | A key or password in Git history is public as soon as the repository is | secret scan | git-secrets |
+| 5 | **Can we trust what it depends on?** | Every package is code you did not write and did not review | vulnerability scan | OSV-Scanner on `pubspec.lock` |
+| 6 | **Does the UI still look as approved?** | Small visual changes slip past a code review | screenshot comparison | golden tests (`matchesGoldenFile`) |
 
-```yaml title=".github/workflows/quality-gate.yml (minimal example)"
-name: quality-gate
-on: pull_request
-jobs:
-  gate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-      - run: flutter pub get
-      - run: dart format --output=none --set-exit-if-changed .
-      - run: flutter analyze
-      - run: flutter test
-```
+Two questions are deliberately **not** in the gate: *does it do what we asked?* is answered by tests against the criteria (stage 7), and *is it the right thing to build?* only by people (stages 7 and 10).
+
+#### What makes a check a gate
+
+- **Deterministic.** The same input always gets the same verdict. A language model offers no such promise, and that is exactly why the gate exists.
+- **Automatic and fast.** The agent runs it after every change. Seconds, not minutes, so it can run often.
+- **Binary and binding.** Pass or fail, never "mostly". CI blocks the merge on a failure, and nobody, human or agent, can talk it round.
+- **Fail-closed.** If a check cannot run (the tool is missing, it crashed), that counts as a failure, not a pass.
+- **Independent of the author.** The agent's opinion of its own code is not evidence. The gate's verdict is.
+- **Leaves evidence.** A log of which tool, in which version, said what about which commit. That is part of the audit trail.
+- **A ratchet.** Rules only get stricter. Never weaken a rule or delete a test to make a change pass; `AGENTS.md` forbids it, and the diff shows it.
+
+#### Layers of defence
+
+No single check catches everything. Think of the gate as layers, like the slices in the "Swiss cheese" model from safety science: every slice has holes, and a defect gets through only where the holes line up. **Drop a defect** and see which layer stops it.
+
+<div class="gate-lab">
+<div class="gate-lab__defects">
+<span class="sdlc-legend__hint">Drop a defect:</span>
+<button type="button" class="gate-defect" data-caught="analyze">a missing import</button>
+<button type="button" class="gate-defect" data-caught="style">code in a different style</button>
+<button type="button" class="gate-defect" data-caught="arch">a model that imports Flutter</button>
+<button type="button" class="gate-defect" data-caught="secrets">an API key in the commit</button>
+<button type="button" class="gate-defect" data-caught="deps">a package with a known vulnerability</button>
+<button type="button" class="gate-defect" data-caught="golden">the card's padding changes by 8 px</button>
+<button type="button" class="gate-defect" data-caught="tests">the week starts on Sunday</button>
+<button type="button" class="gate-defect" data-caught="human">a card nobody understands</button>
+</div>
+<div class="gate-lab__stack">
+<div class="gate-layer" data-layer="analyze"><b>1 · Well-formed?</b><span>compiler and analyzer</span></div>
+<div class="gate-layer" data-layer="style"><b>2 · Our style?</b><span>lint rules and formatter</span></div>
+<div class="gate-layer" data-layer="arch"><b>3 · Fits the architecture?</b><span>dependency rules</span></div>
+<div class="gate-layer" data-layer="secrets"><b>4 · Safe to share?</b><span>secret scan</span></div>
+<div class="gate-layer" data-layer="deps"><b>5 · Trustworthy dependencies?</b><span>vulnerability scan</span></div>
+<div class="gate-layer" data-layer="golden"><b>6 · Looks as approved?</b><span>golden tests</span></div>
+<div class="gate-layer gate-layer--after" data-layer="tests"><b>Does what we asked?</b><span>tests against the criteria, stage 7 (not the gate)</span></div>
+<div class="gate-layer gate-layer--after" data-layer="human"><b>Is it the right thing?</b><span>your run, the review, the users (not the gate)</span></div>
+<i class="gate-lab__drop" aria-hidden="true"></i>
+</div>
+<div class="gate-lab__result" aria-live="polite"><p>Pick a defect above.</p></div>
+<div class="gate-lab__data">
+<div data-defect="analyze"><b>Caught by layer 1, the analyzer:</b> <code>Undefined name 'WeeklySummaryCard'</code>. Seconds after the edit, before anyone reads the code, and the agent fixes it itself.</div>
+<div data-defect="style"><b>Caught by layer 2, the formatter and lint rules.</b> Nobody has to raise it in review, and nobody has to argue about it.</div>
+<div data-defect="arch"><b>Caught by layer 3, an architecture rule:</b> a small test that fails when any file in <code>lib/models/</code> imports <code>package:flutter</code>. Without it, the layers erode one plausible exception at a time.</div>
+<div data-defect="secrets"><b>Caught by layer 4, the secret scan,</b> before the key enters Git history, where removing it is hard and it must be treated as leaked.</div>
+<div data-defect="deps"><b>Caught by layer 5, the dependency scan,</b> which compares <code>pubspec.lock</code> with a database of known vulnerabilities.</div>
+<div data-defect="golden"><b>Caught by layer 6, a golden test:</b> the rendered card no longer matches the approved image. In review, an 8 px change is almost invisible.</div>
+<div data-defect="tests"><b>Passes every gate.</b> The code is well-formed, tidy, safe and looks fine. Only the <b>test for criterion 1</b> catches it. Gates check properties of the code, not your intent.</div>
+<div data-defect="human"><b>Passes every check, the tests included,</b> because the tests check what you specified. Only a person running the app, a reviewer or the users notice. That is why stages 7 and 10 are not automated away.</div>
+</div>
+</div>
+
+The gate is cheap and certain about a few things. The tests are about what you asked for. People are about whether it was worth asking for. You need all three.
+
+#### What a gate cannot tell you
 
 !!! danger "A passing gate does not mean a correct feature"
-    In Lecture 4, `flutter analyze` reported `No issues found!` for a filter that deleted entries from the app's data. The gate proves the code is well-formed. Only tests against your criteria, and running the app, show that it does what you asked.
+    In Lecture 4, `flutter analyze` reported `No issues found!` for a filter that deleted entries from the app's data. The gate proves the code is well-formed, consistent and safe to share. Only tests against your criteria, and running the app, show that it does what you asked.
+
+#### Where the gate runs: as early as possible
+
+The earlier a check runs, the cheaper the fix. The same checks run in three places:
+
+| Where | When | Who sees a failure | Cost of a failure |
+|---|---|---|---|
+| **The agent's loop** | after every edit (`AGENTS.md` says so) | the agent, which fixes it | seconds |
+| **A pre-commit hook** | before each commit | you, before it enters history | a minute |
+| **CI on the pull request** | before merging; cannot be skipped | everyone; the merge is blocked | a round trip |
+
+=== "Run it locally"
+
+    ```bash
+    dart format --output=none --set-exit-if-changed .   # 2 · our style
+    flutter analyze                                      # 1, 2 · well-formed, lint rules
+    flutter test                                         # 3, 6 · architecture and golden tests
+    git secrets --scan                                   # 4 · safe to share
+    osv-scanner scan source -r .                         # 5 · dependencies
+    ```
+
+=== "In CI"
+
+    ```yaml title=".github/workflows/quality-gate.yml (minimal example)"
+    name: quality-gate
+    on: pull_request
+    jobs:
+      gate:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+          - uses: subosito/flutter-action@v2
+            with:
+              channel: stable
+          - run: flutter pub get
+          - run: dart format --output=none --set-exit-if-changed .
+          - run: flutter analyze
+          - run: flutter test
+    ```
+
+=== "An architecture rule"
+
+    ```dart title="test/architecture_test.dart"
+    import 'dart:io';
+
+    import 'package:flutter_test/flutter_test.dart';
+
+    void main() {
+      test('models are pure Dart: no Flutter imports', () {
+        final offenders = Directory('lib/models')
+            .listSync(recursive: true)
+            .whereType<File>()
+            .where((file) => file.path.endsWith('.dart'))
+            .where((file) => file.readAsStringSync().contains('package:flutter/'))
+            .map((file) => file.path)
+            .toList();
+
+        expect(offenders, isEmpty);
+      });
+    }
+    ```
+
+    Checked against the Lecture 4 `end` project: the test passes, and fails with `['lib/models/mood_filter.dart']` as soon as that file imports Flutter.
 
 ### 5.7 Tests {#stage-tests}
 
@@ -1058,6 +1235,7 @@ The plan's question about the first day of the week was answered in a chat that 
 - Michael Nygard, *Documenting Architecture Decisions* (2011): [cognitect.com](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions)
 - Architectural Decision Records, templates and tools: [adr.github.io](https://adr.github.io/)
 - Write the Docs, *Docs as Code*: [writethedocs.org](https://www.writethedocs.org/guide/docs-as-code/)
+- James Reason, *Human error: models and management*, BMJ 320 (2000), 768–770 (the "Swiss cheese" model): [doi.org/10.1136/bmj.320.7237.768](https://doi.org/10.1136/bmj.320.7237.768)
 - Flutter, *Testing Flutter apps* (unit, widget and integration tests): [docs.flutter.dev](https://docs.flutter.dev/testing/overview)
 - Flutter API, `matchesGoldenFile`: [api.flutter.dev](https://api.flutter.dev/flutter/flutter_test/matchesGoldenFile.html)
 - Dart, `dart analyze`: [dart.dev](https://dart.dev/tools/dart-analyze)
