@@ -804,10 +804,27 @@
 }
 .md-typeset .race.is-js .race__controls { display: flex; flex-wrap: wrap; gap: 0.4rem 0.6rem; align-items: center; margin-bottom: 0.6rem; }
 .md-typeset .race__status { color: var(--sdlc-muted); font-size: 0.68rem; }
-.md-typeset .race__cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-@media screen and (max-width: 44em) { .md-typeset .race__cols { grid-template-columns: 1fr; } }
+/* Two columns whose steps line up row by row: each column (title, 7 steps,
+   counter = 9 rows) and its list are subgrids of the shared grid. */
+.md-typeset .race__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(9, auto);
+  column-gap: 0.8rem;
+  row-gap: 0.35rem;
+}
+.md-typeset .race__col { display: grid; grid-row: 1 / span 9; grid-template-rows: subgrid; }
+.md-typeset .race__col > ol.race__steps { display: grid; grid-row: span 7; grid-template-rows: subgrid; }
+.md-typeset .race__col > ol.race__steps > li { margin: 0; }
+@media screen and (max-width: 44em) {
+  .md-typeset .race__cols { grid-template-columns: 1fr; grid-template-rows: none; row-gap: 0.8rem; }
+  .md-typeset .race__col { display: block; grid-row: auto; }
+  .md-typeset .race__col > ol.race__steps { display: block; }
+  .md-typeset .race__col > ol.race__steps > li { margin: 0 0 0.35rem; }
+}
 .md-typeset .race__title {
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.1rem;
+  align-self: end;
   font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -859,7 +876,7 @@
 .md-typeset .race.is-js ol.race__steps > li { opacity: 0.15; filter: grayscale(1); transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease; }
 .md-typeset .race.is-js ol.race__steps > li.is-shown { opacity: 1; filter: none; }
 .md-typeset .race.is-js ol.race__steps > li.is-current { transform: translateX(3px); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
-.md-typeset .race__count { margin: 0.4rem 0 0; font-weight: 600; }
+.md-typeset .race__count { margin: 0.2rem 0 0; font-weight: 600; }
 .md-typeset .race__count b { font-size: 0.9rem; color: var(--sdlc-you); }
 .md-typeset .race__moral { margin: 0.6rem 0 0; font-weight: 600; }
 
