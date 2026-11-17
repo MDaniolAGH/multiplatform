@@ -1,5 +1,7 @@
 # Agentic SDLC: From Idea to Merge
 
+<!-- glossary-skip: record, provider -->
+
 <div class="lab-meta" markdown>
 <div class="lab-meta__row"><span class="lab-meta__label">Course</span> Multiplatform Mobile Software Engineering in Practice</div>
 <div class="lab-meta__row"><span class="lab-meta__label">Type</span> Guide. Read it before Lab 4 and keep it open during project work</div>

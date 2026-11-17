@@ -38,6 +38,7 @@ theme:
 hooks:
   - hooks/strip_presenter_notes.py
   - hooks/cache_bust.py
+  - hooks/glossary_scope.py
 
 plugins:
   - search: {}
