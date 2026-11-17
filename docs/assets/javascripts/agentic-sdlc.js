@@ -906,30 +906,43 @@
     lab.dataset.ready = "1";
     lab.classList.add("is-js");
     var layers = Array.prototype.slice.call(lab.querySelectorAll(".gate-layer"));
+    var track = lab.querySelector(".gate-lab__track");
     var drop = lab.querySelector(".gate-lab__drop");
     var result = lab.querySelector(".gate-lab__result");
+    var now = lab.querySelector(".gate-lab__now b");
+    var buttons = lab.querySelectorAll("button.gate-defect");
     var timers = [];
+
+    function status(layer, text) { layer.querySelector(".gate-layer__status").textContent = text; }
 
     function clear() {
       timers.forEach(clearTimeout);
       timers = [];
-      layers.forEach(function (l) { l.classList.remove("is-through", "is-caught"); });
+      layers.forEach(function (l) {
+        l.classList.remove("is-through", "is-caught", "is-unreached");
+        status(l, "");
+      });
       drop.classList.remove("is-on", "is-hit");
     }
 
-    function yOf(layer) { return layer.offsetTop + layer.offsetHeight / 2 - drop.offsetHeight / 2; }
+    function yOf(layer) {
+      var t = track.getBoundingClientRect();
+      var r = layer.getBoundingClientRect();
+      return r.top - t.top + r.height / 2 - drop.offsetHeight / 2;
+    }
 
-    lab.querySelectorAll("button.gate-defect").forEach(function (btn) {
+    buttons.forEach(function (btn) {
       btn.addEventListener("click", function () {
         clear();
-        lab.querySelectorAll("button.gate-defect").forEach(function (b) { b.classList.toggle("is-active", b === btn); });
+        buttons.forEach(function (b) { b.classList.toggle("is-active", b === btn); });
+        now.textContent = btn.textContent;
         var target = btn.dataset.caught;
         var stopAt = layers.findIndex(function (l) { return l.dataset.layer === target; });
         var text = lab.querySelector('.gate-lab__data [data-defect="' + target + '"]');
-        result.innerHTML = "<p>Falling through the layers…</p>";
-        var stepMs = reducedMotion ? 0 : 280;
+        result.innerHTML = "<p>Following the defect down through the layers…</p>";
+        var stepMs = reducedMotion ? 0 : 420;
         drop.style.transition = "none";
-        drop.style.top = "-1.2rem";
+        drop.style.top = "-0.6rem";
         void drop.offsetWidth;
         drop.style.transition = "";
         drop.classList.add("is-on");
@@ -937,12 +950,18 @@
           if (i > stopAt) return;
           timers.push(setTimeout(function () {
             drop.style.top = yOf(layer) + "px";
-            if (i < stopAt) layer.classList.add("is-through");
-            else {
-              layer.classList.add("is-caught");
-              drop.classList.add("is-hit");
-              result.innerHTML = text ? text.innerHTML : "";
+            if (i < stopAt) {
+              layer.classList.add("is-through");
+              status(layer, "↓ passes");
+              return;
             }
+            layer.classList.add("is-caught");
+            status(layer, "✋ stopped here");
+            drop.classList.add("is-hit");
+            layers.forEach(function (rest, k) {
+              if (k > stopAt) { rest.classList.add("is-unreached"); status(rest, "not reached"); }
+            });
+            result.innerHTML = text ? text.innerHTML : "";
           }, stepMs * (i + 1)));
         });
       });

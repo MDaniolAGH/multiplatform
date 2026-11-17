@@ -966,7 +966,7 @@
   margin: 0.8rem 0 1rem;
   font-size: 0.72rem;
 }
-.md-typeset .gate-lab__defects { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-bottom: 0.7rem; }
+.md-typeset .gate-lab__defects { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-bottom: 0.6rem; }
 .md-typeset button.gate-defect {
   font: inherit;
   font-weight: 600;
@@ -977,48 +977,101 @@
   color: var(--sdlc-ink);
   cursor: pointer;
 }
-.md-typeset button.gate-defect:hover,
-.md-typeset button.gate-defect.is-active { background: color-mix(in srgb, var(--sdlc-fail) 14%, var(--sdlc-card)); }
-.md-typeset .gate-lab__stack { position: relative; display: flex; flex-direction: column; gap: 0.3rem; padding-left: 2rem; }
-.md-typeset .gate-layer {
-  position: relative;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.1rem 0.6rem;
-  align-items: baseline;
-  padding: 0.4rem 0.7rem;
-  border-radius: 0.4rem;
-  border: 1.5px solid var(--sdlc-tool);
-  background:
-    radial-gradient(circle at 58% 45%, var(--sdlc-surface) 0 7px, color-mix(in srgb, var(--sdlc-tool) 35%, transparent) 7px 8px, transparent 8.5px),
-    radial-gradient(circle at 78% 60%, var(--sdlc-surface) 0 5px, color-mix(in srgb, var(--sdlc-tool) 35%, transparent) 5px 6px, transparent 6.5px),
-    radial-gradient(circle at 93% 38%, var(--sdlc-surface) 0 8px, color-mix(in srgb, var(--sdlc-tool) 35%, transparent) 8px 9px, transparent 9.5px),
-    var(--sdlc-tool-tint);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+.md-typeset button.gate-defect:hover { background: color-mix(in srgb, var(--sdlc-fail) 10%, var(--sdlc-card)); }
+.md-typeset button.gate-defect.is-active { background: var(--sdlc-fail); color: #fff; }
+.md-typeset button.gate-defect:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 2px; }
+
+.md-typeset .gate-lab__now { margin: 0 0 0.5rem; color: var(--sdlc-muted); }
+.md-typeset .gate-lab__now b { color: var(--sdlc-fail); }
+.md-typeset .gate-lab:not(.is-js) .gate-lab__now { display: none; }
+
+.md-typeset .gate-lab__body { display: grid; grid-template-columns: 1.6rem 1fr; gap: 0 0.5rem; }
+.md-typeset .gate-lab__track { position: relative; }
+.md-typeset .gate-lab__track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.2rem;
+  bottom: 0.2rem;
+  border-left: 2px dotted color-mix(in srgb, var(--sdlc-fail) 45%, transparent);
+  transform: translateX(-1px);
 }
-.md-typeset .gate-layer b { color: var(--sdlc-tool); }
-.md-typeset .gate-layer span { color: var(--sdlc-muted); font-size: 0.66rem; }
-.md-typeset .gate-layer--after { border-style: dashed; border-color: var(--sdlc-you); background: var(--sdlc-you-tint); }
-.md-typeset .gate-layer--after b { color: var(--sdlc-you); }
-.md-typeset .gate-layer--after:first-of-type { margin-top: 0.4rem; }
-.md-typeset .gate-layer[data-layer="tests"] { margin-top: 0.6rem; }
-.md-typeset .gate-layer.is-through { opacity: 0.55; }
-.md-typeset .gate-layer.is-caught { box-shadow: 0 0 0 3px var(--sdlc-fail); background-color: color-mix(in srgb, var(--sdlc-fail) 12%, var(--sdlc-card)); opacity: 1; }
-.md-typeset .gate-layer.is-caught b::after { content: "\00a0\00a0✋ caught here"; color: var(--sdlc-fail); }
 .md-typeset .gate-lab__drop {
   position: absolute;
-  left: 0.55rem;
-  top: -1.2rem;
-  width: 0.9rem;
-  height: 0.9rem;
+  left: 50%;
+  top: 0;
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-left: -0.475rem;
   border-radius: 50%;
   background: var(--sdlc-fail);
-  box-shadow: 0 0 8px var(--sdlc-fail);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sdlc-fail) 25%, transparent), 0 0 8px var(--sdlc-fail);
   opacity: 0;
-  transition: top 0.26s ease-in, opacity 0.2s ease;
+  transition: top 0.3s ease-in-out, opacity 0.2s ease;
 }
 .md-typeset .gate-lab__drop.is-on { opacity: 1; }
 .md-typeset .gate-lab__drop.is-hit { animation: sdlc-shake 0.45s ease 1; }
+
+.md-typeset .gate-lab__stack { display: flex; flex-direction: column; gap: 0.7rem; }
+.md-typeset .gate-group {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.md-typeset .gate-group--gate { border: 1.5px solid var(--sdlc-tool); background: var(--sdlc-tool-tint); }
+.md-typeset .gate-group--after { border: 1.5px dashed var(--sdlc-you); background: var(--sdlc-you-tint); }
+.md-typeset .gate-group__label {
+  margin: 0 0 0.1rem !important;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.md-typeset .gate-group--gate .gate-group__label { color: var(--sdlc-tool); }
+.md-typeset .gate-group--after .gate-group__label { color: var(--sdlc-you); }
+
+.md-typeset .gate-layer {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto;
+  gap: 0 0.6rem;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--sdlc-line);
+  background: var(--sdlc-card);
+  transition: opacity 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+}
+.md-typeset .gate-layer__n {
+  display: inline-grid;
+  place-items: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 50%;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--sdlc-card);
+  background: var(--sdlc-tool);
+}
+.md-typeset .gate-group--after .gate-layer__n { background: var(--sdlc-you); }
+.md-typeset .gate-layer__q { display: flex; flex-wrap: wrap; gap: 0 0.5rem; align-items: baseline; }
+.md-typeset .gate-layer__q b { color: var(--sdlc-ink); }
+.md-typeset .gate-layer__q span { color: var(--sdlc-muted); font-size: 0.66rem; }
+.md-typeset .gate-layer__status {
+  font-size: 0.64rem;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+}
+.md-typeset .gate-layer__status:empty { display: none; }
+.md-typeset .gate-layer.is-through .gate-layer__status { color: var(--sdlc-muted); background: var(--sdlc-surface); border: 1px solid var(--sdlc-line); }
+.md-typeset .gate-layer.is-caught { box-shadow: 0 0 0 2px var(--sdlc-fail); background-color: color-mix(in srgb, var(--sdlc-fail) 9%, var(--sdlc-card)); }
+.md-typeset .gate-layer.is-caught .gate-layer__status { color: #fff; background: var(--sdlc-fail); }
+.md-typeset .gate-layer.is-unreached { opacity: 0.4; }
+.md-typeset .gate-layer.is-unreached .gate-layer__status { color: var(--sdlc-muted); }
+
 .md-typeset .gate-lab__data { display: none; }
 .md-typeset .gate-lab__result {
   margin-top: 0.7rem;
@@ -1029,6 +1082,10 @@
   min-height: 2.2rem;
 }
 .md-typeset .gate-lab__result p { margin: 0; color: var(--sdlc-muted); }
+@media screen and (max-width: 44em) {
+  .md-typeset .gate-layer { grid-template-columns: 1.4rem 1fr; }
+  .md-typeset .gate-layer__status { grid-column: 2; justify-self: start; margin-top: 0.2rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   .md-typeset .gate-lab__drop { transition: none; }
   .md-typeset .ctx-lab__seg, .md-typeset .meter__bar i { transition: none; }

@@ -697,7 +697,7 @@ Two questions are deliberately **not** in the gate: *does it do what we asked?* 
 
 #### Layers of defence
 
-No single check catches everything. Think of the gate as layers, like the slices in the "Swiss cheese" model from safety science: every slice has holes, and a defect gets through only where the holes line up. **Drop a defect** and see which layer stops it.
+No single check catches everything. Think of the gate as layers, like the slices in the "Swiss cheese" model from safety science. Each layer asks **one question**, and lets through every defect its question does not cover. A defect reaches the user only if it gets through every layer. **Pick a defect** and follow it down: each layer says whether it passes or is stopped.
 
 <div class="gate-lab">
 <div class="gate-lab__defects">
@@ -711,16 +711,25 @@ No single check catches everything. Think of the gate as layers, like the slices
 <button type="button" class="gate-defect" data-caught="tests">the week starts on Sunday</button>
 <button type="button" class="gate-defect" data-caught="human">a card nobody understands</button>
 </div>
+<p class="gate-lab__now" aria-live="polite">Defect: <b>none yet</b></p>
+<div class="gate-lab__body">
+<div class="gate-lab__track" aria-hidden="true"><i class="gate-lab__drop"></i></div>
 <div class="gate-lab__stack">
-<div class="gate-layer" data-layer="analyze"><b>1 · Well-formed?</b><span>compiler and analyzer</span></div>
-<div class="gate-layer" data-layer="style"><b>2 · Our style?</b><span>lint rules and formatter</span></div>
-<div class="gate-layer" data-layer="arch"><b>3 · Fits the architecture?</b><span>dependency rules</span></div>
-<div class="gate-layer" data-layer="secrets"><b>4 · Safe to share?</b><span>secret scan</span></div>
-<div class="gate-layer" data-layer="deps"><b>5 · Trustworthy dependencies?</b><span>vulnerability scan</span></div>
-<div class="gate-layer" data-layer="golden"><b>6 · Looks as approved?</b><span>golden tests</span></div>
-<div class="gate-layer gate-layer--after" data-layer="tests"><b>Does what we asked?</b><span>tests against the criteria, stage 7 (not the gate)</span></div>
-<div class="gate-layer gate-layer--after" data-layer="human"><b>Is it the right thing?</b><span>your run, the review, the users (not the gate)</span></div>
-<i class="gate-lab__drop" aria-hidden="true"></i>
+<div class="gate-group gate-group--gate">
+<p class="gate-group__label">Quality gate (stage 6): automatic, same verdict every time</p>
+<div class="gate-layer" data-layer="analyze"><span class="gate-layer__n">1</span><span class="gate-layer__q"><b>Is the code well-formed?</b><span>compiler and analyzer</span></span><span class="gate-layer__status"></span></div>
+<div class="gate-layer" data-layer="style"><span class="gate-layer__n">2</span><span class="gate-layer__q"><b>Is it written our way?</b><span>lint rules and formatter</span></span><span class="gate-layer__status"></span></div>
+<div class="gate-layer" data-layer="arch"><span class="gate-layer__n">3</span><span class="gate-layer__q"><b>Does it fit the architecture?</b><span>dependency rules</span></span><span class="gate-layer__status"></span></div>
+<div class="gate-layer" data-layer="secrets"><span class="gate-layer__n">4</span><span class="gate-layer__q"><b>Is it safe to share?</b><span>secret scan</span></span><span class="gate-layer__status"></span></div>
+<div class="gate-layer" data-layer="deps"><span class="gate-layer__n">5</span><span class="gate-layer__q"><b>Can we trust its dependencies?</b><span>vulnerability scan</span></span><span class="gate-layer__status"></span></div>
+<div class="gate-layer" data-layer="golden"><span class="gate-layer__n">6</span><span class="gate-layer__q"><b>Does it look as approved?</b><span>golden tests</span></span><span class="gate-layer__status"></span></div>
+</div>
+<div class="gate-group gate-group--after">
+<p class="gate-group__label">Not the gate: these need your criteria and your judgement</p>
+<div class="gate-layer" data-layer="tests"><span class="gate-layer__n">7</span><span class="gate-layer__q"><b>Does it do what we asked?</b><span>tests against the criteria (stage 7)</span></span><span class="gate-layer__status"></span></div>
+<div class="gate-layer" data-layer="human"><span class="gate-layer__n">10</span><span class="gate-layer__q"><b>Is it the right thing?</b><span>your run, the review, the users (stages 7 and 10)</span></span><span class="gate-layer__status"></span></div>
+</div>
+</div>
 </div>
 <div class="gate-lab__result" aria-live="polite"><p>Pick a defect above.</p></div>
 <div class="gate-lab__data">
