@@ -795,6 +795,7 @@
   function initCtxLab(lab) {
     if (lab.dataset.ready) return;
     lab.dataset.ready = "1";
+    lab.classList.add("is-js");
     var WINDOW = 200000;
     var boxes = Array.prototype.slice.call(lab.querySelectorAll(".ctx-item input"));
     var bar = lab.querySelector(".ctx-lab__bar");
@@ -903,6 +904,7 @@
   function initGateLab(lab) {
     if (lab.dataset.ready) return;
     lab.dataset.ready = "1";
+    lab.classList.add("is-js");
     var layers = Array.prototype.slice.call(lab.querySelectorAll(".gate-layer"));
     var drop = lab.querySelector(".gate-lab__drop");
     var result = lab.querySelector(".gate-lab__result");

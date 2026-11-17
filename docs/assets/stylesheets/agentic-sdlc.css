@@ -1016,3 +1016,14 @@
   .md-typeset .gate-lab__drop { transition: none; }
   .md-typeset .ctx-lab__seg, .md-typeset .meter__bar i { transition: none; }
 }
+
+/* Without JavaScript the widgets show their content but none of the controls. */
+.md-typeset .ctx-lab:not(.is-js) .ctx-lab__presets,
+.md-typeset .ctx-lab:not(.is-js) .ctx-lab__bar,
+.md-typeset .ctx-lab:not(.is-js) .ctx__scale,
+.md-typeset .ctx-lab:not(.is-js) .ctx-lab__meters,
+.md-typeset .ctx-lab:not(.is-js) .ctx-item input,
+.md-typeset .gate-lab:not(.is-js) .gate-lab__defects,
+.md-typeset .gate-lab:not(.is-js) .gate-lab__result { display: none; }
+.md-typeset .gate-lab:not(.is-js) .gate-lab__data { display: block; margin-top: 0.7rem; }
+.md-typeset .gate-lab:not(.is-js) .gate-lab__data > div { margin-bottom: 0.4rem; }
