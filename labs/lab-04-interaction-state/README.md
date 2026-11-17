@@ -474,6 +474,7 @@ Checkpoint 02 (`checkpoints/cp02-interaction-forms/mood_tracker`) is the Mood Tr
 
 ## Further Reading
 
+- [Agentic SDLC: From Idea to Merge](../../guides/agentic-sdlc/README.md): the course guide to the whole agent workflow, with templates for `AGENTS.md`, `ACCEPTANCE.md`, commits and pull requests
 - [Flutter: Adding interactivity, including managing state](https://docs.flutter.dev/ui/interactivity)
 - [Flutter cookbook: Build a form with validation](https://docs.flutter.dev/cookbook/forms/validation)
 - [Flutter cookbook: Handle changes to a text field](https://docs.flutter.dev/cookbook/forms/text-field-changes)

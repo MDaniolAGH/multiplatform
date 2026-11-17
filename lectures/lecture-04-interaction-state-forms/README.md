@@ -530,6 +530,10 @@ Why ask a coding agent for a plan before it edits anything?
 
 ---
 
+## Further Reading
+
+- [Agentic SDLC: From Idea to Merge](../../guides/agentic-sdlc/README.md): today's workflow applied to a whole feature, from the goal to a merged pull request.
+
 ## Code and Verification
 
 The code on this page is quoted from the `demo/mid` and `demo/end` projects. The two "versions to review" are deliberately faulty and are not in the repository. Checked with **Flutter 3.35.4 / Dart 3.9.2**: `flutter analyze` reports no issues in all three projects. The tests pass: 7 in `starter`, 13 in `mid` and 19 in `end`. The `end` project was also run as a web build in a browser (screenshots above) and on an Android emulator (Pixel 8, Android 16). It has not been checked on iOS or on a physical device.
